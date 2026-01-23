@@ -19,11 +19,8 @@ public class Schedule {
     private Long scheduleId;
     //스케쥴 ID
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //일정 제작자 키
 
@@ -39,6 +36,7 @@ public class Schedule {
     private String scheduleDetail;
     //일정 상세
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "schedule_type", nullable = false)
     private ScheduleType scheduleType;
     //일정 종류

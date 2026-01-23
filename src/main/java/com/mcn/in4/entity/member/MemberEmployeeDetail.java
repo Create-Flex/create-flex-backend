@@ -17,12 +17,9 @@ public class MemberEmployeeDetail {
     private Long employeeDetailId;
     //직원상세 키
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    ))
-    private Member memberCreator;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Member member;
     //직원의 사용자 키
 
     @Column(name = "task", nullable = true)

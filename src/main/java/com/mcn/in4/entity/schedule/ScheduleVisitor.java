@@ -18,19 +18,13 @@ public class ScheduleVisitor {
     @Column(name = "schedule_visitor_id")
     private Long scheduleVisitorId;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (schedule_id) REFERENCES schedule(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;
-    //참가자 키
+    //스케줄 키
 
-    @ManyToOne
-    @JoinColumn(name = "visitor_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //참가자 키
 }

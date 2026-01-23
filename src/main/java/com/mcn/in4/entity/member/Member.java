@@ -18,12 +18,14 @@ public class Member {
     private Long memberId;
     //사용자 키
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id", nullable = true, foreignKey =
-        @ForeignKey(foreignKeyDefinition =
-                "FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL"))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = true)
     private Department department;
     //사용자 소속 부서 키 (상위 엔티티 삭제시 NULL화)
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(name = "member_account", nullable = false)
     private String memberAccount;

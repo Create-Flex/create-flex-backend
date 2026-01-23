@@ -21,14 +21,12 @@ public class CreatorLegalTax {
     private Long legalTaxId;
     //크리에이터 계약 키
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    )) //상위 엔티티 삭제시 함께 삭제
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_creator_id", nullable = false)
     private Member memberCreator;
     //크리에이터의 사용자 키
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "legal_tax_type", nullable = false)
     private LegalTaxType legalTaxType;
     //법률 / 세무 분류
@@ -41,6 +39,7 @@ public class CreatorLegalTax {
     private String legalTaxDetail;
     //법률세무 상세
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "letal_tax_status", nullable = false)
     private LegalTaxStatus legalTaxStatus;
     //법률세무 상태

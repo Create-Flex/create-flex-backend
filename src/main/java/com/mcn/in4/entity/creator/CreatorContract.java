@@ -21,11 +21,8 @@ public class CreatorContract {
     private Long creatorContractId;
     //크리에이터 계약 키
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    )) //상위 엔티티 삭제시 함께 삭제
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_creator_id", nullable = false)
     private Member memberCreator;
     //크리에이터의 사용자 키
 

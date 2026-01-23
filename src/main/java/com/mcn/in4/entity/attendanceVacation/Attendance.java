@@ -20,11 +20,8 @@ public class Attendance {
     private Long AttendanceId;
     //근태 키
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //근무자 키
 

@@ -18,11 +18,8 @@ public class Health {
     private Long healthId;
     //건강 키
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //검진자 키
 

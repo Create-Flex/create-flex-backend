@@ -15,11 +15,8 @@ public class MemberProfile {
     private Long profileId;
     //프로필 키
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE"
-    )) //상위 엔티티 삭제시 이 엔티티도 삭제
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //사용자 키
 

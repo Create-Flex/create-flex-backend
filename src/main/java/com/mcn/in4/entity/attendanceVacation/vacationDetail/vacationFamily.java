@@ -19,11 +19,8 @@ public class vacationFamily {
     private Long familyId;
     //경조사 키
 
-    @ManyToOne
-    @JoinColumn(name = "vacation_id", nullable = false, foreignKey = @ForeignKey(
-            foreignKeyDefinition =
-                    "FOREIGN KEY (vacation_id) REFERENCES vacation(id) ON DELETE CASCADE"
-    ))
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "vacation_id", nullable = false)
     private Vacation vacation;
     //휴가 키
 

@@ -2,6 +2,7 @@ package com.mcn.in4.entity.attendanceVacation;
 
 import com.mcn.in4.entity.attendanceVacation.vacationEnum.VacationApprove;
 import com.mcn.in4.entity.attendanceVacation.vacationEnum.VacationType;
+import com.mcn.in4.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,12 @@ public class Vacation {
     private Long vacationId;
     //휴가 키
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+    //휴가 신청자
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "vacation_type", nullable = false)
     private VacationType vacationType;
     //휴가 타입
@@ -40,6 +47,7 @@ public class Vacation {
     private String vacationDetail;
     //휴가 상세 사유
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "vacation_approve", nullable = false)
     private VacationApprove vacationApprove;
     //승인 여부
