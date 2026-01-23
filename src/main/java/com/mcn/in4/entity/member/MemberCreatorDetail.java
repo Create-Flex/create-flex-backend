@@ -2,7 +2,6 @@ package com.mcn.in4.entity.member;
 
 import com.mcn.in4.entity.member.memberEnum.CreatorPlatform;
 import com.mcn.in4.entity.member.memberEnum.CreatorStatus;
-import com.mcn.in4.entity.member.memberEnum.MemberStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
