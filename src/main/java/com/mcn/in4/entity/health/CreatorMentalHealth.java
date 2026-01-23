@@ -34,6 +34,6 @@ public class CreatorMentalHealth {
     //정신 설문 날짜
 
     @Column(name = "creator_mental_score", nullable = false)
-    private Double creatorMentalScore;
+    private Long creatorMentalScore;
     //정신 설문 점수
 }
