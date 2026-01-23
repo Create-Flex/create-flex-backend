@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "member") // 실제 DB 테이블명
+@Table(name = "members") // 실제 DB 테이블명
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -18,14 +18,10 @@ public class Member {
     private Long memberId;
     //사용자 키
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = true)
     private Department department;
     //사용자 소속 부서 키 (상위 엔티티 삭제시 NULL화)
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
 
     @Column(name = "member_account", nullable = false)
     private String memberAccount;

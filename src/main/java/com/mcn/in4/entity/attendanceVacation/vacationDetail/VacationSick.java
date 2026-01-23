@@ -8,31 +8,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "vacation_workation") // 실제 DB 테이블명
+@Table(name = "vacation_sick") // 실제 DB 테이블명
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class vacationWorkation {
+public class VacationSick {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "workation_id")
-    private Long workationId;
-    //워케이션 키
+    @Column(name = "sick_id")
+    private Long sickId;
+    //병가 키
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "vacation_id", nullable = false)
     private Vacation vacation;
     //휴가 키
 
-    @Column(name = "workation_where", nullable = false)
-    private String workationWhere;
-    //근무장소
-
-    @Column(name = "workation_contact", nullable = false)
-    private String workationContact;
-    //비상연락망
-
-    @Column(name = "workation_plan", nullable = false)
-    private String workationPlan;
-    //업무계획
+    @Column(name = "sick_detail", nullable = false)
+    private String sickDetail;
+    //증상 상세
 }
