@@ -37,7 +37,7 @@ public class MemberCreatorDetail {
     //크리에이터 카테고리
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "creator_status", nullable = false)
+    @Column(name = "creator_platform", nullable = false)
     private CreatorPlatform creatorPlatform;
     //크리에이터 플랫폼
 
