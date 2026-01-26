@@ -35,4 +35,8 @@ public class Health {
     @Column(name = "checkup_summanary", nullable = false)
     private CheckupSummanary checkupSummanary;
     //검진 종합 상태
+
+    @Column(name = "checkup_file_url", nullable = false)
+    private String checkupFileUrl;
+    //제출된 검진지 URL
 }
