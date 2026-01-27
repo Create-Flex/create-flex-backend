@@ -1,7 +1,7 @@
-package com.mcn.in4.entity.creator;
+package com.mcn.in4.domain.creator.entity;
 
-import com.mcn.in4.entity.creator.creatorEnum.LegalTaxStatus;
-import com.mcn.in4.entity.creator.creatorEnum.LegalTaxType;
+import com.mcn.in4.domain.creator.entity.creatorEnum.LegalTaxStatus;
+import com.mcn.in4.domain.creator.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

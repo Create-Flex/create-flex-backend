@@ -1,13 +1,8 @@
 spring:
   application:
     name: in4
-
-
-
   config:
       import: "optional:classpath:application-secret.yaml"
-
-
   h2:
     console:
       enabled: true
