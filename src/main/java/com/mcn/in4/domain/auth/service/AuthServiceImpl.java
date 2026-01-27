@@ -8,6 +8,7 @@ import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,11 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponseDTO.builder()
                 .accesstoken(token)
                 .build();
+    }
+    @Override
+    public void logout() {
+        // 현재 인증 정보 제거
+        SecurityContextHolder.clearContext();
     }
 
 }
