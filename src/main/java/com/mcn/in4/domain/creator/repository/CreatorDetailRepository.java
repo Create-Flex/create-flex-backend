@@ -1,6 +1,6 @@
 package com.mcn.in4.domain.creator.repository;
 
-import com.mcn.in4.entity.member.MemberCreatorDetail;
+import com.mcn.in4.domain.member.entity.MemberCreatorDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

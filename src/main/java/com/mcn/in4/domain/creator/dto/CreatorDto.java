@@ -1,10 +1,10 @@
 package com.mcn.in4.domain.creator.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mcn.in4.entity.member.Member;
-import com.mcn.in4.entity.member.MemberCreatorDetail;
-import com.mcn.in4.entity.member.memberEnum.CreatorPlatform;
-import com.mcn.in4.entity.member.memberEnum.CreatorStatus;
+import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.MemberCreatorDetail;
+import com.mcn.in4.domain.member.entity.memberEnum.CreatorPlatform;
+import com.mcn.in4.domain.member.entity.memberEnum.CreatorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
