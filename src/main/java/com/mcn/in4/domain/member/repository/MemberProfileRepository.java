@@ -1,5 +1,6 @@
-package com.mcn.in4.domain.creator.repository;
+package com.mcn.in4.domain.member.repository;
 
+import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,6 @@ public interface MemberProfileRepository extends JpaRepository<MemberProfile, Lo
     @Query("SELECT mp FROM MemberProfile mp " +
             "WHERE mp.member.memberId IN :memberIds")
     List<MemberProfile> findByMemberIds(@Param("memberIds") List<Long> memberIds);
+    
+    Optional<MemberProfile> findByMember(Member member);
 }
