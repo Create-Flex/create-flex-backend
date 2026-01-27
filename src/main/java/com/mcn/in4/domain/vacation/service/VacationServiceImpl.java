@@ -3,6 +3,9 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationResponseDTO;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.VacationFamily;
@@ -22,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -147,5 +152,57 @@ public class VacationServiceImpl implements VacationService {
                 .build();
 
         vacationWorkationRepository.save(vacationWorkation);
+    }
+
+    @Override
+    public List<VacationListResponseDTO> getMyVacations(Long memberId) {
+        List<Vacation> vacations = vacationRepository.findByMemberMemberIdOrderByVacationRequestDesc(memberId);
+
+        return vacations.stream()
+                .map(VacationListResponseDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public VacationDetailResponseDTO getVacationDetail(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
+
+        // 타입별 상세 정보 조회
+        return switch (vacation.getVacationType()) {
+            case FAMILY -> {
+                VacationFamily family = vacationFamilyRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield family != null
+                        ? VacationDetailResponseDTO.from(vacation, family)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            case SICK -> {
+                VacationSick sick = vacationSickRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield sick != null
+                        ? VacationDetailResponseDTO.from(vacation, sick)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            case WORKATION -> {
+                VacationWorkation workation = vacationWorkationRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield workation != null
+                        ? VacationDetailResponseDTO.from(vacation, workation)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            default -> VacationDetailResponseDTO.from(vacation);
+        };
+    }
+
+    @Override
+    public VacationRemainderResponseDTO getMyVacationRemainder(Long memberId) {
+        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다. memberId: " + memberId));
+
+        // 총 연차 15일 (기본값)
+        double totalVacation = 15.0;
+
+        return VacationRemainderResponseDTO.from(employeeDetail, totalVacation);
     }
 }
