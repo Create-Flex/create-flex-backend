@@ -30,6 +30,11 @@ public class MemberEmployeeDetail {
     private String nickname;
     //직원 닉네임
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+    //부서 키
+
     @Column(name = "eng_name", nullable = true)
     private String engName;
     //직원 영문명
@@ -62,4 +67,17 @@ public class MemberEmployeeDetail {
     @Column(name = "leaving_reason", nullable = true)
     private String leavingReason;
     //직원 퇴사 사유
+
+    @Column(name = "vacation_remainder", nullable = false)
+    @Builder.Default
+    private Double vacationRemainder = 15.0;
+    //잔여 연차 (기본값 15일)
+
+    public void decreaseVacationRemainder(double days) {
+        this.vacationRemainder -= days;
+    }
+
+    public void increaseVacationRemainder(double days) {
+        this.vacationRemainder += days;
+    }
 }

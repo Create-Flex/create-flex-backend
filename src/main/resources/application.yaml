@@ -1,8 +1,14 @@
 spring:
   application:
     name: in4
+
   config:
-      import: "optional:classpath:application-secret.yaml"
+    import: "optional:classpath:application-secret.yaml"
+
+  sql:
+    init:
+      mode: always
+
   h2:
     console:
       enabled: true
@@ -17,6 +23,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
     show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect

@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.attendanceVacation;
+package com.mcn.in4.entity;
 
 import com.mcn.in4.entity.member.Member;
 import jakarta.persistence.*;
