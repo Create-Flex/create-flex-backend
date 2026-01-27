@@ -1,8 +1,10 @@
 package com.mcn.in4.domain.creator.controller;
 
-import com.mcn.in4.domain.creator.dto.CreatorDto;
+import com.mcn.in4.domain.creator.dto.request.CreatorRequestDTO;
+import com.mcn.in4.domain.creator.dto.response.CreatorResponseDTO;
 import com.mcn.in4.domain.creator.service.CreatorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,50 +18,26 @@ public class CreatorController {
     private final CreatorService creatorService;
 
     @PostMapping
-    public ResponseEntity<Long> createCreator(
-            @RequestParam("member_name") String memberName,
-            @RequestParam("creator_platform") String creatorPlatform,
-            @RequestParam("creator_subscribe") String creatorSubscribe,
-            @RequestParam("creator_category") String creatorCategory,
-            @RequestParam("member_account") String memberAccount,
-            @RequestParam("member_password") String memberPassword,
-            @RequestParam("member_manager_id") Long memberManagerId,
-            @RequestParam("creator_status") String creatorStatus) {
-
-        Long creatorId = creatorService.createCreator(
-                memberName, creatorPlatform, creatorSubscribe, creatorCategory,
-                memberAccount, memberPassword, memberManagerId, creatorStatus);
-        return ResponseEntity.ok(creatorId);
+    public ResponseEntity<CreatorResponseDTO.Create> createCreator(@RequestBody CreatorRequestDTO.Create request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new CreatorResponseDTO.Create(creatorService.createCreator(request)));
     }
 
     @GetMapping
-    public ResponseEntity<List<CreatorDto.Response>> getAllCreators() {
-        List<CreatorDto.Response> creators = creatorService.getAllCreators();
-        return ResponseEntity.ok(creators);
+    public ResponseEntity<List<CreatorResponseDTO.Info>> getAllCreators() {
+        return ResponseEntity.ok(creatorService.getAllCreators());
     }
 
     @GetMapping("/{creatorId}")
-    public ResponseEntity<CreatorDto.Response> getCreatorById(@PathVariable Long creatorId) {
-        CreatorDto.Response response = creatorService.getCreatorById(creatorId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CreatorResponseDTO.Info> getCreatorById(@PathVariable Long creatorId) {
+        return ResponseEntity.ok(creatorService.getCreatorById(creatorId));
     }
 
     @PatchMapping("/{creatorId}")
-    public ResponseEntity<CreatorDto.Response> updateCreator(
+    public ResponseEntity<CreatorResponseDTO.Info> updateCreator(
             @PathVariable Long creatorId,
-            @RequestParam(value = "member_name", required = false) String memberName,
-            @RequestParam(value = "creator_platform", required = false) String creatorPlatform,
-            @RequestParam(value = "creator_subscribe", required = false) String creatorSubscribe,
-            @RequestParam(value = "creator_category", required = false) String creatorCategory,
-            @RequestParam(value = "member_account", required = false) String memberAccount,
-            @RequestParam(value = "member_password", required = false) String memberPassword,
-            @RequestParam(value = "member_manager_id", required = false) Long memberManagerId,
-            @RequestParam(value = "creator_status", required = false) String creatorStatus) {
-
-        CreatorDto.Response response = creatorService.updateCreator(
-                creatorId, memberName, creatorPlatform, creatorSubscribe, creatorCategory,
-                memberAccount, memberPassword, memberManagerId, creatorStatus);
-        return ResponseEntity.ok(response);
+            @RequestBody CreatorRequestDTO.Update request) {
+        return ResponseEntity.ok(creatorService.updateCreator(creatorId, request));
     }
 
     @DeleteMapping("/{creatorId}")
@@ -68,10 +46,8 @@ public class CreatorController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/manager/me")
-    public ResponseEntity<List<CreatorDto.Response>> getMyCreators(
-            @RequestParam("manager_id") Long managerId) {
-        List<CreatorDto.Response> creators = creatorService.getMyCreators(managerId);
-        return ResponseEntity.ok(creators);
+    @GetMapping("/manager/{managerId}")
+    public ResponseEntity<List<CreatorResponseDTO.Info>> getMyCreators(@PathVariable Long managerId) {
+        return ResponseEntity.ok(creatorService.getMyCreators(managerId));
     }
 }

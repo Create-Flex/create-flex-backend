@@ -1,7 +1,7 @@
 package com.mcn.in4.domain.creator.entity;
 
 import com.mcn.in4.domain.creator.entity.creatorEnum.PromotionStatus;
-import com.mcn.in4.entity.member.Member;
+import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

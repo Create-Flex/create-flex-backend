@@ -1,4 +1,4 @@
-package com.mcn.in4.domain.creator.dto;
+package com.mcn.in4.domain.creator.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mcn.in4.domain.member.entity.Member;
@@ -10,43 +10,24 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class CreatorDto {
+public class CreatorResponseDTO {
 
+    // 크리에이터 생성 응답 DTO
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Request {
-        @JsonProperty("member_name")
-        private String memberName;
-
-        @JsonProperty("creator_platform")
-        private CreatorPlatform creatorPlatform;
-
-        @JsonProperty("creator_subscribe")
-        private String creatorSubscribe;
-
-        @JsonProperty("creator_category")
-        private String creatorCategory;
-
-        @JsonProperty("member_account")
-        private String memberAccount;
-
-        @JsonProperty("member_password")
-        private String memberPassword;
-
-        @JsonProperty("member_manager_id")
-        private Long memberManagerId;
-
-        @JsonProperty("creator_status")
-        private CreatorStatus creatorStatus;
+    public static class Create {
+        @JsonProperty("creator_id")
+        private Long creatorId;
     }
 
+    // 크리에이터 조회 응답 DTO
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Response {
+    public static class Info {
         @JsonProperty("member_id")
         private Long memberId;
 
@@ -80,8 +61,8 @@ public class CreatorDto {
         @JsonProperty("profile_banner")
         private String profileBanner;
 
-        public static Response from(Member creator, MemberCreatorDetail detail) {
-            return Response.builder()
+        public static Info from(Member creator, MemberCreatorDetail detail) {
+            return Info.builder()
                     .memberId(creator.getMemberId())
                     .memberName(creator.getMemberName())
                     .memberAccount(creator.getMemberAccount())
@@ -94,9 +75,9 @@ public class CreatorDto {
                     .build();
         }
 
-        public static Response fromWithProfile(Member creator, MemberCreatorDetail detail,
-                                               String profileImage, String profileBanner) {
-            return Response.builder()
+        public static Info fromWithProfile(Member creator, MemberCreatorDetail detail,
+                                           String profileImage, String profileBanner) {
+            return Info.builder()
                     .memberId(creator.getMemberId())
                     .memberName(creator.getMemberName())
                     .memberAccount(creator.getMemberAccount())

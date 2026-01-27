@@ -12,24 +12,42 @@ import java.util.Optional;
 
 public interface CreatorRepository extends JpaRepository<Member, Long> {
 
-    // 크리에이터 역할과 상태로 조회
-    List<Member> findByMemberRoleAndMemberStatus(MemberRole memberRole, MemberStatus memberStatus);
+        // 크리에이터 전체 조회
+        @Query("SELECT DISTINCT m FROM Member m " +
+                        "LEFT JOIN FETCH m.department " +
+                        "WHERE m.memberRole = :role " +
+                        "AND m.memberStatus = :status")
+        List<Member> findAllCreatorsWithDepartment(
+                        @Param("role") MemberRole role,
+                        @Param("status") MemberStatus status);
 
-    // 크리에이터 ID와 상태로 조회
-    Optional<Member> findByMemberIdAndMemberRoleAndMemberStatus(
-            Long memberId, MemberRole memberRole, MemberStatus memberStatus);
+        // 크리에이터 단건 조회
+        @Query("SELECT m FROM Member m " +
+                        "LEFT JOIN FETCH m.department " +
+                        "WHERE m.memberId = :memberId " +
+                        "AND m.memberRole = :role " +
+                        "AND m.memberStatus = :status")
+        Optional<Member> findCreatorByIdWithDepartment(
+                        @Param("memberId") Long memberId,
+                        @Param("role") MemberRole role,
+                        @Param("status") MemberStatus status);
 
-    // 사번(계정) 중복 체크
-    boolean existsByMemberAccount(String memberAccount);
+        // 사번(계정) 중복 체크
+        boolean existsByMemberAccount(String memberAccount);
 
-    // 특정 매니저가 담당하는 크리에이터 목록 조회
-    @Query("SELECT m FROM Member m " +
-            "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = m " +
-            "WHERE mcd.memberManager.memberId = :managerId " +
-            "AND m.memberRole = :role " +
-            "AND m.memberStatus = :status")
-    List<Member> findCreatorsByManagerId(
-            @Param("managerId") Long managerId,
-            @Param("role") MemberRole role,
-            @Param("status") MemberStatus status);
+        // 매니저별 크리에이터 조회
+        @Query("SELECT DISTINCT m FROM Member m " +
+                        "LEFT JOIN FETCH m.department " +
+                        "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = m " +
+                        "WHERE mcd.memberManager.memberId = :managerId " +
+                        "AND m.memberRole = :role " +
+                        "AND m.memberStatus = :status")
+        List<Member> findCreatorsByManagerIdWithDepartment(
+                        @Param("managerId") Long managerId,
+                        @Param("role") MemberRole role,
+                        @Param("status") MemberStatus status);
+
+        // 매니저 조회 (권한 확인용)
+        @Query("SELECT m FROM Member m WHERE m.memberId = :managerId AND m.memberRole = :role")
+        Optional<Member> findManagerById(@Param("managerId") Long managerId, @Param("role") MemberRole role);
 }

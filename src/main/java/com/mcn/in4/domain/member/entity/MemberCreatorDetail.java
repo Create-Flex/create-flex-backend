@@ -46,7 +46,7 @@ public class MemberCreatorDetail {
     private CreatorStatus creatorStatus;
     //크리에이터 상태
     
-    @Column(name = "creator_main_contact", nullable = false)
+    @Column(name = "creator_main_contact", nullable = true)
     private String creatorMainContact;
     //크리에이터 기본 연락망
 }
