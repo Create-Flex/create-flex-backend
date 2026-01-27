@@ -1,8 +1,8 @@
-package com.mcn.in4.entity.member;
+package com.mcn.in4.domain.member.entity;
 
 import com.mcn.in4.domain.department.entity.Department;
-import com.mcn.in4.entity.member.memberEnum.MemberRole;
-import com.mcn.in4.entity.member.memberEnum.MemberStatus;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
