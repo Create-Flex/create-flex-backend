@@ -2,7 +2,7 @@ package com.mcn.in4.domain.vacation.entity;
 
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
-import com.mcn.in4.entity.member.Member;
+import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

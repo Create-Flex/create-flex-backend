@@ -1,6 +1,7 @@
-package com.mcn.in4.entity.member;
+package com.mcn.in4.domain.member.entity;
 
-import com.mcn.in4.entity.member.memberEnum.EmploymentType;
+import com.mcn.in4.domain.department.entity.Department;
+import com.mcn.in4.domain.member.entity.memberEnum.EmploymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
