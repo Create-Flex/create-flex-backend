@@ -14,6 +14,7 @@ public class VacationResponseDTO {
     private String vacationType;
     private LocalDate vacationStart;
     private LocalDate vacationEnd;
+    private Double vacationDays;
     private String vacationDetail;
     private String vacationApprove;
     private LocalDate vacationRequest;
@@ -25,6 +26,7 @@ public class VacationResponseDTO {
                 .vacationType(vacation.getVacationType().name())
                 .vacationStart(vacation.getVacationStart())
                 .vacationEnd(vacation.getVacationEnd())
+                .vacationDays(vacation.getVacationDays())
                 .vacationDetail(vacation.getVacationDetail())
                 .vacationApprove(vacation.getVacationApprove().name())
                 .vacationRequest(vacation.getVacationRequest())

@@ -40,6 +40,10 @@ public class Vacation {
     @Column(name = "vacation_detail", nullable = true)
     private String vacationDetail;
 
+    @Column(name = "vacation_days", nullable = false)
+    private Double vacationDays;
+    //휴가 사용 일수 (반차: 0.5, 연차: 시작일~종료일)
+
     @Enumerated(EnumType.STRING)
     @Column(name = "vacation_approve", nullable = false)
     private VacationApprove vacationApprove;
