@@ -1,6 +1,6 @@
-package com.mcn.in4.entity.creator;
+package com.mcn.in4.domain.creator.entity;
 
-import com.mcn.in4.entity.creator.creatorEnum.WorkStatus;
+import com.mcn.in4.domain.creator.entity.creatorEnum.WorkStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

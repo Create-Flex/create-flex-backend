@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.creator.creatorEnum;
+package com.mcn.in4.domain.creator.entity.creatorEnum;
 
 public enum PromotionStatus {
     WAITING,

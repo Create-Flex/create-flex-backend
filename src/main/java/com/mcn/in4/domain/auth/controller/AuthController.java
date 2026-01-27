@@ -18,4 +18,5 @@ public class AuthController {
     public AuthResponseDTO login(@RequestBody AuthRequestDTO.loginRequestDto request) {
         return authService.login(request);
     }
+
 }
