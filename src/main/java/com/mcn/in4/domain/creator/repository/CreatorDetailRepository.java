@@ -10,14 +10,14 @@ import java.util.Optional;
 
 public interface CreatorDetailRepository extends JpaRepository<MemberCreatorDetail, Long> {
 
-        // 크리에이터 상세 정보 조회 - N+1 해결
+        // 크리에이터 상세 정보 조회
         @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
                         "JOIN FETCH mcd.memberCreator " +
                         "JOIN FETCH mcd.memberManager " +
                         "WHERE mcd.memberCreator.memberId = :creatorId")
         Optional<MemberCreatorDetail> findByCreatorIdWithManager(@Param("creatorId") Long creatorId);
 
-        // 사용한 여러 크리에이터 상세 정보 조회 - N+1 해결
+        // 사용한 여러 크리에이터 상세 정보 조회
         @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
                         "JOIN FETCH mcd.memberCreator " +
                         "JOIN FETCH mcd.memberManager " +

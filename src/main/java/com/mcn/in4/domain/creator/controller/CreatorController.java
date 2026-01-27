@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/creators")
@@ -18,9 +20,13 @@ public class CreatorController {
     private final CreatorService creatorService;
 
     @PostMapping
-    public ResponseEntity<CreatorResponseDTO.Create> createCreator(@RequestBody CreatorRequestDTO.Create request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new CreatorResponseDTO.Create(creatorService.createCreator(request)));
+    public ResponseEntity<Map<String, Object>> createCreator(@RequestBody CreatorRequestDTO.Create request) {
+        Long creatorId = creatorService.createCreator(request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "크리에이터가 성공적으로 등록되었습니다.");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
@@ -34,16 +40,26 @@ public class CreatorController {
     }
 
     @PatchMapping("/{creatorId}")
-    public ResponseEntity<CreatorResponseDTO.Info> updateCreator(
+    public ResponseEntity<Map<String, Object>> updateCreator(
             @PathVariable Long creatorId,
             @RequestBody CreatorRequestDTO.Update request) {
-        return ResponseEntity.ok(creatorService.updateCreator(creatorId, request));
+
+        CreatorResponseDTO.Info updatedCreator = creatorService.updateCreator(creatorId, request);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "크리에이터가 성공적으로 수정되었습니다.");
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{creatorId}")
-    public ResponseEntity<Void> deleteCreator(@PathVariable Long creatorId) {
+    public ResponseEntity<Map<String, Object>> deleteCreator(@PathVariable Long creatorId) {
         creatorService.deleteCreator(creatorId);
-        return ResponseEntity.noContent().build();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "크리에이터가 성공적으로 삭제되었습니다.");
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/manager/{managerId}")
