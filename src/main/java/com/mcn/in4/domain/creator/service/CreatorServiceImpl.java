@@ -4,7 +4,7 @@ import com.mcn.in4.domain.creator.dto.request.CreatorRequestDTO;
 import com.mcn.in4.domain.creator.dto.response.CreatorResponseDTO;
 import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
 import com.mcn.in4.domain.creator.repository.CreatorRepository;
-import com.mcn.in4.domain.creator.repository.MemberProfileRepository;
+import com.mcn.in4.domain.member.repository.MemberProfileRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberCreatorDetail;
 import com.mcn.in4.domain.member.entity.MemberProfile;
