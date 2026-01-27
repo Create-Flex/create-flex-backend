@@ -30,6 +30,11 @@ public class MemberEmployeeDetail {
     private String nickname;
     //직원 닉네임
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+    //부서 키
+
     @Column(name = "eng_name", nullable = true)
     private String engName;
     //직원 영문명
