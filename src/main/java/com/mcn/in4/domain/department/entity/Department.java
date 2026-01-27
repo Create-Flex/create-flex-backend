@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.member;
+package com.mcn.in4.domain.department.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

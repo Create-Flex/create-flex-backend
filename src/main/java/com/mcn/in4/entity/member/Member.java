@@ -1,5 +1,6 @@
 package com.mcn.in4.entity.member;
 
+import com.mcn.in4.domain.department.entity.Department;
 import com.mcn.in4.entity.member.memberEnum.MemberRole;
 import com.mcn.in4.entity.member.memberEnum.MemberStatus;
 import jakarta.persistence.*;
@@ -18,10 +19,12 @@ public class Member {
     private Long memberId;
     //사용자 키
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = true)
     private Department department;
     //사용자 소속 부서 키 (상위 엔티티 삭제시 NULL화)
+
 
     @Column(name = "member_account", nullable = false)
     private String memberAccount;
