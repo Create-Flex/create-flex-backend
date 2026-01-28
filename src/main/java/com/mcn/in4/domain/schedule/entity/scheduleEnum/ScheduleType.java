@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.schedule;
+package com.mcn.in4.domain.schedule.entity.scheduleEnum;
 
 public enum ScheduleType {
     COMPANY, //회사

@@ -20,9 +20,18 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @GetMapping
-    public ResponseEntity<List<AttendanceResponseDto>> getAttendance(@AuthenticationPrincipal String userId) {
+    public ResponseEntity<List<AttendanceResponseDto>> getAttendance(
+            @AuthenticationPrincipal String userId,
+            @org.springframework.web.bind.annotation.RequestParam(value = "startDate", required = false) String startDate,
+            @org.springframework.web.bind.annotation.RequestParam(value = "endDate", required = false) String endDate,
+            @org.springframework.web.bind.annotation.RequestParam(value = "status", required = false) String status) {
         Long memberId = Long.parseLong(userId);
-        return ResponseEntity.ok(attendanceService.getAttendanceByMemberId(memberId));
+
+        java.time.LocalDate start = (startDate != null && !startDate.isEmpty()) ? java.time.LocalDate.parse(startDate)
+                : null;
+        java.time.LocalDate end = (endDate != null && !endDate.isEmpty()) ? java.time.LocalDate.parse(endDate) : null;
+
+        return ResponseEntity.ok(attendanceService.getAttendance(memberId, start, end, status));
     }
 
     @PostMapping("/check-in")
