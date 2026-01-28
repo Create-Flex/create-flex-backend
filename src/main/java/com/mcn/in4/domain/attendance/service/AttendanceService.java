@@ -5,7 +5,10 @@ import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import java.util.List;
 
 public interface AttendanceService {
-    List<AttendanceResponseDto> getAttendanceByMemberId(Long memberId);
+    List<AttendanceResponseDto> getAttendance(Long memberId, java.time.LocalDate startDate, java.time.LocalDate endDate,
+            String status);
+
     void checkIn(Long memberId);
+
     void checkOut(Long memberId);
 }

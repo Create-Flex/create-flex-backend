@@ -10,6 +10,21 @@ import java.util.Optional;
 
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
-    List<Attendance> findAllByMember_MemberIdOrderByAttendanceDateDesc(Long memberId);
-    Optional<Attendance> findByMember_MemberIdAndAttendanceDate(Long memberId, LocalDate attendanceDate);
+
+        @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId AND a.attendanceDate = :attendanceDate")
+        Optional<Attendance> findByMemberIdAndAttendanceDate(
+                        @org.springframework.data.repository.query.Param("memberId") Long memberId,
+                        @org.springframework.data.repository.query.Param("attendanceDate") LocalDate attendanceDate);
+
+        @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId "
+                        +
+                        "AND (:startDate IS NULL OR a.attendanceDate >= :startDate) " +
+                        "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
+                        "AND (:attendanceStatus IS NULL OR a.attendanceStatus = :attendanceStatus) " +
+                        "ORDER BY a.attendanceDate DESC")
+        List<Attendance> findAttendance(
+                        @org.springframework.data.repository.query.Param("memberId") Long memberId,
+                        @org.springframework.data.repository.query.Param("startDate") LocalDate startDate,
+                        @org.springframework.data.repository.query.Param("endDate") LocalDate endDate,
+                        @org.springframework.data.repository.query.Param("attendanceStatus") com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus attendanceStatus);
 }
