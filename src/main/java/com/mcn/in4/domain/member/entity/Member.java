@@ -34,6 +34,10 @@ public class Member {
     private String memberPassword;
     //사용자 비밀번호
 
+    @Column(name = "task", nullable = true)
+    private String task;
+    //직무
+
     @Column(name = "member_name", nullable = false)
     private String memberName;
     //사용자 이름
