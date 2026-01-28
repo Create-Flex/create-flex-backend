@@ -47,9 +47,9 @@ public class MemberServiceImpl implements MemberService {
                     .orElse(null);
 
             if (employeeDetail != null) {
-                builder.task(employeeDetail.getTask())
+                builder.task(member.getTask())
                         .nickname(employeeDetail.getNickname())
-                        .departmentName(employeeDetail.getDepartment().getDepartmentName()) // 부서명
+                        .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : null)
                         .engName(employeeDetail.getEngName())
                         .personalEmail(employeeDetail.getPersonalEmail())
                         .personalCall(employeeDetail.getPersonalCall())
