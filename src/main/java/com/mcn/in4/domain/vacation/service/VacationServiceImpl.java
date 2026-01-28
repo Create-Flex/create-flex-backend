@@ -28,6 +28,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 휴가 서비스 구현체 (사용자용)
+ * - 휴가 신청 시 연차/반차는 즉시 잔여 연차에서 차감
+ * - 휴가 유형별 상세 정보는 별도 테이블에 저장
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,6 +45,7 @@ public class VacationServiceImpl implements VacationService {
     private final MemberRepository memberRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
 
+    /** 휴가 신청 (연차/반차는 잔여일수 차감 후 저장) */
     @Override
     @Transactional
     public VacationResponseDTO createVacation(String type, VacationRequestDTO request) {
@@ -93,6 +99,7 @@ public class VacationServiceImpl implements VacationService {
         return VacationResponseDTO.from(savedVacation);
     }
 
+    /** 휴가 일수 계산 (반차: 0.5일, 그 외: 시작일~종료일) */
     private double calculateVacationDays(VacationType type, VacationRequestDTO request) {
         if (type == VacationType.HALF) {
             return 0.5;
@@ -101,6 +108,7 @@ public class VacationServiceImpl implements VacationService {
         return ChronoUnit.DAYS.between(request.getVacationStart(), request.getVacationEnd()) + 1;
     }
 
+    /** 휴가 타입 문자열을 enum으로 변환 */
     private VacationType parseVacationType(String type) {
         try {
             return VacationType.valueOf(type.toUpperCase());
@@ -109,6 +117,7 @@ public class VacationServiceImpl implements VacationService {
         }
     }
 
+    /** 경조사 휴가 상세 정보 저장 */
     private void saveVacationFamily(Vacation vacation, VacationRequestDTO request) {
         if (request.getFamilyRelation() == null || request.getFamilyDetail() == null) {
             throw new IllegalArgumentException("경조사 휴가는 대상(관계)과 경조내용이 필수입니다.");
@@ -123,6 +132,7 @@ public class VacationServiceImpl implements VacationService {
         vacationFamilyRepository.save(vacationFamily);
     }
 
+    /** 병가 휴가 상세 정보 저장 */
     private void saveVacationSick(Vacation vacation, VacationRequestDTO request) {
         if (request.getSickDetail() == null || request.getSickHospital() == null) {
             throw new IllegalArgumentException("병가는 증상 및 사유와 진료예정병원이 필수입니다.");
@@ -137,6 +147,7 @@ public class VacationServiceImpl implements VacationService {
         vacationSickRepository.save(vacationSick);
     }
 
+    /** 워케이션 휴가 상세 정보 저장 */
     private void saveVacationWorkation(Vacation vacation, VacationRequestDTO request) {
         if (request.getWorkationWhere() == null || request.getWorkationContact() == null ||
                 request.getWorkationPlan() == null || request.getWorkationHandover() == null) {
@@ -154,15 +165,17 @@ public class VacationServiceImpl implements VacationService {
         vacationWorkationRepository.save(vacationWorkation);
     }
 
+    /** 내 휴가 목록 조회 (기간, 유형 필터 적용) */
     @Override
-    public List<VacationListResponseDTO> getMyVacations(Long memberId) {
-        List<Vacation> vacations = vacationRepository.findByMemberMemberIdOrderByVacationRequestDesc(memberId);
+    public List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type) {
+        List<Vacation> vacations = vacationRepository.findMyVacationsWithFilters(memberId, startDate, endDate, type);
 
         return vacations.stream()
                 .map(VacationListResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
+    /** 휴가 상세 조회 (타입별 상세 정보 포함) */
     @Override
     public VacationDetailResponseDTO getVacationDetail(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
@@ -195,6 +208,7 @@ public class VacationServiceImpl implements VacationService {
         };
     }
 
+    /** 내 잔여 연차 조회 */
     @Override
     public VacationRemainderResponseDTO getMyVacationRemainder(Long memberId) {
         MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)

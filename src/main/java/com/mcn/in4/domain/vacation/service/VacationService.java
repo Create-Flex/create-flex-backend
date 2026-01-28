@@ -5,9 +5,15 @@ import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationResponseDTO;
+import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 
+import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * 휴가 서비스 인터페이스 (사용자용)
+ * - 휴가 신청, 내 휴가 목록/상세 조회, 잔여 연차 조회
+ */
 public interface VacationService {
 
     /**
@@ -21,9 +27,12 @@ public interface VacationService {
     /**
      * 내 휴가 사용 내역 목록 조회
      * @param memberId 회원 ID
+     * @param startDate 시작일 필터
+     * @param endDate 종료일 필터
+     * @param type 휴가 유형 필터 (null이면 전체)
      * @return 휴가 목록
      */
-    List<VacationListResponseDTO> getMyVacations(Long memberId);
+    List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type);
 
     /**
      * 휴가 상세 조회

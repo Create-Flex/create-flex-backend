@@ -7,6 +7,10 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 내 휴가 목록 조회 응답 DTO
+ * - 휴가 기간을 "yyyy-MM-dd ~ yyyy-MM-dd" 형식으로 표시
+ */
 @Getter
 @Builder
 public class VacationListResponseDTO {
@@ -19,6 +23,7 @@ public class VacationListResponseDTO {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    /** Vacation 엔티티를 목록용 DTO로 변환 */
     public static VacationListResponseDTO from(Vacation vacation) {
         String period = formatPeriod(vacation.getVacationStart(), vacation.getVacationEnd());
 
@@ -32,6 +37,7 @@ public class VacationListResponseDTO {
                 .build();
     }
 
+    /** 휴가 기간을 문자열로 포맷팅 (시작일=종료일이면 단일 날짜로 표시) */
     private static String formatPeriod(LocalDate start, LocalDate end) {
         if (start.equals(end)) {
             return start.format(DATE_FORMATTER);

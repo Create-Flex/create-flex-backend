@@ -5,6 +5,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+/**
+ * 휴가 신청 요청 DTO
+ * - 휴가 유형별로 필요한 필드가 다름
+ * - 공통 필드: memberId, vacationStart, vacationEnd, vacationDetail
+ */
 @Getter
 @NoArgsConstructor
 public class VacationRequestDTO {
