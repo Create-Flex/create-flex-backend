@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.team;
+package com.mcn.in4.domain.team.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
