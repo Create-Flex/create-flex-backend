@@ -1,4 +1,4 @@
-package com.mcn.in4.entity;
+package com.mcn.in4.domain.attendance.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
@@ -17,7 +17,7 @@ public class Attendance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attendance_id")
-    private Long AttendanceId;
+    private Long attendanceId;
     //근태 키
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -36,4 +36,13 @@ public class Attendance {
     @Column(name = "attendance_end", nullable=true)
     private LocalDateTime attendanceEnd;
     //근무 종료시간
+
+    @Column(name = "attendance_status", nullable = false)
+    private String attendanceStatus;
+    //근무 상태 (정상, 지각, 조퇴, 초과, 근무중)
+
+    public void completeWork(LocalDateTime attendanceEnd, String attendanceStatus) {
+        this.attendanceEnd = attendanceEnd;
+        this.attendanceStatus = attendanceStatus;
+    }
 }

@@ -1,15 +1,35 @@
--- MCN 회사 더미 데이터 (ID 1000번대 시작)
--- 작성일: 2026-01-27
--- 변경사항: 포스트맨 테스트와 충돌 방지를 위해 ID를 1000번대로 변경
-
 -- ==========================================
--- DUMMY DATA (더미데이터)
--- ID 범위: 1000~2999
--- 포스트맨 테스트 데이터는 1~999 사용
+-- MCN 회사 더미 데이터 통합본
+-- 작성일: 2026-01-28
+-- 내용: 초기화(TRUNCATE) 포함, 중복 제거 완료
 -- ==========================================
 
+-- 1. 초기화 (재실행 시 충돌 방지)
+SET REFERENTIAL_INTEGRITY FALSE;
+TRUNCATE TABLE attendance;
+TRUNCATE TABLE vacation_workation;
+TRUNCATE TABLE vacation_sick;
+TRUNCATE TABLE vacation_family;
+TRUNCATE TABLE vacation;
+TRUNCATE TABLE schedule_visitor;
+TRUNCATE TABLE schedule;
+TRUNCATE TABLE team_relay;
+TRUNCATE TABLE team;
+TRUNCATE TABLE creator_work;
+TRUNCATE TABLE creator_promotion;
+TRUNCATE TABLE creator_legal_tax;
+TRUNCATE TABLE creator_contract;
+TRUNCATE TABLE member_profile;
+TRUNCATE TABLE creator_detail;
+TRUNCATE TABLE employee_detail;
+TRUNCATE TABLE creator_metal_health;
+TRUNCATE TABLE health;
+TRUNCATE TABLE members;
+TRUNCATE TABLE department;
+SET REFERENTIAL_INTEGRITY TRUE;
+
 -- ==========================================
--- 1. Department (부서) - 1000번대
+-- 2. Department (부서)
 -- ==========================================
 INSERT INTO department (department_id, department_name, department_call, department_detail, department_color) VALUES
                                                                                                                   (1001, '경영지원본부', '02-1234-5001', '회사의 전반적인 경영 및 행정 업무를 담당합니다', '#FF6B6B'),
@@ -21,35 +41,26 @@ INSERT INTO department (department_id, department_name, department_call, departm
                                                                                                                   (1007, '글로벌사업팀', '02-1234-5007', '해외 시장 진출 및 글로벌 파트너십을 담당합니다', '#A8D8EA');
 
 -- ==========================================
--- 2. Member (회원 - 직원, 매니저, 관리자, 크리에이터) - 1000번대(직원), 2000번대(크리에이터)
+-- 3. Members (회원)
 -- ==========================================
--- 관리자 (ADMINISTRATOR)
+-- 관리자, 매니저, 일반 직원
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status) VALUES
                                                                                                                              (1001, 1006, 'HR001', 'admin123!', '김인사', 'ADMINISTRATOR', 'WORKING'),
-                                                                                                                             (1002, 1006, 'HR002', 'admin456!', '이채용', 'ADMINISTRATOR', 'WORKING');
-
--- 매니저 (MANAGER)
-INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status) VALUES
+                                                                                                                             (1002, 1006, 'HR002', 'admin456!', '이채용', 'ADMINISTRATOR', 'WORKING'),
                                                                                                                              (1003, 1003, 'MG001', 'manager123', '박매니저', 'MANAGER', 'WORKING'),
                                                                                                                              (1004, 1003, 'MG002', 'manager456', '최담당', 'MANAGER', 'WORKING'),
                                                                                                                              (1005, 1003, 'MG003', 'manager789', '정관리', 'MANAGER', 'WORKING'),
-                                                                                                                             (1006, 1004, 'MK001', 'manager111', '강마케팅', 'MANAGER', 'WORKING');
-
--- 일반 직원 (EMPLOYEE)
-INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status) VALUES
+                                                                                                                             (1006, 1004, 'MK001', 'manager111', '강마케팅', 'MANAGER', 'WORKING'),
                                                                                                                              (1007, 1005, 'IT001', 'dev12345', '윤개발', 'EMPLOYEE', 'WORKING'),
                                                                                                                              (1008, 1005, 'IT002', 'dev67890', '한코딩', 'EMPLOYEE', 'WORKING'),
                                                                                                                              (1009, 1004, 'MK002', 'mark1234', '송홍보', 'EMPLOYEE', 'WORKING'),
                                                                                                                              (1010, 1002, 'BIZ001', 'biz12345', '조사업', 'EMPLOYEE', 'WORKING'),
                                                                                                                              (1011, 1001, 'ADM001', 'admin999', '신경영', 'EMPLOYEE', 'WORKING'),
                                                                                                                              (1012, 1007, 'GL001', 'global11', 'Emma Wilson', 'EMPLOYEE', 'WORKING'),
-                                                                                                                             (1013, 1003, 'MG004', 'thumb123', '문썸네일', 'EMPLOYEE', 'WORKING');
+                                                                                                                             (1013, 1003, 'MG004', 'thumb123', '문썸네일', 'EMPLOYEE', 'WORKING'),
+                                                                                                                             (1014, 1004, 'MK003', 'old12345', '구직원', 'EMPLOYEE', 'SUSPENDED');
 
--- 퇴사한 직원
-INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status) VALUES
-    (1014, 1004, 'MK003', 'old12345', '구직원', 'EMPLOYEE', 'SUSPENDED');
-
--- 크리에이터 (CREATOR) - 2000번대
+-- 크리에이터
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status) VALUES
                                                                                                                              (2001, NULL, 'gamst', 'gam12345', '감스트', 'CREATOR', 'WORKING'),
                                                                                                                              (2002, NULL, 'ddoganjip', 'ddogan99', '또간집', 'CREATOR', 'WORKING'),
@@ -62,7 +73,7 @@ INSERT INTO members (member_id, department_id, member_account, member_password, 
                                                                                                                              (2009, NULL, 'retiredcreator', 'retired1', '은퇴한크리', 'CREATOR', 'WORKING');
 
 -- ==========================================
--- 3. MemberEmployeeDetail (직원 상세 정보) - 1000번대
+-- 4. Employee Detail (직원 상세)
 -- ==========================================
 INSERT INTO employee_detail (employee_detail_id, employee_id, task, nickname, department_id, eng_name, personal_email, personal_call, hire_date, emp_date, address, employment_type, leaving_reason, vacation_remainder) VALUES
                                                                                                                                                                                                                              (1001, 1001, '인사 관리', '인사왕', 1006, 'Kim Insa', 'kim.insa@gmail.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
@@ -81,7 +92,7 @@ INSERT INTO employee_detail (employee_detail_id, employee_id, task, nickname, de
                                                                                                                                                                                                                              (1014, 1014, '마케터', '구직원님', 1004, 'Gu Jikwon', 'gu.old@naver.com', '010-1515-1515', '2020-02-01', '2024-12-31', '서울시 동대문구 왕산로 1111', 'NEWBIE', '개인 사정으로 인한 퇴사', 15.0);
 
 -- ==========================================
--- 4. MemberCreatorDetail (크리에이터 상세 정보) - 2000번대
+-- 5. Creator Detail (크리에이터 상세)
 -- ==========================================
 INSERT INTO creator_detail (creator_detail_id, member_creator_id, member_manager_id, creator_subscribe, creator_category, creator_platform, creator_status, creator_main_contact) VALUES
                                                                                                                                                                                       (2001, 2001, 1003, '1250000', '게임', 'YOUTUBE', 'ACTIVE', '010-1501-1501'),
@@ -95,7 +106,7 @@ INSERT INTO creator_detail (creator_detail_id, member_creator_id, member_manager
                                                                                                                                                                                       (2009, 2009, 1005, '150000', '게임', 'YOUTUBE', 'RETREAT', '010-2301-2301');
 
 -- ==========================================
--- 5. MemberProfile (회원 프로필) - 1000번대, 2000번대
+-- 6. Member Profile (프로필)
 -- ==========================================
 INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner) VALUES
                                                                                       (1001, 1001, 'https://cdn.mcn.com/profiles/kim_insa.jpg', 'https://cdn.mcn.com/banners/kim_insa_banner.jpg'),
@@ -110,7 +121,7 @@ INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner
                                                                                       (2007, 2007, 'https://cdn.mcn.com/profiles/techreviewer.jpg', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg');
 
 -- ==========================================
--- 6. CreatorContract (크리에이터 계약) - 2000번대
+-- 7. Creator Contract (계약)
 -- ==========================================
 INSERT INTO creator_contract (creator_contract_id, member_creator_id, contract_name, contract_start, contract_end) VALUES
                                                                                                                        (2001, 2001, '감스트 전속 계약', '2023-01-01', '2026-12-31'),
@@ -122,7 +133,7 @@ INSERT INTO creator_contract (creator_contract_id, member_creator_id, contract_n
                                                                                                                        (2007, 2007, '테크리뷰어 전속 계약', '2023-11-01', '2026-10-31');
 
 -- ==========================================
--- 7. CreatorLegalTax (크리에이터 법률/세무) - 2000번대
+-- 8. Creator Legal/Tax (법률/세무)
 -- ==========================================
 INSERT INTO creator_legal_tax (legal_tax_id, member_creator_id, legal_tax_type, legal_tax_name, legal_tax_detail, letal_tax_status) VALUES
                                                                                                                                         (2001, 2001, 'TAX', '2025년 1분기 부가세 신고', '1분기 유튜브 광고 수익 및 협찬 관련 부가세 신고 필요', 'IN_PROGRESS'),
@@ -133,7 +144,7 @@ INSERT INTO creator_legal_tax (legal_tax_id, member_creator_id, legal_tax_type, 
                                                                                                                                         (2006, 2007, 'TAX', '2025년 부가세 환급 신청', '장비 구입 관련 부가세 환급 신청', 'CONTACTED');
 
 -- ==========================================
--- 8. CreatorPromotion (크리에이터 광고/협찬) - 2000번대
+-- 9. Creator Promotion (광고/협찬)
 -- ==========================================
 INSERT INTO creator_promotion (promotion_id, member_creator_id, promotion_client, promotion_name, promotion_fee, promotion_detail, created_at, promotion_targer_date, promotion_status) VALUES
                                                                                                                                                                                             (2001, 2001, '삼성전자', '갤럭시 S24 울트라 기능 리뷰 및 시연', '8000000', '신제품 출시 기념 메인 기능 집중 리뷰 영상 제작 (15분 이상), AI 카메라 기능 실사용 시연', '2025-01-10', '2025-02-15', 'ACCEPTED'),
@@ -146,7 +157,7 @@ INSERT INTO creator_promotion (promotion_id, member_creator_id, promotion_client
                                                                                                                                                                                             (2008, 2003, '에스티로더', '에스티로더 어드밴스드 나이트 리페어', '5500000', '에스티로더 대표 제품 사용 후기 및 스킨케어 루틴 영상', '2024-12-20', '2025-01-31', 'ACCEPTED');
 
 -- ==========================================
--- 9. CreatorWork (크리에이터 업무 현황) - 2000번대
+-- 10. Creator Work (업무 현황)
 -- ==========================================
 INSERT INTO creator_work (creator_work_id, member_creator_id, work_name, work_status, member_worker_id) VALUES
                                                                                                             (2001, 2001, '다음주 콘텐츠 기획안 피드백', 'WORKING', 1003),
@@ -163,7 +174,7 @@ INSERT INTO creator_work (creator_work_id, member_creator_id, work_name, work_st
                                                                                                             (2012, 2003, '아모레 협찬 콘텐츠 기획안 작성', 'DONE', 1004);
 
 -- ==========================================
--- 10. Team (팀) - 1000번대
+-- 11. Team (팀)
 -- ==========================================
 INSERT INTO team (team_id, team_name, team_detail) VALUES
                                                        (1001, '감스트 크루', '감스트를 중심으로 한 게임 콘텐츠 제작팀'),
@@ -172,7 +183,7 @@ INSERT INTO team (team_id, team_name, team_detail) VALUES
                                                        (1004, '테크 리뷰어즈', '테크 리뷰어들의 정보 공유 팀');
 
 -- ==========================================
--- 11. TeamRelay (팀 중계 - 팀 멤버 관계) - 1000번대
+-- 12. Team Relay (팀 멤버 관계)
 -- ==========================================
 INSERT INTO team_relay (team_relay_id, team_id, member_id) VALUES
                                                                (1001, 1001, 2001),
@@ -185,7 +196,7 @@ INSERT INTO team_relay (team_relay_id, team_id, member_id) VALUES
                                                                (1008, 1004, 2001);
 
 -- ==========================================
--- 12. Schedule (일정) - 1000번대
+-- 13. Schedule (일정)
 -- ==========================================
 INSERT INTO schedule (schedule_id, member_id, schedule_name, schedule_date, schedule_detail, schedule_type) VALUES
                                                                                                                 (1001, 2001, '삼성 갤럭시 광고 촬영', '2025-02-10', '삼성전자 본사 방문, 갤럭시 S24 울트라 리뷰 촬영', 'PROMOTION'),
@@ -205,7 +216,7 @@ INSERT INTO schedule (schedule_id, member_id, schedule_name, schedule_date, sche
                                                                                                                 (1015, 1011, '법인카드 정산', '2025-01-31', '1월 법인카드 사용 내역 정산', 'COMPANY');
 
 -- ==========================================
--- 13. ScheduleVisitor (일정 참가자) - 1000번대
+-- 14. Schedule Visitor (일정 참가자)
 -- ==========================================
 INSERT INTO schedule_visitor (schedule_visitor_id, schedule_id, member_id) VALUES
                                                                                (1001, 1006, 2001),
@@ -225,7 +236,7 @@ INSERT INTO schedule_visitor (schedule_visitor_id, schedule_id, member_id) VALUE
                                                                                (1015, 1014, 1009);
 
 -- ==========================================
--- 14. Vacation (휴가) - 1000번대
+-- 15. Vacation (휴가)
 -- ==========================================
 INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vacation_end, vacation_request, vacation_detail, vacation_approve, vacation_rejected, vacation_days) VALUES
                                                                                                                                                                                       (1001, 1007, 'ANNUAL', '2025-02-10', '2025-02-14', '2025-01-20', '개인 여행', 'APPROVED', NULL, 5.0),
@@ -239,26 +250,20 @@ INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vac
                                                                                                                                                                                       (1009, 1003, 'WORKATION', '2025-04-15', '2025-04-19', '2025-03-20', '제주 오피스 근무 및 크리에이터 여행 브이로그 보조', 'APPROVED', NULL, 5.0);
 
 -- ==========================================
--- 15. VacationFamily (경조사 상세) - 1000번대
+-- 16. Vacation Detail (경조사/병가/워케이션)
 -- ==========================================
 INSERT INTO vacation_family (family_id, vacation_id, family_relation, family_detail) VALUES
     (1001, 1003, '조모', '칠순 잔치');
 
--- ==========================================
--- 16. VacationSick (병가 상세) - 1000번대
--- ==========================================
 INSERT INTO vacation_sick (sick_id, vacation_id, sick_detail, sick_hospital) VALUES
     (1001, 1004, '고열(38.5도), 기침, 인후통 증상. 독감 의심', '강남 세브란스 병원');
 
--- ==========================================
--- 17. VacationWorkation (워케이션 상세) - 1000번대
--- ==========================================
 INSERT INTO vacation_workation (workation_id, vacation_id, workation_where, workation_contact, workation_plan, workation_handover) VALUES
                                                                                                                                        (1001, 1005, '홍콩 오피스', '010-1313-1313', '홍콩 거래처 미팅 (3/11, 3/13), 글로벌 파트너십 계약서 검토, 원격 근무를 통한 일반 업무 처리', '긴급 사항 발생 시 조사업 대리(010-1010-1010)에게 연락'),
                                                                                                                                        (1002, 1009, '제주 오피스', '010-3333-3333', '크리에이터 일상브이로거 여행 브이로그 촬영 보조 (4/16-4/17), 제주 지역 협력사 미팅 (4/18), 원격 업무 수행', '담당 크리에이터 관련 긴급 사항은 최담당 매니저(010-4444-4444)에게 인계');
 
 -- ==========================================
--- 18. Health (건강 검진) - 1000번대, 2000번대
+-- 17. Health (건강 검진)
 -- ==========================================
 INSERT INTO health (health_id, member_id, checkup_name, checkup_date, checkup_summanary, checkup_file_url) VALUES
                                                                                                                (1001, 1001, '2024년 정기 건강검진', '2024-11-15', 'NORMAL_AB', 'https://cdn.mcn.com/health/kim_insa_2024.pdf'),
@@ -271,7 +276,7 @@ INSERT INTO health (health_id, member_id, checkup_name, checkup_date, checkup_su
                                                                                                                (2005, 2005, '2024년 종합 건강검진', '2024-08-15', 'NORMAL_AB', 'https://cdn.mcn.com/health/gameking_2024.pdf');
 
 -- ==========================================
--- 19. CreatorMentalHealth (크리에이터 정신건강 설문) - 2000번대
+-- 18. Creator Mental Health (정신건강)
 -- ==========================================
 INSERT INTO creator_metal_health (creator_mental_id, member_id, creator_mental_date, creator_mental_score) VALUES
                                                                                                                (2001, 2001, '2025-01-15', 3),
@@ -288,68 +293,61 @@ INSERT INTO creator_metal_health (creator_mental_id, member_id, creator_mental_d
                                                                                                                (2012, 2005, '2024-12-15', 3);
 
 -- ==========================================
--- 20. Attendance (근태) - 최근 2주간 데이터 - 1000번대
+-- 19. Attendance (근태) - 최근 2주간 데이터
 -- ==========================================
-INSERT INTO attendance (attendance_id, member_id, attendance_date, attendance_start, attendance_end) VALUES
+INSERT INTO attendance (attendance_id, member_id, attendance_date, attendance_start, attendance_end, attendance_status) VALUES
 -- 2025-01-13 (월)
-(1001, 1001, '2025-01-13', TIMESTAMP '2025-01-13 09:00:00', TIMESTAMP '2025-01-13 18:00:00'),
-(1002, 1003, '2025-01-13', TIMESTAMP '2025-01-13 09:15:00', TIMESTAMP '2025-01-13 18:30:00'),
-(1003, 1007, '2025-01-13', TIMESTAMP '2025-01-13 10:00:00', TIMESTAMP '2025-01-13 19:00:00'),
-(1004, 1009, '2025-01-13', TIMESTAMP '2025-01-13 09:00:00', TIMESTAMP '2025-01-13 18:00:00'),
+(1001, 1001, '2025-01-13', TIMESTAMP '2025-01-13 09:00:00', TIMESTAMP '2025-01-13 18:00:00', '정상'),
+(1002, 1003, '2025-01-13', TIMESTAMP '2025-01-13 09:15:00', TIMESTAMP '2025-01-13 18:30:00', '지각/조퇴/미달'),
+(1003, 1007, '2025-01-13', TIMESTAMP '2025-01-13 10:00:00', TIMESTAMP '2025-01-13 19:00:00', '지각/조퇴/미달'),
+(1004, 1009, '2025-01-13', TIMESTAMP '2025-01-13 09:00:00', TIMESTAMP '2025-01-13 18:00:00', '정상'),
 -- 2025-01-14 (화)
-(1005, 1001, '2025-01-14', TIMESTAMP '2025-01-14 09:05:00', TIMESTAMP '2025-01-14 18:00:00'),
-(1006, 1003, '2025-01-14', TIMESTAMP '2025-01-14 09:00:00', TIMESTAMP '2025-01-14 20:00:00'),
-(1007, 1007, '2025-01-14', TIMESTAMP '2025-01-14 10:00:00', TIMESTAMP '2025-01-14 19:00:00'),
-(1008, 1009, '2025-01-14', TIMESTAMP '2025-01-14 09:10:00', TIMESTAMP '2025-01-14 18:00:00'),
+(1005, 1001, '2025-01-14', TIMESTAMP '2025-01-14 09:05:00', TIMESTAMP '2025-01-14 18:00:00', '지각/조퇴/미달'),
+(1006, 1003, '2025-01-14', TIMESTAMP '2025-01-14 09:00:00', TIMESTAMP '2025-01-14 20:00:00', '연장 근무'),
+(1007, 1007, '2025-01-14', TIMESTAMP '2025-01-14 10:00:00', TIMESTAMP '2025-01-14 19:00:00', '지각/조퇴/미달'),
+(1008, 1009, '2025-01-14', TIMESTAMP '2025-01-14 09:10:00', TIMESTAMP '2025-01-14 18:00:00', '지각/조퇴/미달'),
 -- 2025-01-15 (수)
-(1009, 1001, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00'),
-(1010, 1003, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00'),
-(1011, 1007, '2025-01-15', TIMESTAMP '2025-01-15 10:00:00', TIMESTAMP '2025-01-15 19:00:00'),
-(1012, 1009, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00'),
+(1009, 1001, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00', '정상'),
+(1010, 1003, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00', '정상'),
+(1011, 1007, '2025-01-15', TIMESTAMP '2025-01-15 10:00:00', TIMESTAMP '2025-01-15 19:00:00', '지각/조퇴/미달'),
+(1012, 1009, '2025-01-15', TIMESTAMP '2025-01-15 09:00:00', TIMESTAMP '2025-01-15 18:00:00', '정상'),
 -- 2025-01-16 (목)
-(1013, 1001, '2025-01-16', TIMESTAMP '2025-01-16 09:00:00', TIMESTAMP '2025-01-16 18:00:00'),
-(1014, 1003, '2025-01-16', TIMESTAMP '2025-01-16 09:30:00', TIMESTAMP '2025-01-16 18:30:00'),
-(1015, 1007, '2025-01-16', TIMESTAMP '2025-01-16 10:00:00', TIMESTAMP '2025-01-16 19:00:00'),
-(1016, 1009, '2025-01-16', TIMESTAMP '2025-01-16 09:00:00', TIMESTAMP '2025-01-16 18:00:00'),
+(1013, 1001, '2025-01-16', TIMESTAMP '2025-01-16 09:00:00', TIMESTAMP '2025-01-16 18:00:00', '정상'),
+(1014, 1003, '2025-01-16', TIMESTAMP '2025-01-16 09:30:00', TIMESTAMP '2025-01-16 18:30:00', '지각/조퇴/미달'),
+(1015, 1007, '2025-01-16', TIMESTAMP '2025-01-16 10:00:00', TIMESTAMP '2025-01-16 19:00:00', '지각/조퇴/미달'),
+(1016, 1009, '2025-01-16', TIMESTAMP '2025-01-16 09:00:00', TIMESTAMP '2025-01-16 18:00:00', '정상'),
 -- 2025-01-17 (금)
-(1017, 1001, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 18:00:00'),
-(1018, 1003, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 18:00:00'),
-(1019, 1007, '2025-01-17', TIMESTAMP '2025-01-17 10:00:00', TIMESTAMP '2025-01-17 19:00:00'),
-(1020, 1009, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 17:30:00'),
+(1017, 1001, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 18:00:00', '정상'),
+(1018, 1003, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 18:00:00', '정상'),
+(1019, 1007, '2025-01-17', TIMESTAMP '2025-01-17 10:00:00', TIMESTAMP '2025-01-17 19:00:00', '지각/조퇴/미달'),
+(1020, 1009, '2025-01-17', TIMESTAMP '2025-01-17 09:00:00', TIMESTAMP '2025-01-17 17:30:00', '지각/조퇴/미달'),
 -- 2025-01-20 (월)
-(1021, 1001, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 18:00:00'),
-(1022, 1003, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 19:00:00'),
-(1023, 1007, '2025-01-20', TIMESTAMP '2025-01-20 10:00:00', TIMESTAMP '2025-01-20 19:00:00'),
-(1024, 1009, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 18:00:00'),
+(1021, 1001, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 18:00:00', '정상'),
+(1022, 1003, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 19:00:00', '연장 근무'),
+(1023, 1007, '2025-01-20', TIMESTAMP '2025-01-20 10:00:00', TIMESTAMP '2025-01-20 19:00:00', '지각/조퇴/미달'),
+(1024, 1009, '2025-01-20', TIMESTAMP '2025-01-20 09:00:00', TIMESTAMP '2025-01-20 18:00:00', '정상'),
 -- 2025-01-21 (화)
-(1025, 1001, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00'),
-(1026, 1003, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00'),
-(1027, 1007, '2025-01-21', TIMESTAMP '2025-01-21 10:00:00', TIMESTAMP '2025-01-21 19:00:00'),
-(1028, 1009, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00'),
+(1025, 1001, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00', '정상'),
+(1026, 1003, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00', '정상'),
+(1027, 1007, '2025-01-21', TIMESTAMP '2025-01-21 10:00:00', TIMESTAMP '2025-01-21 19:00:00', '지각/조퇴/미달'),
+(1028, 1009, '2025-01-21', TIMESTAMP '2025-01-21 09:00:00', TIMESTAMP '2025-01-21 18:00:00', '정상'),
 -- 2025-01-22 (수)
-(1029, 1001, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:00:00'),
-(1030, 1003, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:30:00'),
-(1031, 1007, '2025-01-22', TIMESTAMP '2025-01-22 10:00:00', TIMESTAMP '2025-01-22 19:00:00'),
-(1032, 1009, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:00:00'),
+(1029, 1001, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:00:00', '정상'),
+(1030, 1003, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:30:00', '정상'),
+(1031, 1007, '2025-01-22', TIMESTAMP '2025-01-22 10:00:00', TIMESTAMP '2025-01-22 19:00:00', '지각/조퇴/미달'),
+(1032, 1009, '2025-01-22', TIMESTAMP '2025-01-22 09:00:00', TIMESTAMP '2025-01-22 18:00:00', '정상'),
 -- 2025-01-23 (목)
-(1033, 1001, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00'),
-(1034, 1003, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00'),
-(1035, 1007, '2025-01-23', TIMESTAMP '2025-01-23 10:00:00', TIMESTAMP '2025-01-23 19:00:00'),
-(1036, 1009, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00'),
+(1033, 1001, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00', '정상'),
+(1034, 1003, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00', '정상'),
+(1035, 1007, '2025-01-23', TIMESTAMP '2025-01-23 10:00:00', TIMESTAMP '2025-01-23 19:00:00', '지각/조퇴/미달'),
+(1036, 1009, '2025-01-23', TIMESTAMP '2025-01-23 09:00:00', TIMESTAMP '2025-01-23 18:00:00', '정상'),
 -- 2025-01-24 (금)
-(1037, 1001, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00'),
-(1038, 1003, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00'),
-(1039, 1007, '2025-01-24', TIMESTAMP '2025-01-24 10:00:00', TIMESTAMP '2025-01-24 19:00:00'),
-(1040, 1009, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00'),
+(1037, 1001, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00', '정상'),
+(1038, 1003, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00', '정상'),
+(1039, 1007, '2025-01-24', TIMESTAMP '2025-01-24 10:00:00', TIMESTAMP '2025-01-24 19:00:00', '지각/조퇴/미달'),
+(1040, 1009, '2025-01-24', TIMESTAMP '2025-01-24 09:00:00', TIMESTAMP '2025-01-24 18:00:00', '정상'),
 -- 2025-01-27 (월) - 오늘
-(1041, 1001, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL),
-(1042, 1003, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL),
-(1043, 1007, '2025-01-27', TIMESTAMP '2025-01-27 10:00:00', NULL),
-(1044, 1009, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL);
-
-
--- 데이터 입력 완료
--- ==========================================
--- 더미데이터: 1000번대 (직원), 2000번대 (크리에이터)
--- 포스트맨 테스트: 1번부터 자동 증가
--- ==========================================
+(1041, 1001, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL, '근무중'),
+(1042, 1003, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL, '근무중'),
+(1043, 1007, '2025-01-27', TIMESTAMP '2025-01-27 10:00:00', NULL, '근무중'),
+(1044, 1009, '2025-01-27', TIMESTAMP '2025-01-27 09:00:00', NULL, '근무중');
