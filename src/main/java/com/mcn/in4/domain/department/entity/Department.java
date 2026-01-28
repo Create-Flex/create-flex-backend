@@ -31,4 +31,11 @@ public class Department {
 
     @Column(name = "department_color", nullable = false)
     private String departmentColor;
+    
+    public void update(String name, String call, String detail, String color) {
+        this.departmentName = name;
+        this.departmentCall = call;
+        this.departmentDetail = detail;
+        this.departmentColor = color;
+    }
 }
