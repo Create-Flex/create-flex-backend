@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.schedule;
+package com.mcn.in4.domain.schedule.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
