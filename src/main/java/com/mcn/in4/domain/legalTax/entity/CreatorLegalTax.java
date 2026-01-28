@@ -4,16 +4,14 @@ import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
 import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "creator_legal_tax") // 실제 DB 테이블명
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class CreatorLegalTax {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
