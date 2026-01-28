@@ -1,11 +1,8 @@
-package com.mcn.in4.domain.creator.entity;
+package com.mcn.in4.domain.contract.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class CreatorContract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +35,8 @@ public class CreatorContract {
     @Column(name = "contract_end", nullable = false)
     private LocalDate contractEnd;
     //계약 종료일
+
+    @Column(name = "contract_file_url", nullable = true)
+    private String contractFileUrl;
+    //계약서 파일 URL
 }
