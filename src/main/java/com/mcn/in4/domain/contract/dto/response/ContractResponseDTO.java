@@ -33,9 +33,6 @@ public class ContractResponseDTO {
         @JsonProperty("contract_name")
         private String contractName;
 
-        @JsonProperty("creator_id")
-        private Long creatorId;
-
         @JsonProperty("creator_name")
         private String creatorName;
 
@@ -48,9 +45,6 @@ public class ContractResponseDTO {
         @JsonProperty("contract_file_url")
         private String contractFileUrl;
 
-        @JsonProperty("is_active")
-        private Boolean isActive;
-
         public static Info from(CreatorContract contract) {
             LocalDate today = LocalDate.now();
             boolean isActive = !today.isBefore(contract.getContractStart())
@@ -59,12 +53,10 @@ public class ContractResponseDTO {
             return Info.builder()
                     .contractId(contract.getCreatorContractId())
                     .contractName(contract.getContractName())
-                    .creatorId(contract.getMemberCreator().getMemberId())
-                    .creatorName(contract.getMemberCreator().getMemberName())
+                    .creatorName(contract.getCreatorName())
                     .contractStart(contract.getContractStart())
                     .contractEnd(contract.getContractEnd())
                     .contractFileUrl(contract.getContractFileUrl())
-                    .isActive(isActive)
                     .build();
         }
     }

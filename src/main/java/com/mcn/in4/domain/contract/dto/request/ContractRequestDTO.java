@@ -19,8 +19,8 @@ public class ContractRequestDTO {
         @JsonProperty("contract_name")
         private String contractName;
 
-        @JsonProperty("creator_id")
-        private Long memberCreatorId;
+        @JsonProperty("creator_name")
+        private String creatorName;
 
         @JsonProperty("contract_start")
         private LocalDate contractStart;

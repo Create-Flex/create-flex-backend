@@ -19,14 +19,18 @@ public class CreatorContract {
     private Long creatorContractId;
     //크리에이터 계약 키
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_creator_id", nullable = false)
-    private Member memberCreator;
-    //크리에이터의 사용자 키
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "member_creator_id", nullable = false)
+//    private Member memberCreator;
+//    //크리에이터의 사용자 키
 
     @Column(name = "contract_name", nullable = false)
     private String contractName;
     //계약명
+
+    @Column(name = "creator_name", nullable = false)
+    private String creatorName;
+    // 크리에이터명
 
     @Column(name = "contract_start", nullable = false)
     private LocalDate contractStart;
