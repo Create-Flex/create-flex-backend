@@ -6,6 +6,10 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 
+/**
+ * 휴가 신청 응답 DTO
+ * - 휴가 신청 완료 후 반환되는 정보
+ */
 @Getter
 @Builder
 public class VacationResponseDTO {
@@ -19,6 +23,7 @@ public class VacationResponseDTO {
     private String vacationApprove;
     private LocalDate vacationRequest;
 
+    /** Vacation 엔티티를 응답 DTO로 변환 */
     public static VacationResponseDTO from(Vacation vacation) {
         return VacationResponseDTO.builder()
                 .vacationId(vacation.getVacationId())

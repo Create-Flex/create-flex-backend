@@ -9,6 +9,11 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 
+/**
+ * 휴가 상세 조회 응답 DTO
+ * - 휴가 유형별 상세 정보를 포함 (경조사, 병가, 워케이션)
+ * - 모달 팝업에서 사용
+ */
 @Getter
 @Builder
 public class VacationDetailResponseDTO {
@@ -38,6 +43,7 @@ public class VacationDetailResponseDTO {
     private String workationPlan;
     private String workationHandover;
 
+    /** 기본 휴가 정보를 DTO로 변환 (연차, 반차용) */
     public static VacationDetailResponseDTO from(Vacation vacation) {
         return VacationDetailResponseDTO.builder()
                 .vacationId(vacation.getVacationId())
@@ -53,6 +59,7 @@ public class VacationDetailResponseDTO {
                 .build();
     }
 
+    /** 경조사 휴가 정보를 DTO로 변환 (경조사 상세 정보 포함) */
     public static VacationDetailResponseDTO from(Vacation vacation, VacationFamily family) {
         return VacationDetailResponseDTO.builder()
                 .vacationId(vacation.getVacationId())
@@ -70,6 +77,7 @@ public class VacationDetailResponseDTO {
                 .build();
     }
 
+    /** 병가 휴가 정보를 DTO로 변환 (병가 상세 정보 포함) */
     public static VacationDetailResponseDTO from(Vacation vacation, VacationSick sick) {
         return VacationDetailResponseDTO.builder()
                 .vacationId(vacation.getVacationId())
@@ -87,6 +95,7 @@ public class VacationDetailResponseDTO {
                 .build();
     }
 
+    /** 워케이션 휴가 정보를 DTO로 변환 (워케이션 상세 정보 포함) */
     public static VacationDetailResponseDTO from(Vacation vacation, VacationWorkation workation) {
         return VacationDetailResponseDTO.builder()
                 .vacationId(vacation.getVacationId())
