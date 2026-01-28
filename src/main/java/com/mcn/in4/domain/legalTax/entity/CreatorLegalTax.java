@@ -1,7 +1,7 @@
-package com.mcn.in4.domain.creator.entity;
+package com.mcn.in4.domain.legalTax.entity;
 
-import com.mcn.in4.domain.creator.entity.creatorEnum.LegalTaxStatus;
-import com.mcn.in4.domain.creator.entity.creatorEnum.LegalTaxType;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -19,7 +19,7 @@ public class CreatorLegalTax {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "legal_tax_id")
     private Long legalTaxId;
-    //크리에이터 계약 키
+    //크리에이터 법률 키
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_creator_id", nullable = false)

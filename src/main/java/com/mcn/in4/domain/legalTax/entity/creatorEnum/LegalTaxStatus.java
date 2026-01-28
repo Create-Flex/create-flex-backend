@@ -1,4 +1,4 @@
-package com.mcn.in4.domain.creator.entity.creatorEnum;
+package com.mcn.in4.domain.legalTax.entity.creatorEnum;
 
 public enum LegalTaxStatus {
     NOT_RECEIVED,

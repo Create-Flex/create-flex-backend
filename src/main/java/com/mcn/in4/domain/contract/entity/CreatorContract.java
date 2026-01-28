@@ -1,11 +1,8 @@
-package com.mcn.in4.domain.creator.entity;
+package com.mcn.in4.domain.contract.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +11,7 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class CreatorContract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,14 +19,18 @@ public class CreatorContract {
     private Long creatorContractId;
     //크리에이터 계약 키
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_creator_id", nullable = false)
-    private Member memberCreator;
-    //크리에이터의 사용자 키
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "member_creator_id", nullable = false)
+//    private Member memberCreator;
+//    //크리에이터의 사용자 키
 
     @Column(name = "contract_name", nullable = false)
     private String contractName;
     //계약명
+
+    @Column(name = "creator_name", nullable = false)
+    private String creatorName;
+    // 크리에이터명
 
     @Column(name = "contract_start", nullable = false)
     private LocalDate contractStart;
@@ -37,4 +39,8 @@ public class CreatorContract {
     @Column(name = "contract_end", nullable = false)
     private LocalDate contractEnd;
     //계약 종료일
+
+    @Column(name = "contract_file_url", nullable = true)
+    private String contractFileUrl;
+    //계약서 파일 URL
 }
