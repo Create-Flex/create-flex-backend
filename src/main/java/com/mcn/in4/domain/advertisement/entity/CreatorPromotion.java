@@ -1,4 +1,4 @@
-package com.mcn.in4.domain.creator.entity;
+package com.mcn.in4.domain.advertisement.entity;
 
 import com.mcn.in4.domain.creator.entity.creatorEnum.PromotionStatus;
 import com.mcn.in4.domain.member.entity.Member;
@@ -43,11 +43,14 @@ public class CreatorPromotion {
 
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+    // 생성일
 
     @Column(name = "promotion_targer_date", nullable = false)
     private LocalDate promotionTargerDate;
+    // 광고일자
 
     @Enumerated(EnumType.STRING)
     @Column(name = "promotion_status", nullable = false)
     private PromotionStatus promotionStatus;
+    // 광고 상태
 }
