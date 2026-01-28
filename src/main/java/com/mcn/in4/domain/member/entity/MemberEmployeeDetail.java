@@ -36,6 +36,10 @@ public class MemberEmployeeDetail {
     private String personalEmail;
     //직원 개인 이메일
 
+    @Column(name = "corpor_email", nullable = true)
+    private String corporEmail;
+    //직원 사내 이메일
+
     @Column(name = "personal_call", nullable = false)
     private String personalCall;
     //직원 개인 휴대전화

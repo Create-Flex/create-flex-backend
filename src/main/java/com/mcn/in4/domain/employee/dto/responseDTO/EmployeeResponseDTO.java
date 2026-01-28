@@ -4,6 +4,8 @@ import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
 import lombok.*;
 
+import java.util.List;
+
 public class EmployeeResponseDTO {
     @Getter
     @Builder
@@ -23,5 +25,41 @@ public class EmployeeResponseDTO {
         private String personalCall;
         private String address;
         private String engName;
+    }
+
+    /* 직원 관리 페이지 전체 응답 DTO */
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EmployeeManagementResponseDto {
+        private EmployeeSummaryDto summary;      // 요약 통계
+        private List<EmployeeListDto> list;       // 직원 리스트
+    }
+    /* 상단 요약 통계 DTO */
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EmployeeSummaryDto {
+        private long totalCount;        // 총 직원 수
+        private long workingCount;      // 현재 근무 중 (근무중, 출근)
+        private long vacationCount;     // 휴가/부재 (연차, 반차, 병가 등)
+        private long newHireCount;      // 신규 입사자 (1년 이내)
+    }
+    /* 직원 리스트 개별 항목 DTO */
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EmployeeListDto {
+        private String memberName;      // 이름
+        private String departmentName;  // 부서
+        private String task;            // 직무
+        private String memberAccount;   // 사번
+        private String corporEmail;     // 사내 이메일
+        private String personalCall;    // 개인 연락처
+        private String hireDate;        // 입사일
+        private String attendanceStatus;// 현재 상태 (근태)
     }
 }
