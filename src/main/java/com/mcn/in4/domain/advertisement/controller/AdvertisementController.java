@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -35,18 +36,17 @@ public class AdvertisementController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 광고 캠페인 목록 조회
+    // 내 담당 크리에이터의 광고 캠페인 목록 조회 (매니저용)
+    // GET /api/advertisements?filter=all (전체보기 - 기본값)
+    // GET /api/advertisements?filter=waiting (대기중인 제안)
+    // GET /api/advertisements?filter=processed (처리내역)
     @GetMapping
-    public ResponseEntity<List<AdvertisementResponseDTO.Info>> getAdvertisements(
-            @RequestParam(required = false) String status) {
+    public ResponseEntity<List<AdvertisementResponseDTO.Info>> getMyAdvertisements(
+            @AuthenticationPrincipal String userId,
+            @RequestParam(required = false, defaultValue = "all") String filter) {
 
-        if (status != null && !status.isEmpty()) {
-            // 상태별 조회
-            return ResponseEntity.ok(advertisementService.getAdvertisementsByStatus(status));
-        } else {
-            // 전체 조회
-            return ResponseEntity.ok(advertisementService.getAllAdvertisements());
-        }
+        Long managerId = Long.parseLong(userId);
+        return ResponseEntity.ok(advertisementService.getMyAdvertisementsByFilter(managerId, filter));
     }
 
     // 광고 캠페인 수락, 거절 (일정 자동 생성)
