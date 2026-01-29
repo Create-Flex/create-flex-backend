@@ -51,8 +51,9 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     }
 
     @Override
-    public List<LegalTaxResponseDTO.Info> getAllLegalTax() {
-        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findAllWithCreator();
+    public List<LegalTaxResponseDTO.Info> getAllLegalTax(LegalTaxType type, LegalTaxStatus status) {
+        // 항상 필터 메서드 사용 (null이면 전체 조회)
+        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findAllWithFilters(type, status);
 
         return legalTaxList.stream()
                 .map(LegalTaxResponseDTO.Info::from)
@@ -60,8 +61,9 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     }
 
     @Override
-    public List<LegalTaxResponseDTO.Info> getMyLegalTax(Long managerId) {
-        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findByManagerId(managerId);
+    public List<LegalTaxResponseDTO.Info> getMyLegalTax(Long managerId, LegalTaxType type, LegalTaxStatus status) {
+        // 항상 필터 메서드 사용 (null이면 전체 조회)
+        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findByManagerIdWithFilters(managerId, type, status);
 
         return legalTaxList.stream()
                 .map(LegalTaxResponseDTO.Info::from)
