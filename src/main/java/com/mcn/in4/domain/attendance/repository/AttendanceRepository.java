@@ -37,7 +37,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
                         @org.springframework.data.repository.query.Param("endDate") LocalDate endDate,
                         @org.springframework.data.repository.query.Param("attendanceStatus") com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus attendanceStatus);
 
-<<<<<<< Updated upstream
+
         @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE " +
                         "(:startDate IS NULL OR a.attendanceDate >= :startDate) " +
                         "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
@@ -47,7 +47,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
                         @org.springframework.data.repository.query.Param("startDate") LocalDate startDate,
                         @org.springframework.data.repository.query.Param("endDate") LocalDate endDate,
                         @org.springframework.data.repository.query.Param("attendanceStatus") com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus attendanceStatus);
-=======
->>>>>>> Stashed changes
-
+        
 }
