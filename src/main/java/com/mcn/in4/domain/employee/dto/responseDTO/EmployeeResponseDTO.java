@@ -41,7 +41,7 @@ public class EmployeeResponseDTO {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class EmployeeSummaryDto {
+    public static class EmployeeSummaryDto { //여긴 대시보드(통계)
         private long totalCount;        // 총 직원 수
         private long workingCount;      // 현재 근무 중 (근무중, 출근)
         private long vacationCount;     // 휴가/부재 (연차, 반차, 병가 등)

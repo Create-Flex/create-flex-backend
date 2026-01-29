@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.employee.service;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.member.entity.Member;
@@ -15,15 +16,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService{
-    private final MemberRepository memberRepository;
-    private final MemberEmployeeDetailRepository detailRepository;
-    private final AttendanceRepository attendanceRepository;
-    private final VacationRepository vacationRepository; // 휴가 조회를 위해 필요
+    private final MemberRepository memberRepository;// 유저 정보
+    private final MemberEmployeeDetailRepository detailRepository;// 직원 상세
+    private final AttendanceRepository attendanceRepository; // 근태
+    private final VacationRepository vacationRepository; // 휴가 조회
 
 
     @Override
@@ -53,20 +55,27 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList() {
         LocalDate today = LocalDate.now();
-
-        // 전체 데이터 조회
-        List<Member> members = memberRepository.findAll();
+        // 부서 정보를  페치 조인 으로 가져옴
+        List<Member> members = memberRepository.findAllWithDepartment();
+        // 회원 상세 정보를 ID 기반으로 찾음
         List<MemberEmployeeDetail> details = detailRepository.findAll();
+        Map<Long, MemberEmployeeDetail> detailMap = details.stream()
+                .collect(Collectors.toMap(d -> d.getMember().getMemberId(), d -> d));
+        // 오늘 날짜의 모든 근태 기록을 가져옴
+        List<Attendance> attendanceList = attendanceRepository.findAllByAttendanceDate(today);
+        Map<Long, AttendanceStatus> attendanceStatusMap = attendanceList.stream()
+                .collect(Collectors.toMap(a -> a.getMember().getMemberId(), Attendance::getAttendanceStatus));
 
-        // 직원 리스트 가져오기  근태 상태 포함 해서
+
         List<EmployeeResponseDTO.EmployeeListDto> list = members.stream().map(member -> {
-            MemberEmployeeDetail detail = details.stream()
-                    .filter(d -> d.getMember().getMemberId().equals(member.getMemberId()))
-                    .findFirst().orElse(null);
-            // 해당 직원의 오늘 근태 상태
-            String status = attendanceRepository.findByMemberAndAttendanceDate(member, today)
-                    .map(Attendance::getAttendanceStatus)
-                    .orElse("미출근"); // 기록 없으면 미출근 표시
+            Long memberId = member.getMemberId();
+            MemberEmployeeDetail detail = detailMap.get(memberId);
+
+            //  Map에서 Enum을 먼저 꺼냄 없으면 null
+            AttendanceStatus status = attendanceStatusMap.get(memberId);
+
+            //  status가 있으면 설명을 가져오고 없으면 미출근 문자열 넣기
+            String statusText = (status != null) ? status.getDescription() : "미출근";
             return EmployeeResponseDTO.EmployeeListDto.builder()
                     .memberName(member.getMemberName())
                     .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : "소속 없음")
@@ -75,25 +84,19 @@ public class EmployeeServiceImpl implements EmployeeService{
                     .corporEmail(detail != null ? detail.getCorporEmail() : null)
                     .personalCall(detail != null ? detail.getPersonalCall() : null)
                     .hireDate(detail != null ? detail.getHireDate() : null)
-                    .attendanceStatus(status)
+                    .attendanceStatus(statusText) // String 타입
                     .build();
         }).collect(Collectors.toList());
-        //  요약 통계 직원수
+        // 요약 통계 계산
         long totalCount = members.size();
-
-        // 근무 중:  상태가 '근무중' , '출근'인 사람 필터링
         long workingCount = list.stream()
-                .filter(e -> "근무중".equals(e.getAttendanceStatus()) || "출근".equals(e.getAttendanceStatus()))
+                .filter(e -> "출근".equals(e.getAttendanceStatus()) || "근무중".equals(e.getAttendanceStatus()))
                 .count();
-        // 휴가/부재 통계 : 휴가자 수 통계
         long vacationCount = vacationRepository.countActiveVacations(today, VacationApprove.APPROVED);
-        // 신규 입사자  hireDate 기준 최근 1년 이내
         long newHireCount = details.stream()
                 .filter(d -> d.getHireDate() != null)
-                .filter(d -> {
-                    LocalDate hireDate = LocalDate.parse(d.getHireDate());
-                    return !hireDate.isBefore(today.minusYears(1));
-                }).count();
+                .filter(d -> !LocalDate.parse(d.getHireDate()).isBefore(today.minusYears(1)))
+                .count();
         return EmployeeResponseDTO.EmployeeManagementResponseDto.builder()
                 .summary(EmployeeResponseDTO.EmployeeSummaryDto.builder()
                         .totalCount(totalCount)

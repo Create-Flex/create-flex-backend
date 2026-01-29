@@ -13,5 +13,6 @@ public enum AttendanceStatus {
     EARLY_LEAVE("조퇴"), // 조퇴
     OFF_WORK("퇴근");
 
+
     private final String description;
 }
