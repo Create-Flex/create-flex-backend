@@ -1,14 +1,12 @@
 package com.mcn.in4.domain.employee.controller;
 
+import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -28,6 +26,13 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(@PathVariable("id") Long id) {
         EmployeeResponseDTO.EmployeeDetailResponseDto response = employeeService.getEmployeeDetail(id);
         return ResponseEntity.ok(response);
+    }
+
+    // 직원 등록
+    @PostMapping("/insert")
+    public ResponseEntity<String> registerEmployee(@RequestBody EmployeeRequestDTO.EmployeeInsertRequestDto requestDto) {
+        employeeService.registerEmployee(requestDto);
+        return ResponseEntity.ok("직원 등록이 완료되었습니다.");
     }
 
 
