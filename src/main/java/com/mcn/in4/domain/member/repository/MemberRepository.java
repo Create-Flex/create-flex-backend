@@ -12,7 +12,8 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByMemberAccount(String memberAccount);
 
-    @Query("select m from Member m left join fetch m.department")
+    @Query("SELECT m FROM Member m LEFT JOIN FETCH m.department " +
+            "WHERE m.memberRole != 'CREATOR'")
     List<Member> findAllWithDepartment();
 
     List<Member> findByDepartment_DepartmentId(Long departmentId);
