@@ -11,15 +11,15 @@ public interface CreatorService {
     Long createCreator(CreatorRequestDTO.Create request);
 
     // 전체 크리에이터 조회
-    List<CreatorResponseDTO.Info> getAllCreators();
+    List<CreatorResponseDTO.Info> getAllCreators(String name);
 
-    // 크리에이터 단건 조회
+    // 크리에이터 상세 조회
     CreatorResponseDTO.Info getCreatorById(Long creatorId);
 
     // 크리에이터 정보 수정
     CreatorResponseDTO.Info updateCreator(Long creatorId, CreatorRequestDTO.Update request);
 
-    // 크리에이터 삭제 (SUSPENDED 상태로 변경)
+    // 크리에이터 삭제
     void deleteCreator(Long creatorId);
 
     // 매니저별 크리에이터 조회
