@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class AttendanceResponseDto {
+    private Long memberId;
+    private String memberName;
     private Long attendanceId;
     private LocalDate attendanceDate;
     private LocalDateTime attendanceStart;

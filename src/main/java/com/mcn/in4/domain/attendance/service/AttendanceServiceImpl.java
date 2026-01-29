@@ -42,6 +42,22 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
+    public List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate, String status) {
+        AttendanceStatus attendanceStatus = null;
+        if (status != null && !status.isEmpty()) {
+            String finalStatus = status;
+            attendanceStatus = Arrays.stream(AttendanceStatus.values())
+                    .filter(s -> s.getDescription().equals(finalStatus) || s.name().equals(finalStatus))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid status: " + finalStatus));
+        }
+
+        return attendanceRepository.findAllAttendance(startDate, endDate, attendanceStatus).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public void checkIn(Long memberId) {
         if (attendanceRepository.findByMemberIdAndAttendanceDate(memberId, LocalDate.now()).isPresent()) {
@@ -99,6 +115,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private AttendanceResponseDto toDto(Attendance attendance) {
         return AttendanceResponseDto.builder()
+                .memberId(attendance.getMember().getMemberId())
+                .memberName(attendance.getMember().getMemberName())
                 .attendanceId(attendance.getAttendanceId())
                 .attendanceDate(attendance.getAttendanceDate())
                 .attendanceStart(attendance.getAttendanceStart())
