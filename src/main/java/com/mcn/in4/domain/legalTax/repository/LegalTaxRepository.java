@@ -1,6 +1,8 @@
 package com.mcn.in4.domain.legalTax.repository;
 
 import com.mcn.in4.domain.legalTax.entity.CreatorLegalTax;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,8 +16,13 @@ public interface LegalTaxRepository extends JpaRepository<CreatorLegalTax, Long>
     // 전체 상담 신청 목록 조회 (최신순)
     @Query("SELECT DISTINCT lt FROM CreatorLegalTax lt " +
             "JOIN FETCH lt.memberCreator " +
+            "WHERE (:type IS NULL OR lt.legalTaxType = :type) " +
+            "AND (:status IS NULL OR lt.legalTaxStatus = :status) " +
             "ORDER BY lt.legalTaxId DESC")
-    List<CreatorLegalTax> findAllWithCreator();
+    List<CreatorLegalTax> findAllWithFilters(
+            @Param("type") LegalTaxType type,
+            @Param("status") LegalTaxStatus status
+    );
 
     // 특정 크리에이터의 상담 신청 목록 조회
     @Query("SELECT lt FROM CreatorLegalTax lt " +
@@ -29,6 +36,12 @@ public interface LegalTaxRepository extends JpaRepository<CreatorLegalTax, Long>
             "JOIN FETCH lt.memberCreator mc " +
             "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = mc " +
             "WHERE mcd.memberManager.memberId = :managerId " +
+            "AND (:type IS NULL OR lt.legalTaxType = :type) " +
+            "AND (:status IS NULL OR lt.legalTaxStatus = :status) " +
             "ORDER BY lt.legalTaxId DESC")
-    List<CreatorLegalTax> findByManagerId(@Param("managerId") Long managerId);
+    List<CreatorLegalTax> findByManagerIdWithFilters(
+            @Param("managerId") Long managerId,
+            @Param("type") LegalTaxType type,
+            @Param("status") LegalTaxStatus status
+    );
 }

@@ -2,6 +2,8 @@ package com.mcn.in4.domain.legalTax.controller;
 
 import com.mcn.in4.domain.legalTax.dto.request.LegalTaxRequestDTO;
 import com.mcn.in4.domain.legalTax.dto.response.LegalTaxResponseDTO;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
+import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.legalTax.service.LegalTaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,21 +37,23 @@ public class LegalTaxController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     // 전체 상담 신청 목록 조회 (관리자용)
     @GetMapping("/admin/all")
-    public ResponseEntity<List<LegalTaxResponseDTO.Info>> getAllLegalTax() {
-        return ResponseEntity.ok(legalTaxService.getAllLegalTax());
+    public ResponseEntity<List<LegalTaxResponseDTO.Info>> getAllLegalTax(
+            @RequestParam(required = false) LegalTaxType type,
+            @RequestParam(required = false) LegalTaxStatus status) {
+        return ResponseEntity.ok(legalTaxService.getAllLegalTax(type, status));
     }
-
 
     // 내 담당 크리에이터의 상담 신청 목록 조회 (매니저용)
     @GetMapping("/my")
     public ResponseEntity<List<LegalTaxResponseDTO.Info>> getMyLegalTax(
-            @AuthenticationPrincipal String userId) {
+            @AuthenticationPrincipal String userId,
+            @RequestParam(required = false) LegalTaxType type,
+            @RequestParam(required = false) LegalTaxStatus status) {
 
         Long managerId = Long.parseLong(userId);
-        return ResponseEntity.ok(legalTaxService.getMyLegalTax(managerId));
+        return ResponseEntity.ok(legalTaxService.getMyLegalTax(managerId, type, status));
     }
 
     // 상담 완료 처리(관리자)
