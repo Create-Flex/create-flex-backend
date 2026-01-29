@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 
-
 @Component
 public class JwtTokenProvider {
     private final SecretKey secretKey;
@@ -26,14 +25,14 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성
-    public String generateToken(String memberId) {
+    public String generateToken(String memberId, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
-        //claim은 JWT 안에 들어가는 커스텀 데이터.
+        // claim은 JWT 안에 들어가는 커스텀 데이터.
         return Jwts.builder()
                 .subject(memberId)
-                .claim("role", "USER")
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -56,7 +55,7 @@ public class JwtTokenProvider {
         return claims.get("role", String.class);
     }
 
-    //토큰에서 Claims 추출
+    // 토큰에서 Claims 추출
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(secretKey)
