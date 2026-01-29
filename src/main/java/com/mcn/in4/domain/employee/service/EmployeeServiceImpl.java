@@ -3,6 +3,9 @@ package com.mcn.in4.domain.employee.service;
 import com.mcn.in4.domain.attendance.entity.Attendance;
 import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
+import com.mcn.in4.domain.department.entity.Department;
+import com.mcn.in4.domain.department.repository.DepartmentRepository;
+import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
@@ -27,31 +30,38 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final AttendanceRepository attendanceRepository; // 근태
     private final VacationRepository vacationRepository; // 휴가 조회
 
+    private final DepartmentRepository departmentRepository; // 부서 리포
 
+    //직원 상세 조회
     @Override
     public EmployeeResponseDTO.EmployeeDetailResponseDto getEmployeeDetail(Long id) {
-        // Member 체크
+        //  계정 정보 조회 
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다 : " + id));
-        //  MemberEmployeeDetail 정보 조회 (직원 상세 테이블)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다. ID: " + id));
+        //  직원 상세 정보 조회 
         MemberEmployeeDetail detail = detailRepository.findByMemberMemberId(id)
                 .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 존재하지 않습니다. ID: " + id));
-        // DTO 변환
+        
         return EmployeeResponseDTO.EmployeeDetailResponseDto.builder()
                 .memberAccount(member.getMemberAccount())
                 .memberName(member.getMemberName())
                 .memberRole(member.getMemberRole())
                 .memberStatus(member.getMemberStatus())
                 .task(member.getTask())
-                .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : null)
+                // 부서가 있을 경우에만 아이디 추출
+                .departmentid(member.getDepartment() != null ? member.getDepartment().getDepartmentId().intValue() : null)
+
                 .nickname(detail.getNickname())
                 .personalEmail(detail.getPersonalEmail())
                 .personalCall(detail.getPersonalCall())
                 .address(detail.getAddress())
                 .engName(detail.getEngName())
+                .corporEmail(detail.getCorporEmail())
+                .hireDate(detail.getHireDate()) 
+                .employmentType(detail.getEmploymentType())
                 .build();
     }
-
+    //직원 리스트
     @Override
     public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList() {
         LocalDate today = LocalDate.now();
@@ -106,5 +116,42 @@ public class EmployeeServiceImpl implements EmployeeService{
                         .build())
                 .list(list)
                 .build();
+    }
+
+
+
+    //직원 등록 기능
+    @Override
+    public void registerEmployee(EmployeeRequestDTO.EmployeeInsertRequestDto requestDto) {
+
+        // 부서 정보 조회
+        Department department = departmentRepository.findById(requestDto.getDepartmentid().longValue())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서입니다. ID: " + requestDto.getDepartmentid()));
+        // Member 엔티티 생성 및 저장 (계정 정보)
+        // 패스워드 인코더 없이 사번(memberAccount)으로  - 패스워드 인코더 기능 추후 보안
+        Member member = Member.builder()
+                .memberAccount(requestDto.getMemberAccount())
+                .memberPassword(requestDto.getPassword()) // 현재 평문 저장
+                .memberName(requestDto.getMemberName())
+                .memberRole(requestDto.getMemberRole())
+                .memberStatus(requestDto.getMemberStatus())
+                .task(requestDto.getTask())
+                .department(department)
+                .build();
+        Member savedMember = memberRepository.save(member);
+        //  MemberEmployeeDetail  저장
+        MemberEmployeeDetail detail = MemberEmployeeDetail.builder()
+                .member(savedMember)
+                .nickname(requestDto.getNickname())
+                .personalEmail(requestDto.getPersonalEmail())
+                .personalCall(requestDto.getPersonalCall())
+                .address(requestDto.getAddress())
+                .engName(requestDto.getEngName())
+                .corporEmail(requestDto.getCorporEmail())
+                .hireDate(requestDto.getHireDate())
+                .employmentType(requestDto.getEmploymentType())
+                .vacationRemainder(15.0)
+                .build();
+        detailRepository.save(detail);
     }
 }
