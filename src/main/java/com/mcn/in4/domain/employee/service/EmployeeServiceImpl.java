@@ -9,11 +9,13 @@ import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService{
@@ -30,7 +33,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     private final AttendanceRepository attendanceRepository; // 근태
     private final VacationRepository vacationRepository; // 휴가 조회
 
-    private final DepartmentRepository departmentRepository; // 부서 리포
+    private final DepartmentRepository departmentRepository; // 부서 레포
 
     //직원 상세 조회
     @Override
@@ -61,9 +64,11 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .employmentType(detail.getEmploymentType())
                 .build();
     }
+
+    
     //직원 리스트
     @Override
-    public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList() {
+    public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList(String name) {
         LocalDate today = LocalDate.now();
         // 부서 정보를  페치 조인 으로 가져옴
         List<Member> members = memberRepository.findAllWithDepartment();
@@ -77,7 +82,16 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .collect(Collectors.toMap(a -> a.getMember().getMemberId(), Attendance::getAttendanceStatus));
 
 
-        List<EmployeeResponseDTO.EmployeeListDto> list = members.stream().map(member -> {
+        //검색 필터 로직
+        List<Member> filteredMembers = members;
+        if (name != null && !name.trim().isEmpty()) {
+            filteredMembers = members.stream()
+                    .filter(m -> m.getMemberName().contains(name))
+                    .collect(Collectors.toList());
+        }
+
+
+        List<EmployeeResponseDTO.EmployeeListDto> list = filteredMembers.stream().map(member -> {
             Long memberId = member.getMemberId();
             MemberEmployeeDetail detail = detailMap.get(memberId);
 
@@ -152,6 +166,28 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .employmentType(requestDto.getEmploymentType())
                 .vacationRemainder(15.0)
                 .build();
+        detailRepository.save(detail);
+    }
+
+
+    @Override
+    public void quitEmployee(Long id, EmployeeRequestDTO.EmployeeQuitRequestDto requestDto) {
+
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다."));
+        log.info("직원 이 존재하는지 확인하기 위함 : 직원 퇴사 처리 기능");
+        MemberEmployeeDetail detail = detailRepository.findByMemberMemberId(id)
+                .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다."));
+        log.info("직원 상세정보가 있는지 확인하기 위함 : 직원 퇴사 처리 기능");
+
+
+        String today = LocalDate.now().toString();
+        member.updateStatus(MemberStatus.SUSPENDED);
+        detail.markAsQuit(today, requestDto.getLeavingReason());
+
+        //맴버의 상태 값을 바꿈 SUSPENDED
+        memberRepository.save(member);
+        //퇴사 사유랑 일자 넣기
         detailRepository.save(detail);
     }
 }

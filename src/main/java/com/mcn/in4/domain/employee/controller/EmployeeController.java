@@ -16,8 +16,9 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     // 직원 관리 리스트 및 통계 조회
     @GetMapping("/")
-    public ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList() {
-        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList();
+    public ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
+            @RequestParam(value = "name", required = false) String name) {
+        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList(name);
         return ResponseEntity.ok(response);
     }
 
@@ -35,6 +36,15 @@ public class EmployeeController {
         return ResponseEntity.ok("직원 등록이 완료되었습니다.");
     }
 
+    // 직원 퇴사 처리
+    @PostMapping("/quit/{id}")
+    public ResponseEntity<String> quitEmployee(
+            @PathVariable("id") Long id,
+            @RequestBody EmployeeRequestDTO.EmployeeQuitRequestDto requestDto) {
+
+        employeeService.quitEmployee(id, requestDto);
+        return ResponseEntity.ok("퇴사 처리가 완료되었습니다.");
+    }
 
 
 }

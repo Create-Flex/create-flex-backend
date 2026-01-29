@@ -30,4 +30,11 @@ public class EmployeeRequestDTO {
         private String hireDate; // 입사일
         private EmploymentType employmentType; // 입사유형  NEWBIE, EXPERIENCED
     }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor // 퇴사 사유
+    public static class EmployeeQuitRequestDto {
+        private String leavingReason;
+    }
 }

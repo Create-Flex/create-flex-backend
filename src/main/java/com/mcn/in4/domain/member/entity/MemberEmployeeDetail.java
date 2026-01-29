@@ -77,4 +77,10 @@ public class MemberEmployeeDetail {
     public void increaseVacationRemainder(double days) {
         this.vacationRemainder += days;
     }
+
+    //퇴사 일, 퇴사 이유
+    public void markAsQuit(String empDate, String leavingReason) {
+        this.empDate = empDate;
+        this.leavingReason = leavingReason;
+    }
 }

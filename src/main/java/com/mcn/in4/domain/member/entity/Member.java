@@ -51,4 +51,11 @@ public class Member {
     @Column(name = "member_status", nullable = false)
     private MemberStatus memberStatus;
     //사용자 상태
+
+    //퇴사 상태 변경
+    public void updateStatus(MemberStatus newStatus) {
+        this.memberStatus = newStatus;
+    }
+
+
 }
