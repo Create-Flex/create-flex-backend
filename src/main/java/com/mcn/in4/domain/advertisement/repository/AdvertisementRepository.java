@@ -13,18 +13,34 @@ import java.util.Optional;
 @Repository
 public interface AdvertisementRepository extends JpaRepository<CreatorPromotion, Long> {
 
-    // 전체 광고 캠페인 목록 조회 (크리에이터 정보 함께 조회, 최신순)
+    // 매니저가 담당하는 크리에이터들의 전체 광고 캠페인 목록 조회
     @Query("SELECT DISTINCT cp FROM CreatorPromotion cp " +
-            "JOIN FETCH cp.memberCreator " +
+            "JOIN FETCH cp.memberCreator mc " +
+            "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = mc " +
+            "WHERE mcd.memberManager.memberId = :managerId " +
             "ORDER BY cp.createdAt DESC")
-    List<CreatorPromotion> findAllWithCreator();
+    List<CreatorPromotion> findByManagerId(@Param("managerId") Long managerId);
 
-    // 상태별 광고 캠페인 목록 조회
+    // 매니저가 담당하는 크리에이터들의 광고 캠페인 중 특정 상태 조회
     @Query("SELECT DISTINCT cp FROM CreatorPromotion cp " +
-            "JOIN FETCH cp.memberCreator " +
-            "WHERE cp.promotionStatus = :status " +
+            "JOIN FETCH cp.memberCreator mc " +
+            "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = mc " +
+            "WHERE mcd.memberManager.memberId = :managerId " +
+            "AND cp.promotionStatus = :status " +
             "ORDER BY cp.createdAt DESC")
-    List<CreatorPromotion> findByStatus(@Param("status") PromotionStatus status);
+    List<CreatorPromotion> findByManagerIdAndStatus(
+            @Param("managerId") Long managerId,
+            @Param("status") PromotionStatus status
+    );
+
+    // 매니저가 담당하는 크리에이터들의 광고 캠페인 중 처리내역 조회 (ACCEPTED + REJECTED)
+    @Query("SELECT DISTINCT cp FROM CreatorPromotion cp " +
+            "JOIN FETCH cp.memberCreator mc " +
+            "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = mc " +
+            "WHERE mcd.memberManager.memberId = :managerId " +
+            "AND cp.promotionStatus IN ('ACCEPTED', 'REJECTED') " +
+            "ORDER BY cp.createdAt DESC")
+    List<CreatorPromotion> findByManagerIdAndProcessedStatus(@Param("managerId") Long managerId);
 
     // 광고 캠페인 단건 조회 (크리에이터 정보 함께 조회)
     @Query("SELECT cp FROM CreatorPromotion cp " +

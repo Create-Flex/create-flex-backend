@@ -51,19 +51,26 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public List<AdvertisementResponseDTO.Info> getAllAdvertisements() {
-        List<CreatorPromotion> promotions = advertisementRepository.findAllWithCreator();
+    public List<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(Long managerId, String filter) {
+        List<CreatorPromotion> promotions;
 
-        return promotions.stream()
-                .map(AdvertisementResponseDTO.Info::from)
-                .collect(Collectors.toList());
-    }
+        switch (filter.toLowerCase()) {
+            case "waiting":
+                // 대기중인 제안 (WAITING 상태만)
+                promotions = advertisementRepository.findByManagerIdAndStatus(managerId, PromotionStatus.WAITING);
+                break;
 
-    @Override
-    public List<AdvertisementResponseDTO.Info> getAdvertisementsByStatus(String status) {
-        PromotionStatus promotionStatus = parsePromotionStatus(status);
+            case "processed":
+                // 처리내역 (ACCEPTED + REJECTED)
+                promotions = advertisementRepository.findByManagerIdAndProcessedStatus(managerId);
+                break;
 
-        List<CreatorPromotion> promotions = advertisementRepository.findByStatus(promotionStatus);
+            case "all":
+            default:
+                // 전체보기
+                promotions = advertisementRepository.findByManagerId(managerId);
+                break;
+        }
 
         return promotions.stream()
                 .map(AdvertisementResponseDTO.Info::from)
@@ -130,14 +137,6 @@ public class AdvertisementServiceImpl implements AdvertisementService {
         return advertisementRepository.findByIdWithCreator(promotionId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "존재하지 않는 광고 캠페인입니다. promotionId: " + promotionId));
-    }
-
-    private PromotionStatus parsePromotionStatus(String status) {
-        try {
-            return PromotionStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("유효하지 않은 광고 상태입니다: " + status);
-        }
     }
 
     // 광고 수락 시 크리에이터 일정에 자동 추가 => 일정 구현 후 적용
