@@ -34,10 +34,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
 //                        .requestMatchers(HttpMethod.POST,"/**").permitAll()
 
-//                        //관리자 전용
-//                        .requestMatchers(HttpMethod.GET, "/**").hasRole("ADMIN")
-//                        .requestMatchers(HttpMethod.GET, "/**").hasRole("ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+                          // 관리자 전용
+                          // 크리에이터 관리
+                          .requestMatchers(HttpMethod.GET, "/api/creators").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.POST, "/api/creators").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.GET, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.PATCH, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.DELETE, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
+
+                          // 계약 관리
+                          .requestMatchers(HttpMethod.GET, "/api/contracts").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.POST, "/api/contracts").hasRole("ADMINISTRATOR")
+
+                          // 법률 세무 관리
+                          .requestMatchers(HttpMethod.GET, "/api/legaltax/admin/all").hasRole("ADMINISTRATOR")
+                          .requestMatchers(HttpMethod.PATCH, "/api/legaltax/{legalTaxId}/complete").hasRole("ADMINISTRATOR")
 
                         //나머지경로
                         .anyRequest().authenticated()
