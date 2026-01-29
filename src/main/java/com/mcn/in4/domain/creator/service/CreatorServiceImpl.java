@@ -31,6 +31,7 @@ public class CreatorServiceImpl implements CreatorService {
     private final MemberProfileRepository memberProfileRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 크리에이터 생성
     @Override
     @Transactional
     public Long createCreator(CreatorRequestDTO.Create request) {
@@ -43,13 +44,24 @@ public class CreatorServiceImpl implements CreatorService {
         return creator.getMemberId();
     }
 
+    // 전체 크리에이터 조회
     @Override
-    public List<CreatorResponseDTO.Info> getAllCreators() {
-        List<Member> creators = creatorRepository.findAllCreatorsWithDepartment(
-                MemberRole.CREATOR, MemberStatus.WORKING);
+    public List<CreatorResponseDTO.Info> getAllCreators(String name) {
+        List<Member> creators;
+
+        // 이름 검색어가 있으면 검색, 없으면 전체 조회
+        if (name != null && !name.trim().isEmpty()) {
+            creators = creatorRepository.findCreatorsByNameWithDepartment(
+                    MemberRole.CREATOR, MemberStatus.WORKING, name.trim());
+        } else {
+            creators = creatorRepository.findAllCreatorsWithDepartment(
+                    MemberRole.CREATOR, MemberStatus.WORKING);
+        }
+
         return buildResponseList(creators);
     }
 
+    // 크리에이터 상세 조회
     @Override
     public CreatorResponseDTO.Info getCreatorById(Long creatorId) {
         Member creator = findCreator(creatorId);
@@ -58,6 +70,7 @@ public class CreatorServiceImpl implements CreatorService {
         return buildResponse(creator, detail, profile);
     }
 
+    // 크리에이터 정보 수정
     @Override
     @Transactional
     public CreatorResponseDTO.Info updateCreator(Long creatorId, CreatorRequestDTO.Update request) {
@@ -74,6 +87,7 @@ public class CreatorServiceImpl implements CreatorService {
         return buildResponse(creator, detail, findProfile(creatorId));
     }
 
+    // 크리에이터 삭제 -> 상태를 변경하여 삭제 처리
     @Override
     @Transactional
     public void deleteCreator(Long creatorId) {
@@ -89,6 +103,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
+    // 매니저별 크리에이터 조회
     @Override
     public List<CreatorResponseDTO.Info> getMyCreators(Long managerId) {
         List<Member> creators = creatorRepository.findCreatorsByManagerIdWithDepartment(
@@ -96,34 +111,37 @@ public class CreatorServiceImpl implements CreatorService {
         return buildResponseList(creators);
     }
 
-    // ========== Private Methods ==========
-
+    // 사번 중복 검사
     private void validateDuplicateAccount(String memberAccount) {
         if (creatorRepository.existsByMemberAccount(memberAccount)) {
             throw new IllegalArgumentException("이미 존재하는 사번입니다: " + memberAccount);
         }
     }
 
+    // 매니저 조회
     private Member findManager(Long managerId) {
         return creatorRepository.findManagerById(managerId, MemberRole.MANAGER)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매니저입니다: " + managerId));
     }
-
+    
+    // 크리에이터 조회
     private Member findCreator(Long creatorId) {
         return creatorRepository.findCreatorByIdWithDepartment(
                         creatorId, MemberRole.CREATOR, MemberStatus.WORKING)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 크리에이터입니다: " + creatorId));
     }
-
+    // 크리에이터 상세 정보 조회
     private MemberCreatorDetail findCreatorDetail(Long creatorId) {
         return creatorDetailRepository.findByCreatorIdWithManager(creatorId)
                 .orElseThrow(() -> new IllegalArgumentException("크리에이터 상세 정보가 없습니다"));
     }
 
+    // 프로필 정보 조회
     private MemberProfile findProfile(Long creatorId) {
         return memberProfileRepository.findByMember_MemberId(creatorId).orElse(null);
     }
 
+    // 크리에이터 회원 정보 저장
     private Member saveCreator(CreatorRequestDTO.Create request) {
         return creatorRepository.save(Member.builder()
                 .memberAccount(request.getMemberAccount())
@@ -134,6 +152,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
+    // 크리에이터 상세 정보 저장
     private void saveCreatorDetail(CreatorRequestDTO.Create request, Member creator, Member manager) {
         creatorDetailRepository.save(MemberCreatorDetail.builder()
                 .memberCreator(creator)
@@ -146,12 +165,14 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
+    // 회원 정보 변경 여부 확인
     private boolean hasMemberChange(CreatorRequestDTO.Update request) {
         return request.getMemberName() != null ||
                 request.getMemberAccount() != null ||
                 request.getMemberPassword() != null;
     }
 
+    // 담당 매니저 조회
     private Member getManager(MemberCreatorDetail detail, Long newManagerId) {
         if (newManagerId != null && !newManagerId.equals(detail.getMemberManager().getMemberId())) {
             return findManager(newManagerId);
@@ -159,6 +180,7 @@ public class CreatorServiceImpl implements CreatorService {
         return detail.getMemberManager();
     }
 
+    // 크리에이터 회원 정보 업데이트
     private Member updateMember(Member creator, CreatorRequestDTO.Update request) {
         return creatorRepository.save(Member.builder()
                 .memberId(creator.getMemberId())
@@ -174,6 +196,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
+    // 크리에이터 상세 정보 업데이트
     private MemberCreatorDetail updateDetail(Member creator, MemberCreatorDetail detail,
                                              Member manager, CreatorRequestDTO.Update request) {
         return creatorDetailRepository.save(MemberCreatorDetail.builder()
@@ -193,6 +216,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
+    // 크리에이터 리스트를 응답 DTO 리스트로 변환
     private List<CreatorResponseDTO.Info> buildResponseList(List<Member> creators) {
         if (creators.isEmpty()) {
             return List.of();
@@ -221,6 +245,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .collect(Collectors.toList());
     }
 
+    // 단일 크리에이터를 응답 DTO로 변환
     private CreatorResponseDTO.Info buildResponse(Member creator, MemberCreatorDetail detail,
                                                   MemberProfile profile) {
         return profile != null ?

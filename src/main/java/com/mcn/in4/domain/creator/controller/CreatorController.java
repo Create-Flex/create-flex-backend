@@ -21,6 +21,7 @@ public class CreatorController {
 
     private final CreatorService creatorService;
 
+    // 크리에이터 등록
     @PostMapping
     public ResponseEntity<Map<String, Object>> createCreator(@RequestBody CreatorRequestDTO.Create request) {
         Long creatorId = creatorService.createCreator(request);
@@ -32,16 +33,22 @@ public class CreatorController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // 크리에이터 목록 조회
+    // GET /api/creators (전체 조회)
+    // GET /api/creators?name=감
     @GetMapping
-    public ResponseEntity<List<CreatorResponseDTO.Info>> getAllCreators() {
-        return ResponseEntity.ok(creatorService.getAllCreators());
+    public ResponseEntity<List<CreatorResponseDTO.Info>> getAllCreators(
+            @RequestParam(required = false) String name) {
+        return ResponseEntity.ok(creatorService.getAllCreators(name));
     }
 
+    // 크리에이터 상세 조회
     @GetMapping("/{creatorId}")
     public ResponseEntity<CreatorResponseDTO.Info> getCreatorById(@PathVariable Long creatorId) {
         return ResponseEntity.ok(creatorService.getCreatorById(creatorId));
     }
 
+    // 크리에이터 수정
     @PatchMapping("/{creatorId}")
     public ResponseEntity<Map<String, Object>> updateCreator(
             @PathVariable Long creatorId,
@@ -55,6 +62,7 @@ public class CreatorController {
         return ResponseEntity.ok(response);
     }
 
+    // 크리에이터 삭제
     @DeleteMapping("/{creatorId}")
     public ResponseEntity<Map<String, Object>> deleteCreator(@PathVariable Long creatorId) {
         creatorService.deleteCreator(creatorId);
@@ -65,6 +73,7 @@ public class CreatorController {
         return ResponseEntity.ok(response);
     }
 
+    // 매니저별 크리에이터 조회
     @GetMapping("/manager/{managerId}")
     public ResponseEntity<List<CreatorResponseDTO.Info>> getMyCreators(@PathVariable Long managerId) {
         return ResponseEntity.ok(creatorService.getMyCreators(managerId));
