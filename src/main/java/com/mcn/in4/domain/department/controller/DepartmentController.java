@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.department.controller;
 
 import com.mcn.in4.domain.department.dto.request.DepartmentRequest;
+import com.mcn.in4.domain.department.dto.response.DepartmentDetailResponse;
 import com.mcn.in4.domain.department.dto.response.DepartmentResponse;
 import com.mcn.in4.domain.department.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +44,11 @@ public class DepartmentController {
     public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.noContent().build(); // 204 No Content 반환
+    }
+
+    // 부서 상세 조회
+    @GetMapping("/department/{id}")
+    public ResponseEntity<DepartmentDetailResponse> getDepartmentDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(departmentService.findDepartmentDetail(id));
     }
 }
