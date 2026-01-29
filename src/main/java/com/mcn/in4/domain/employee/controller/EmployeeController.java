@@ -16,10 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EmployeeController {
     private final EmployeeService employeeService;
+    // 직원 관리 리스트 및 통계 조회
+    @GetMapping("/")
+    public ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList() {
+        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList();
+        return ResponseEntity.ok(response);
+    }
+
+    //직원 상세 조회
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(@PathVariable("id") Long id) {
         EmployeeResponseDTO.EmployeeDetailResponseDto response = employeeService.getEmployeeDetail(id);
         return ResponseEntity.ok(response);
     }
+
+
 
 }
