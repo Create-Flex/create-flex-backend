@@ -1,4 +1,4 @@
-package com.mcn.in4.entity.health;
+package com.mcn.in4.domain.health.entity;
 
 public enum CheckupSummanary {
     NORMAL_AB,
