@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.auth.controller;
 
+import com.mcn.in4.domain.auth.controller.api.AuthApi;
 import com.mcn.in4.domain.auth.dto.request.AuthRequestDTO;
 import com.mcn.in4.domain.auth.dto.response.AuthResponseDTO;
 import com.mcn.in4.domain.auth.service.AuthService;
@@ -13,13 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthApi {
     private final AuthService authService;
+
+    @Override
     @PostMapping("/login")
     public AuthResponseDTO login(@RequestBody AuthRequestDTO.loginRequestDto request) {
         return authService.login(request);
     }
 
+    @Override
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
         authService.logout();
