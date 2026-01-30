@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.contract.controller;
 
+import com.mcn.in4.domain.contract.controller.api.ContractApi;
 import com.mcn.in4.domain.contract.dto.request.ContractRequestDTO;
 import com.mcn.in4.domain.contract.dto.response.ContractResponseDTO;
 import com.mcn.in4.domain.contract.service.ContractService;
@@ -15,11 +16,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/contracts")
 @RequiredArgsConstructor
-public class ContractController {
+public class ContractController implements ContractApi {
 
     private final ContractService contractService;
 
     // 계약 등록
+    @Override
     @PostMapping
     public ResponseEntity<Map<String, Object>> createContract(
             @RequestBody ContractRequestDTO.Create request) {
@@ -33,6 +35,7 @@ public class ContractController {
     }
 
     // 계약 목록 조회
+    @Override
     @GetMapping
     public ResponseEntity<List<ContractResponseDTO.Info>> getAllContracts() {
         return ResponseEntity.ok(contractService.getAllContracts());

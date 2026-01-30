@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.legalTax.controller;
 
+import com.mcn.in4.domain.legalTax.controller.api.LegalTaxApi;
 import com.mcn.in4.domain.legalTax.dto.request.LegalTaxRequestDTO;
 import com.mcn.in4.domain.legalTax.dto.response.LegalTaxResponseDTO;
 import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
@@ -20,11 +21,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/legaltax")
 @RequiredArgsConstructor
-public class LegalTaxController {
+public class LegalTaxController implements LegalTaxApi {
 
     private final LegalTaxService legalTaxService;
 
     // 법률/세무 상담 신청
+    @Override
     @PostMapping
     public ResponseEntity<Map<String, Object>> createLegalTax(
             @RequestBody LegalTaxRequestDTO.Create request) {
@@ -38,6 +40,7 @@ public class LegalTaxController {
     }
 
     // 전체 상담 신청 목록 조회 (관리자용)
+    @Override
     @GetMapping("/admin/all")
     public ResponseEntity<List<LegalTaxResponseDTO.Info>> getAllLegalTax(
             @RequestParam(required = false) LegalTaxType type,
@@ -46,6 +49,7 @@ public class LegalTaxController {
     }
 
     // 내 담당 크리에이터의 상담 신청 목록 조회 (매니저용)
+    @Override
     @GetMapping("/my")
     public ResponseEntity<List<LegalTaxResponseDTO.Info>> getMyLegalTax(
             @AuthenticationPrincipal String userId,
@@ -57,6 +61,7 @@ public class LegalTaxController {
     }
 
     // 상담 완료 처리(관리자)
+    @Override
     @PatchMapping("/{legalTaxId}/complete")
     public ResponseEntity<Map<String, Object>> completeLegalTax(
             @PathVariable Long legalTaxId) {
