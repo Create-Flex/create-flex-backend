@@ -40,7 +40,7 @@ public interface VacationAdminApi {
             @RequestParam(required = false) VacationApprove status,
             @Parameter(description = "직원 이름 검색", example = "홍길동")
             @RequestParam(required = false) String name,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 
     @Operation(
@@ -52,7 +52,9 @@ public interface VacationAdminApi {
                     @ApiResponse(responseCode = "403", description = "권한 없음 (관리자만 접근 가능)")
             }
     )
-    ResponseEntity<VacationStatisticsResponseDTO> getVacationStatistics(Authentication authentication);
+    ResponseEntity<VacationStatisticsResponseDTO> getVacationStatistics(
+            @Parameter(hidden = true) Authentication authentication
+    );
 
     @Operation(
             summary = "휴가 승인",
@@ -68,7 +70,7 @@ public interface VacationAdminApi {
     ResponseEntity<Void> approveVacation(
             @Parameter(description = "휴가 ID", example = "1")
             @PathVariable Long vacationId,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 
     @Operation(
@@ -91,6 +93,6 @@ public interface VacationAdminApi {
                             "  \"rejectReason\": \"업무 일정 충돌로 인해 반려합니다.\"\n" +
                             "}"))
             ) VacationRejectRequestDTO request,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 }

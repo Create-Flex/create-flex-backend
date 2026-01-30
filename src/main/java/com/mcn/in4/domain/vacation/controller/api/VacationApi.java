@@ -40,23 +40,47 @@ public interface VacationApi {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "휴가 신청 정보",
                     content = @Content(examples = {
-                            @ExampleObject(name = "연차", value = "{\n" +
+                            @ExampleObject(name = "연차 (ANNUAL)", value = "{\n" +
                                     "  \"memberId\": 1001,\n" +
                                     "  \"vacationStart\": \"2026-02-01\",\n" +
                                     "  \"vacationEnd\": \"2026-02-03\",\n" +
                                     "  \"vacationDetail\": \"개인 사유\"\n" +
                                     "}"),
-                            @ExampleObject(name = "경조사", value = "{\n" +
+                            @ExampleObject(name = "반차 (HALF)", value = "{\n" +
+                                    "  \"memberId\": 1001,\n" +
+                                    "  \"vacationStart\": \"2026-02-01\",\n" +
+                                    "  \"vacationEnd\": \"2026-02-01\",\n" +
+                                    "  \"vacationDetail\": \"오전 반차\"\n" +
+                                    "}"),
+                            @ExampleObject(name = "경조사 (FAMILY)", value = "{\n" +
                                     "  \"memberId\": 1001,\n" +
                                     "  \"vacationStart\": \"2026-02-01\",\n" +
                                     "  \"vacationEnd\": \"2026-02-03\",\n" +
                                     "  \"vacationDetail\": \"결혼식 참석\",\n" +
                                     "  \"familyRelation\": \"형제\",\n" +
                                     "  \"familyDetail\": \"결혼\"\n" +
+                                    "}"),
+                            @ExampleObject(name = "병가 (SICK)", value = "{\n" +
+                                    "  \"memberId\": 1001,\n" +
+                                    "  \"vacationStart\": \"2026-02-01\",\n" +
+                                    "  \"vacationEnd\": \"2026-02-02\",\n" +
+                                    "  \"vacationDetail\": \"감기 몸살\",\n" +
+                                    "  \"sickDetail\": \"고열 및 몸살 증상\",\n" +
+                                    "  \"sickHospital\": \"서울대학교병원\"\n" +
+                                    "}"),
+                            @ExampleObject(name = "워케이션 (WORKATION)", value = "{\n" +
+                                    "  \"memberId\": 1001,\n" +
+                                    "  \"vacationStart\": \"2026-02-01\",\n" +
+                                    "  \"vacationEnd\": \"2026-02-05\",\n" +
+                                    "  \"vacationDetail\": \"제주도 워케이션\",\n" +
+                                    "  \"workationWhere\": \"제주도 서귀포시\",\n" +
+                                    "  \"workationContact\": \"010-1234-5678\",\n" +
+                                    "  \"workationPlan\": \"오전 업무 / 오후 자유시간\",\n" +
+                                    "  \"workationHandover\": \"긴급 건은 홍길동 대리에게 인계\"\n" +
                                     "}")
                     })
             ) VacationRequestDTO request,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 
     @Operation(
@@ -77,7 +101,7 @@ public interface VacationApi {
             @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 
     @Operation(
@@ -93,7 +117,7 @@ public interface VacationApi {
     ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
             @Parameter(description = "휴가 ID", example = "1")
             @PathVariable Long vacationId,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 
     @Operation(
@@ -108,6 +132,6 @@ public interface VacationApi {
     ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
             @Parameter(description = "회원 ID", example = "1001")
             @RequestParam("memberId") Long memberId,
-            Authentication authentication
+            @Parameter(hidden = true) Authentication authentication
     );
 }
