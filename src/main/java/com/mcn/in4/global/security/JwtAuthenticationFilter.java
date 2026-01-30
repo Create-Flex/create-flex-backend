@@ -17,20 +17,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //요청정보를 가지고 인증후, 인증이 완료되면 정보를 security에 저장
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        // 요청정보를 가지고 인증후, 인증이 완료되면 정보를 security에 저장
 
         try {
-            //1. 요청정보에서 토큰 추출
+            // 1. 요청정보에서 토큰 추출
             String token = getJwtFormRequest(request);
 
-            //2. 토큰이 정상적인 토큰인지를 검증
+            // 2. 토큰이 정상적인 토큰인지를 검증
             if (StringUtils.hasText(token)) {
                 Optional<Claims> claimsOpt = jwtTokenProvider.validateToken(token);
 
@@ -38,11 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String userId = jwtTokenProvider.getUserIdFromToken(token);
                     String role = jwtTokenProvider.getRoleFromToken(token);
 
-                    //가져온 권한을 넣어주고
+                    // 가져온 권한을 넣어주고
                     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
                     // 유저의 id와 권한 같이 autentication에 넣어줌
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userId, null, Collections.singletonList(authority));
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
+                            null, Collections.singletonList(authority));
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -58,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getJwtFormRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if(StringUtils.hasText(bearerToken) &&  bearerToken.startsWith("Bearer ")) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
 

@@ -1,51 +1,65 @@
 package com.mcn.in4.domain.attendance.repository;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+/**
+ * 근태 관리 리포지토리
+ * 근태 데이터의 DB 조회 및 저장을 담당합니다.
+ */
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
         // 직원 엔티티와 날짜로 조회
         @Query("SELECT a FROM Attendance a WHERE a.member = :member AND a.attendanceDate = :attendanceDate")
         Optional<Attendance> findByMemberAndAttendanceDate(Member member, LocalDate attendanceDate);
 
-        // 특정 날짜 의 모든 근태 기록을 한번에 조회함, 직원 통계(오늘 근태를 가져올때 사용)
+        // 특정 날짜의 모든 근태 기록을 한번에 조회함, 직원 통계(오늘 근태를 가져올때 사용)
         List<Attendance> findAllByAttendanceDate(LocalDate attendanceDate);
 
-        @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId AND a.attendanceDate = :attendanceDate")
+        /**
+         * 직원 ID와 날짜로 근태 기록 조회
+         */
+        @Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId AND a.attendanceDate = :attendanceDate")
         Optional<Attendance> findByMemberIdAndAttendanceDate(
-                        @org.springframework.data.repository.query.Param("memberId") Long memberId,
-                        @org.springframework.data.repository.query.Param("attendanceDate") LocalDate attendanceDate);
+                        @Param("memberId") Long memberId,
+                        @Param("attendanceDate") LocalDate attendanceDate);
 
-        @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId "
+        /**
+         * 조건별 근태 조회 (특정 직원)
+         */
+        @Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId "
                         +
                         "AND (:startDate IS NULL OR a.attendanceDate >= :startDate) " +
                         "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
                         "AND (:attendanceStatus IS NULL OR a.attendanceStatus = :attendanceStatus) " +
                         "ORDER BY a.attendanceDate DESC")
         List<Attendance> findAttendance(
-                        @org.springframework.data.repository.query.Param("memberId") Long memberId,
-                        @org.springframework.data.repository.query.Param("startDate") LocalDate startDate,
-                        @org.springframework.data.repository.query.Param("endDate") LocalDate endDate,
-                        @org.springframework.data.repository.query.Param("attendanceStatus") com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus attendanceStatus);
+                        @Param("memberId") Long memberId,
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate,
+                        @Param("attendanceStatus") AttendanceStatus attendanceStatus);
 
-
-        @org.springframework.data.jpa.repository.Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE " +
+        /**
+         * 조건별 전체 근태 조회 (관리자용)
+         */
+        @Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE " +
                         "(:startDate IS NULL OR a.attendanceDate >= :startDate) " +
                         "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
                         "AND (:attendanceStatus IS NULL OR a.attendanceStatus = :attendanceStatus) " +
                         "ORDER BY a.attendanceDate DESC")
         List<Attendance> findAllAttendance(
-                        @org.springframework.data.repository.query.Param("startDate") LocalDate startDate,
-                        @org.springframework.data.repository.query.Param("endDate") LocalDate endDate,
-                        @org.springframework.data.repository.query.Param("attendanceStatus") com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus attendanceStatus);
-        
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate,
+                        @Param("attendanceStatus") AttendanceStatus attendanceStatus);
+
 }
