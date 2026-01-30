@@ -19,17 +19,32 @@ public class EmployeeTeamController {
 
     private final TeamService teamService;
 
-    // API: GET /api/employees/teams/{id}
-    @GetMapping("/{id}")
+    // 1. 내 팀 목록 조회 (수정됨)
+    // URL: GET /api/employees/teams  <-- {id} 제거!
+    // 토큰만 있으면 누군지 아니까 ID를 URL에 안 넣어도 됩니다.
+    @GetMapping
     public ResponseEntity<List<MyTeamResponse>> getMyTeams(
-            @PathVariable("id") Long memberId, // URL의 {id}를 받음
-            @AuthenticationPrincipal String currentMemberId) { // [중요] 토큰의 subject(ID)를 String으로 받음
+            @AuthenticationPrincipal String memberAccount) {
 
-        if (currentMemberId == null) {
+        if (memberAccount == null) {
             return ResponseEntity.status(401).build();
         }
 
-        // 토큰의 ID(String)와 요청한 ID(Long)를 서비스로 전달
-        return ResponseEntity.ok(teamService.getMyTeams(currentMemberId, memberId));
+        // 서비스에 사번만 넘기면 알아서 찾아줌
+        return ResponseEntity.ok(teamService.getMyTeams(memberAccount));
+    }
+
+    // 2. 특정 팀 상세 조회
+    // URL: GET /api/employees/teams/{teamId}
+    @GetMapping("/{teamId}")
+    public ResponseEntity<MyTeamResponse> getMyTeamDetail(
+            @PathVariable("teamId") Long teamId,
+            @AuthenticationPrincipal String memberAccount) {
+
+        if (memberAccount == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(teamService.getMyTeamDetail(memberAccount, teamId));
     }
 }

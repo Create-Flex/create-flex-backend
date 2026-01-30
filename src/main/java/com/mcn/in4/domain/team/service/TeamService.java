@@ -13,5 +13,7 @@ public interface TeamService {
     void createTeam(TeamCreateRequest request);
     void updateTeamMembers(Long teamId, TeamMemberUpdateRequest request);
     void deleteTeam(Long teamId);
-    List<MyTeamResponse> getMyTeams(String memberAccount, Long requestedMemberId);
+    // 1. 내 팀 목록 조회
+    List<MyTeamResponse> getMyTeams(String memberAccount);
+    MyTeamResponse getMyTeamDetail(String memberAccount, Long teamId);
 }

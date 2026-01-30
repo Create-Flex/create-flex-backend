@@ -23,5 +23,5 @@ public interface TeamRelayRepository extends JpaRepository<TeamRelay, Long> {
     void deleteAllByTeamId(@Param("teamId") Long teamId);
 
     List<TeamRelay> findAllByMemberMemberId(Long memberId);
-    
+
 }
