@@ -30,9 +30,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                       // Swagger 권한
+                       .requestMatchers(
+                               "/swagger-ui/**",
+                               "/v3/api-docs/**",
+                               "/swagger-ui.html"
+                       ).permitAll()
+
                         //인증없이 가능한 경우
                         .requestMatchers(HttpMethod.POST,"/api/auth/login").permitAll()
 //                        .requestMatchers(HttpMethod.POST,"/**").permitAll()
+
+
+
+
 
                           // 관리자 전용
                           // 크리에이터 관리
