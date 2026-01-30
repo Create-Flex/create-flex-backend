@@ -2,11 +2,14 @@ package com.mcn.in4.domain.team.controller;
 
 import com.mcn.in4.domain.team.dto.request.TeamCreateRequest;
 import com.mcn.in4.domain.team.dto.request.TeamMemberUpdateRequest;
+import com.mcn.in4.domain.team.dto.response.MyTeamResponse;
 import com.mcn.in4.domain.team.dto.response.TeamDetailResponse;
 import com.mcn.in4.domain.team.dto.response.TeamResponse;
 import com.mcn.in4.domain.team.service.TeamService; // 인터페이스 참조
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
