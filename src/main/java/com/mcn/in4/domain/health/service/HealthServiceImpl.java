@@ -35,8 +35,13 @@ public class HealthServiceImpl implements HealthService{
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    public List<HealthInfo> generateHealthInfo(Long memberId, LocalDate checkupDate, String checkupFileUrl){
-
+    public List<HealthInfo> generateHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
+        return healthRepository.findByMemberIdAndCheckupDateBetween(
+                memberId,
+                startDate,
+                endDate).stream()
+                .map(HealthInfo::from)
+                .toList();
     }
 
     public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file){

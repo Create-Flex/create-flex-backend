@@ -15,6 +15,7 @@ public class HealthRequestDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class HealthUpload{
         private Long memberId;
+        private String name;
         private LocalDate date;
         private CheckupSummanary summanary;
         private MultipartFile file;

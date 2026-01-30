@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.health.dto;
 
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
+import com.mcn.in4.domain.health.entity.Health;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,16 @@ public class HealthResponseDto {
         private CheckupSummanary checkupSummanary; //검진요약
         private LocalDate checkupDate; //검진일
         private String checkupFileUrl; //검진지 조회 Url
+
+        public static HealthInfo from(Health health){
+            return new HealthInfo(
+                    health.getHealthId(),
+                    health.getCheckupName(),
+                    health.getCheckupSummanary(),
+                    health.getCheckupDate(),
+                    health.getCheckupFileUrl()
+            );
+        }
     }
 
     @Getter
