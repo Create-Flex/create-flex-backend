@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Optional;
 
 public interface TeamRelayRepository extends JpaRepository<TeamRelay, Long> {
 
@@ -20,4 +21,7 @@ public interface TeamRelayRepository extends JpaRepository<TeamRelay, Long> {
     @Modifying
     @Query("delete from TeamRelay tr where tr.team.teamId = :teamId")
     void deleteAllByTeamId(@Param("teamId") Long teamId);
+
+    List<TeamRelay> findAllByMemberMemberId(Long memberId);
+    
 }

@@ -4,6 +4,7 @@ import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.team.dto.request.TeamCreateRequest;
 import com.mcn.in4.domain.team.dto.request.TeamMemberUpdateRequest;
+import com.mcn.in4.domain.team.dto.response.MyTeamResponse;
 import com.mcn.in4.domain.team.dto.response.TeamDetailResponse;
 import com.mcn.in4.domain.team.dto.response.TeamResponse;
 import com.mcn.in4.domain.team.entity.Team;
@@ -14,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -122,5 +125,51 @@ public class TeamServiceImpl implements TeamService {
 
         // 3. 팀 엔티티 삭제
         teamRepository.delete(team);
+    }
+
+    // TeamServiceImpl.java
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MyTeamResponse> getMyTeams(String tokenMemberId, Long requestedMemberId) {
+        // 1. 보안 검증 (토큰 주인 확인)
+        if (!tokenMemberId.equals(String.valueOf(requestedMemberId))) {
+            throw new IllegalArgumentException("본인의 정보만 조회할 수 있습니다.");
+        }
+
+        // 2. 내가 속한 팀 연결 정보 조회
+        List<TeamRelay> myRelays = teamRelayRepository.findAllByMemberMemberId(requestedMemberId);
+
+        if (myRelays.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 3. 데이터 변환
+        return myRelays.stream().map(relay -> {
+            Team team = relay.getTeam();
+
+            // [수정된 부분] 이미 있는 메서드 활용 (팀원 목록 조회)
+            List<TeamRelay> allTeamRelays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(team.getTeamId());
+
+            List<MyTeamResponse.TeamMemberResponse> memberResponses = allTeamRelays.stream()
+                    .map(tr -> {
+                        var m = tr.getMember();
+                        String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+                        return new MyTeamResponse.TeamMemberResponse(
+                                m.getMemberId(),
+                                m.getMemberName(),
+                                deptName,
+                                m.getTask()
+                        );
+                    }).toList();
+
+            // [중요] 빌더에 team의 실제 데이터를 확실히 바인딩
+            return MyTeamResponse.builder()
+                    .teamId(team.getTeamId())
+                    .teamName(team.getTeamName())
+                    .teamDetail(team.getTeamDetail())
+                    .teamMembers(memberResponses)
+                    .build();
+        }).toList();
     }
 }
