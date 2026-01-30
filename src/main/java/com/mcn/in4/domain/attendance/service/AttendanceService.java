@@ -2,6 +2,7 @@ package com.mcn.in4.domain.attendance.service;
 
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
+import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -56,4 +57,12 @@ public interface AttendanceService {
          * @return 대시보드 통계 DTO
          */
         AttendanceDashboardDto getMyDashboardStats(Long memberId);
+
+        /**
+         * 전사 근태 통계 조회
+         * 전사 평균 출퇴근/근무 시간 및 오늘 근태 현황을 조회합니다.
+         *
+         * @return 전사 대시보드 통계 DTO
+         */
+        CompanyAttendanceDashboardDto getCompanyDashboardStats();
 }

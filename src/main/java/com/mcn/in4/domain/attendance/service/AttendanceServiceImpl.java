@@ -1,12 +1,14 @@
 package com.mcn.in4.domain.attendance.service;
 
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
-import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
+import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
 import com.mcn.in4.domain.attendance.entity.Attendance;
 import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
+import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public List<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
@@ -183,5 +186,100 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .lateCount(lateCount)
                 .totalOvertimeMinutes(totalOvertimeMinutes)
                 .build();
+    }
+
+    @Override
+    public CompanyAttendanceDashboardDto getCompanyDashboardStats() {
+        // 1. 전체 직원 수 조회 (크리에이터 제외)
+        long totalEmployees = memberRepository.countByMemberRoleNot(MemberRole.CREATOR);
+
+        // 2. 오늘 근태 현황 조회
+        LocalDate today = LocalDate.now();
+        List<Attendance> todayAttendances = attendanceRepository.findAllByAttendanceDate(today);
+
+        // 크리에이터 제외하고 필터링
+        List<Attendance> validTodayAttendances = todayAttendances.stream()
+                .filter(a -> a.getMember().getMemberRole() != MemberRole.CREATOR)
+                .collect(Collectors.toList());
+
+        int todayNormalCount = 0;
+        int todayLateCount = 0;
+
+        for (Attendance att : validTodayAttendances) {
+            AttendanceStatus status = att.getAttendanceStatus();
+            if (status == AttendanceStatus.NORMAL || status == AttendanceStatus.WORKING) {
+                todayNormalCount++;
+            } else if (status == AttendanceStatus.LATE) {
+                todayLateCount++;
+            }
+        }
+
+        // 결근 수 = 전체 직원 수 - 오늘 출근 기록이 있는 직원 수
+        // (가정: 출근 기록이 있으면 일단 '출근'으로 간주. 휴가자 처리는 별도 로직이 필요할 수 있으나 현재 요구사항에서는 미포함)
+        int todayAbsentCount = (int) totalEmployees - validTodayAttendances.size();
+        if (todayAbsentCount < 0)
+            todayAbsentCount = 0; // 예외 처리
+
+        // 3. 이번 달 평균 시간 계산
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+        List<Attendance> monthAttendances = attendanceRepository.findAllAttendance(startOfMonth, endOfMonth, null);
+
+        // 크리에이터 제외
+        List<Attendance> validMonthAttendances = monthAttendances.stream()
+                .filter(a -> a.getMember().getMemberRole() != MemberRole.CREATOR)
+                .collect(Collectors.toList());
+
+        long totalStartMinutes = 0;
+        int startCount = 0;
+        long totalEndMinutes = 0;
+        int endCount = 0;
+        long totalWorkMinutes = 0;
+        int workCount = 0;
+
+        for (Attendance att : validMonthAttendances) {
+            // 출근 시간 평균
+            if (att.getAttendanceStart() != null) {
+                totalStartMinutes += att.getAttendanceStart().toLocalTime().toSecondOfDay() / 60;
+                startCount++;
+            }
+            // 퇴근 시간 평균
+            if (att.getAttendanceEnd() != null) {
+                totalEndMinutes += att.getAttendanceEnd().toLocalTime().toSecondOfDay() / 60;
+                endCount++;
+
+                // 근무 시간 평균
+                Duration duration = Duration.between(att.getAttendanceStart(), att.getAttendanceEnd());
+                totalWorkMinutes += duration.toMinutes();
+                workCount++;
+            }
+        }
+
+        String avgStartTime = (startCount > 0) ? formatMinutesToTime(totalStartMinutes / startCount) : "00:00";
+        String avgEndTime = (endCount > 0) ? formatMinutesToTime(totalEndMinutes / endCount) : "00:00";
+        String avgWorkTime = (workCount > 0) ? formatMinutesToDuration(totalWorkMinutes / workCount) : "0h 0m";
+
+        return CompanyAttendanceDashboardDto.builder()
+                .averageStartTime(avgStartTime)
+                .averageEndTime(avgEndTime)
+                .averageWorkTime(avgWorkTime)
+                .todayNormalCount(todayNormalCount)
+                .todayLateCount(todayLateCount)
+                .todayAbsentCount(todayAbsentCount)
+                .build();
+    }
+
+    // 분(Minute)을 "HH:mm" 형식으로 변환
+    private String formatMinutesToTime(long totalMinutes) {
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        return String.format("%02d:%02d", hours, minutes);
+    }
+
+    // 분(Minute)을 "Ah Bm" 형식으로 변환
+    private String formatMinutesToDuration(long totalMinutes) {
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        return String.format("%dh %02dm", hours, minutes);
     }
 }

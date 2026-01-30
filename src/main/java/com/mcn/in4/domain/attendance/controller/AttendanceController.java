@@ -2,6 +2,7 @@ package com.mcn.in4.domain.attendance.controller;
 
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
+import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
 import com.mcn.in4.domain.attendance.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,27 @@ public class AttendanceController {
 
         Long memberId = Long.parseLong(userId);
         return ResponseEntity.ok(attendanceService.getMyDashboardStats(memberId));
+    }
+
+    /**
+     * 전사 근태 통계 조회 (관리자용)
+     * 전사 평균 출퇴근/근무 시간 및 오늘 근태 현황을 반환합니다.
+     * 관리자 권한이 필요합니다.
+     *
+     * @param authentication 인증 정보
+     * @return 전사 대시보드 통계 DTO
+     */
+    @GetMapping("/dashboard/company")
+    public ResponseEntity<CompanyAttendanceDashboardDto> getCompanyDashboardStats(Authentication authentication) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(
+                        a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
+
+        if (!isAdmin) {
+            return ResponseEntity.status(403).body(null);
+        }
+
+        return ResponseEntity.ok(attendanceService.getCompanyDashboardStats());
     }
 
     /**
