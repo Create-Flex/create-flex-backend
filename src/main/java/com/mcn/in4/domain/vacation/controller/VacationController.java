@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.vacation.controller;
 
+import com.mcn.in4.domain.vacation.controller.api.VacationApi;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
@@ -13,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,30 +27,42 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/vacations")
 @RequiredArgsConstructor
-public class VacationController {
+public class VacationController implements VacationApi {
 
     private final VacationService vacationService;
 
+    @Override
     @PostMapping
     public ResponseEntity<VacationResponseDTO> createVacation(
             @RequestParam("type") String type,
-            @RequestBody VacationRequestDTO request
+            @RequestBody VacationRequestDTO request,
+            Authentication authentication
     ) {
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+        if (isCreator) {
+            return ResponseEntity.status(403).build();
+        }
+
         VacationResponseDTO response = vacationService.createVacation(type, request);
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 내 휴가 사용 내역 목록 조회
-     * GET /api/vacations/my?memberId={memberId}&startDate=2025-12-28&endDate=2026-02-28&type=ANNUAL
-     */
+    @Override
     @GetMapping("/my")
     public ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
             @RequestParam("memberId") Long memberId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) VacationType type
+            @RequestParam(required = false) VacationType type,
+            Authentication authentication
     ) {
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+        if (isCreator) {
+            return ResponseEntity.status(403).build();
+        }
+
         // 기본값: 오늘 기준 앞뒤로 1개월
         if (startDate == null) {
             startDate = LocalDate.now().minusMonths(1);
@@ -61,26 +75,34 @@ public class VacationController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 휴가 상세 조회 (모달용)
-     * GET /api/vacations/my/{vacationId}
-     */
+    @Override
     @GetMapping("/my/{vacationId}")
     public ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
-            @PathVariable Long vacationId
+            @PathVariable Long vacationId,
+            Authentication authentication
     ) {
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+        if (isCreator) {
+            return ResponseEntity.status(403).build();
+        }
+
         VacationDetailResponseDTO response = vacationService.getVacationDetail(vacationId);
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 내 잔여 연차 조회
-     * GET /api/vacations/my/remainder?memberId={memberId}
-     */
+    @Override
     @GetMapping("/my/remainder")
     public ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
-            @RequestParam("memberId") Long memberId
+            @RequestParam("memberId") Long memberId,
+            Authentication authentication
     ) {
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+        if (isCreator) {
+            return ResponseEntity.status(403).build();
+        }
+
         VacationRemainderResponseDTO response = vacationService.getMyVacationRemainder(memberId);
         return ResponseEntity.ok(response);
     }
