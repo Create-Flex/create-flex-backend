@@ -1,35 +1,49 @@
 package com.mcn.in4.domain.attendance.controller;
 
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
+import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
 import com.mcn.in4.domain.attendance.service.AttendanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/attendance")
 @RequiredArgsConstructor
+/**
+ * 근태 관리 컨트롤러
+ * 직원의 출퇴근 기록 및 근태 현황 조회를 담당하는 컨트롤러입니다.
+ */
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
+    /**
+     * 내 근태 기록 조회
+     * 로그인한 사용자의 근태 기록을 조회합니다.
+     * 크리에이터는 조회할 수 없습니다.
+     * 
+     * @param userId         로그인한 사용자 ID
+     * @param authentication 인증 정보
+     * @param startDate      조회 시작 날짜 (선택)
+     * @param endDate        조회 종료 날짜 (선택)
+     * @param status         근태 상태 (선택)
+     * @return 근태 기록 리스트
+     */
     @GetMapping
     public ResponseEntity<List<AttendanceResponseDto>> getAttendance(
             @AuthenticationPrincipal String userId,
-            org.springframework.security.core.Authentication authentication,
+            Authentication authentication,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "status", required = false) String status) {
-        log.info("여기 들어옴 : getAttendance");
 
         boolean isCreator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
@@ -40,20 +54,56 @@ public class AttendanceController {
 
         Long memberId = Long.parseLong(userId);
 
-        java.time.LocalDate start = (startDate != null && !startDate.isEmpty()) ? java.time.LocalDate.parse(startDate)
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate)
                 : null;
-        java.time.LocalDate end = (endDate != null && !endDate.isEmpty()) ? java.time.LocalDate.parse(endDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
 
         return ResponseEntity.ok(attendanceService.getAttendance(memberId, start, end, status));
     }
 
+    /**
+     * 내 근태 통계 조회 (대시보드용)
+     * 이번 달의 지각 횟수와 초과 근무 횟수를 반환합니다.
+     * 
+     * @param userId 로그인한 사용자 ID
+     * @return 대시보드 통계 DTO
+     */
+    @GetMapping("/dashboard/my")
+    public ResponseEntity<AttendanceDashboardDto> getMyDashboardStats(@AuthenticationPrincipal String userId,
+            Authentication authentication) {
+        log.info("Dashboard Request - UserID: {}, Authorities: {}", userId, authentication.getAuthorities());
+
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+
+        if (isCreator) {
+            log.warn("Access Denied: User is CREATOR");
+            return ResponseEntity.status(403).body(null);
+        }
+
+        Long memberId = Long.parseLong(userId);
+        return ResponseEntity.ok(attendanceService.getMyDashboardStats(memberId));
+    }
+
+    /**
+     * 전체 직원 근태 기록 조회 (관리자용)
+     * 모든 직원의 근태 기록을 조회합니다.
+     * 관리자 권한이 필요합니다.
+     * 
+     * @param userId         로그인한 사용자 ID
+     * @param authentication 인증 정보
+     * @param startDate      조회 시작 날짜 (선택)
+     * @param endDate        조회 종료 날짜 (선택)
+     * @param status         근태 상태 (선택)
+     * @return 전체 근태 기록 리스트
+     */
     @GetMapping("/all")
     public ResponseEntity<List<AttendanceResponseDto>> getAllAttendance(
             @AuthenticationPrincipal String userId,
-            org.springframework.security.core.Authentication authentication,
-            @org.springframework.web.bind.annotation.RequestParam(value = "startDate", required = false) String startDate,
-            @org.springframework.web.bind.annotation.RequestParam(value = "endDate", required = false) String endDate,
-            @org.springframework.web.bind.annotation.RequestParam(value = "status", required = false) String status) {
+            Authentication authentication,
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "status", required = false) String status) {
 
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
@@ -62,16 +112,25 @@ public class AttendanceController {
             return ResponseEntity.status(403).build();
         }
 
-        java.time.LocalDate start = (startDate != null && !startDate.isEmpty()) ? java.time.LocalDate.parse(startDate)
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate)
                 : null;
-        java.time.LocalDate end = (endDate != null && !endDate.isEmpty()) ? java.time.LocalDate.parse(endDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
 
         return ResponseEntity.ok(attendanceService.getAllAttendance(start, end, status));
     }
 
+    /**
+     * 출근 처리
+     * 현재 시간으로 출근을 기록합니다.
+     * 크리에이터는 출근 처리를 할 수 없습니다.
+     * 
+     * @param userId         로그인한 사용자 ID
+     * @param authentication 인증 정보
+     * @return 처리 결과 메시지
+     */
     @PostMapping("/check-in")
     public ResponseEntity<String> checkIn(@AuthenticationPrincipal String userId,
-            org.springframework.security.core.Authentication authentication) {
+            Authentication authentication) {
         boolean isCreator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
 
@@ -83,9 +142,18 @@ public class AttendanceController {
         return ResponseEntity.ok("출근 처리되었습니다.");
     }
 
+    /**
+     * 퇴근 처리
+     * 현재 시간으로 퇴근을 기록하고 근태 상태를 계산합니다.
+     * 크리에이터는 퇴근 처리를 할 수 없습니다.
+     * 
+     * @param userId         로그인한 사용자 ID
+     * @param authentication 인증 정보
+     * @return 처리 결과 메시지
+     */
     @PostMapping("/check-out")
     public ResponseEntity<String> checkOut(@AuthenticationPrincipal String userId,
-            org.springframework.security.core.Authentication authentication) {
+            Authentication authentication) {
         boolean isCreator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
 

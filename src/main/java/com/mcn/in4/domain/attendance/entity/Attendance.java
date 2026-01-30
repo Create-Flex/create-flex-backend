@@ -14,6 +14,10 @@ import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+/**
+ * 근태 엔티티
+ * 직원의 출퇴근 기록 정보를 저장하는 엔티티입니다.
+ */
 public class Attendance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +55,9 @@ public class Attendance {
         this.attendanceStatus = attendanceStatus;
     }
 
+    /**
+     * 퇴근 처리 및 상태 업데이트
+     */
     public void completeWork(LocalDateTime endTime, AttendanceStatus attendanceStatus) {
         this.attendanceEnd = endTime;
         this.attendanceStatus = attendanceStatus;
