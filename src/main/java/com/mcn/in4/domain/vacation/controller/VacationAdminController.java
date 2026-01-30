@@ -2,6 +2,7 @@ package com.mcn.in4.domain.vacation.controller;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRejectRequestDTO;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.service.VacationAdminService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 /**
  * 휴가 관리 API 컨트롤러 (관리자용)
  * - GET /api/admin/vacations : 전체 휴가 목록 조회 (필터: 기간, 상태, 이름)
+ * - GET /api/admin/vacations/statistics : 휴가 통계 조회
  * - PATCH /api/admin/vacations/{id}/approve : 휴가 승인
  * - PATCH /api/admin/vacations/{id}/reject : 휴가 반려
  */
@@ -45,6 +47,16 @@ public class VacationAdminController {
         }
 
         List<AdminVacationListResponseDTO> response = vacationAdminService.getVacationList(startDate, endDate, status, name);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 휴가 통계 조회
+     * GET /api/admin/vacations/statistics
+     */
+    @GetMapping("/statistics")
+    public ResponseEntity<VacationStatisticsResponseDTO> getVacationStatistics() {
+        VacationStatisticsResponseDTO response = vacationAdminService.getVacationStatistics();
         return ResponseEntity.ok(response);
     }
 
