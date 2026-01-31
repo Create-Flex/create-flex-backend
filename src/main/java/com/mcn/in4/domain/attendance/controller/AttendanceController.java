@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.attendance.controller;
 
+import com.mcn.in4.domain.attendance.controller.api.AttendanceApi;
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
 import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
@@ -22,7 +23,7 @@ import java.time.LocalDate;
  * 근태 관리 컨트롤러
  * 직원의 출퇴근 기록 및 근태 현황 조회를 담당하는 컨트롤러입니다.
  */
-public class AttendanceController {
+public class AttendanceController implements AttendanceApi {
 
     private final AttendanceService attendanceService;
 

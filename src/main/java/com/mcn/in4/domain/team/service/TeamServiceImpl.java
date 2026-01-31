@@ -4,6 +4,7 @@ import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.team.dto.request.TeamCreateRequest;
 import com.mcn.in4.domain.team.dto.request.TeamMemberUpdateRequest;
+import com.mcn.in4.domain.team.dto.response.MyTeamResponse;
 import com.mcn.in4.domain.team.dto.response.TeamDetailResponse;
 import com.mcn.in4.domain.team.dto.response.TeamResponse;
 import com.mcn.in4.domain.team.entity.Team;
@@ -14,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -122,5 +125,91 @@ public class TeamServiceImpl implements TeamService {
 
         // 3. 팀 엔티티 삭제
         teamRepository.delete(team);
+    }
+
+    // TeamServiceImpl.java
+
+    @Override
+    public List<MyTeamResponse> getMyTeams(String memberIdStr) {
+        // [수정] findByMemberAccount 대신 findById 사용 (토큰에 ID가 들어있음)
+        Long memberId = Long.parseLong(memberIdStr);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        List<TeamRelay> myRelays = teamRelayRepository.findAllByMemberMemberId(member.getMemberId());
+
+        if (myRelays.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return myRelays.stream().map(relay -> {
+            Team team = relay.getTeam();
+            List<TeamRelay> teamMembers = teamRelayRepository.findAllByTeamIdWithMemberAndDept(team.getTeamId());
+
+            List<MyTeamResponse.TeamMemberResponse> memberResponses = teamMembers.stream()
+                    .map(tr -> {
+                        var m = tr.getMember();
+                        String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+                        return new MyTeamResponse.TeamMemberResponse(
+                                m.getMemberId(),
+                                m.getMemberName(),
+                                deptName,
+                                m.getTask()
+                        );
+                    }).toList();
+
+            return MyTeamResponse.builder()
+                    .teamId(team.getTeamId())
+                    .teamName(team.getTeamName())
+                    .teamDetail(team.getTeamDetail())
+                    .teamMembers(memberResponses)
+                    .build();
+        }).toList();
+    }
+
+    @Override
+    public MyTeamResponse getMyTeamDetail(String memberIdStr, Long teamId) {
+        // [수정] 여기도 마찬가지로 ID로 찾도록 변경
+        Long memberId = Long.parseLong(memberIdStr);
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 보안 검증: 내 ID로 검색
+        boolean isMyTeam = teamRelayRepository.findAllByMemberMemberId(member.getMemberId())
+                .stream()
+                .anyMatch(relay -> relay.getTeam().getTeamId().equals(teamId));
+
+        if (!isMyTeam) {
+            throw new IllegalArgumentException("해당 팀의 정보를 조회할 권한이 없습니다.");
+        }
+
+        List<TeamRelay> teamRelays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(teamId);
+
+        if (teamRelays.isEmpty()) {
+            throw new IllegalArgumentException("팀 정보를 찾을 수 없습니다.");
+        }
+
+        Team team = teamRelays.get(0).getTeam();
+
+        List<MyTeamResponse.TeamMemberResponse> memberResponses = teamRelays.stream()
+                .map(tr -> {
+                    Member m = tr.getMember();
+                    String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+                    return new MyTeamResponse.TeamMemberResponse(
+                            m.getMemberId(),
+                            m.getMemberName(),
+                            deptName,
+                            m.getTask()
+                    );
+                }).toList();
+
+        return MyTeamResponse.builder()
+                .teamId(team.getTeamId())
+                .teamName(team.getTeamName())
+                .teamDetail(team.getTeamDetail())
+                .teamMembers(memberResponses)
+                .build();
     }
 }
