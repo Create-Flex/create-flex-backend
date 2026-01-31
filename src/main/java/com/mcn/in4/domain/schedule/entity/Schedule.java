@@ -25,6 +25,11 @@ public class Schedule {
     private Member member;
     //일정 제작자 키
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = true)
+    private Member creator;
+    // 일정의 대상이 되는 크리에이터 null 가능(개인일정이나 일반 직원 일경우)
+
     @Column(name = "schedule_name", nullable = false)
     private String scheduleName;
     //일정 제목

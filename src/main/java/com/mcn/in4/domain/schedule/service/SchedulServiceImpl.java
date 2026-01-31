@@ -2,6 +2,7 @@ package com.mcn.in4.domain.schedule.service;
 
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.domain.schedule.dto.responseDTO.SchedulReponseDTO;
 import com.mcn.in4.domain.schedule.dto.resquestDTO.ScheduleRequestDTO;
 import com.mcn.in4.domain.schedule.entity.Schedule;
 import com.mcn.in4.domain.schedule.entity.scheduleEnum.ScheduleType;
@@ -10,6 +11,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,32 @@ public class SchedulServiceImpl implements SchedulService{
                 .scheduleType(requestDto.getScheduleType())
                 .build();
         schedulRepository.save(schedule);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<SchedulReponseDTO.ScheduleResponseDto> getMyMonthlySchedules(Long memberId, String month) {
+        // month: "YYYY-MM" 년-월
+        String[] parts = month.split("-");
+        int year = Integer.parseInt(parts[0]);
+        int monthValue = Integer.parseInt(parts[1]);
+
+        // 한달
+        LocalDate startDate = LocalDate.of(year, monthValue, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+
+        // COMPANY(회사, PERSONAL(개인일정) 타입만 필터링
+        List<ScheduleType> targetTypes = List.of(ScheduleType.COMPANY, ScheduleType.PERSONAL);
+        List<Schedule> schedules = schedulRepository.findMyMonthlySchedules(
+                memberId, startDate, endDate, targetTypes);
+        return schedules.stream()
+                .map(s -> SchedulReponseDTO.ScheduleResponseDto.builder()
+                        .scheduleName(s.getScheduleName())
+                        .scheduleDate(s.getScheduleDate())
+                        .scheduleDetail(s.getScheduleDetail())
+                        .scheduleType(s.getScheduleType())
+                        .build())
+                .toList();
     }
 
 }
