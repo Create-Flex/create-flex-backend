@@ -1,11 +1,13 @@
 package com.mcn.in4.domain.health.service;
 
+import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthPresigned;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
 import com.mcn.in4.domain.health.entity.Health;
 import com.mcn.in4.domain.health.repository.HealthRepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,8 @@ import java.util.UUID;
 public class HealthServiceImpl implements HealthService{
 
     private final HealthRepository healthRepository;
+    private final MemberRepository memberRepository;
+    private final CreatorDetailRepository creatorDetailRepository;
     private final S3Presigner s3Presigner;
 
     @Value("${aws.region}")
@@ -36,11 +40,26 @@ public class HealthServiceImpl implements HealthService{
     private String bucket;
 
     public List<HealthInfo> generateHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
-        return healthRepository.findByMemberIdAndCheckupDateBetween(
+        return healthRepository.findByMember_MemberIdAndCheckupDateBetween(
                 memberId,
                 startDate,
                 endDate).stream()
                 .map(HealthInfo::from)
+                .toList();
+    }
+
+    public List<HealthInfo> generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
+        List<Long> creatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
+        List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
+        return creators.stream()
+                .flatMap(member ->
+                        healthRepository
+                                .findTopByMember_MemberIdAndCheckupDateBetween(
+                                        member.getMemberId(), startDate, endDate
+                                )
+                                .stream() // Optional → 0 or 1 Stream
+                                .map(health -> HealthInfo.from(health, member.getMemberName()))
+                )
                 .toList();
     }
 

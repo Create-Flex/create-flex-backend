@@ -29,6 +29,14 @@ public class HealthController {
         return healthService.generateHealthInfo(memberId, startDate, endDate);
     }
 
+    @GetMapping("/creater")
+    public List<HealthInfo> generateCreatorHealthInfo(
+            @RequestParam Long memberId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate){
+        return healthService.generateCreatorHealthInfo(memberId, startDate, endDate);
+    }
+
     @PostMapping("/upload")
     @ResponseBody
     public HealthPresigned generatePresignedUrl(HealthUpload request){

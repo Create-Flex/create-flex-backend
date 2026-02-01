@@ -16,7 +16,6 @@ public class HealthResponseDto {
     @AllArgsConstructor
     @Builder
     public static class HealthInfo{
-        private Long healthId; //검진Id
         private String checkupName; //검진명
         private CheckupSummanary checkupSummanary; //검진요약
         private LocalDate checkupDate; //검진일
@@ -24,8 +23,16 @@ public class HealthResponseDto {
 
         public static HealthInfo from(Health health){
             return new HealthInfo(
-                    health.getHealthId(),
                     health.getCheckupName(),
+                    health.getCheckupSummanary(),
+                    health.getCheckupDate(),
+                    health.getCheckupFileUrl()
+            );
+        }
+
+        public static HealthInfo from(Health health, String memberName){
+            return new HealthInfo(
+                    memberName,
                     health.getCheckupSummanary(),
                     health.getCheckupDate(),
                     health.getCheckupFileUrl()

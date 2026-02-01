@@ -26,4 +26,12 @@ public interface CreatorDetailRepository extends JpaRepository<MemberCreatorDeta
 
         // 크리에이터 ID로 크리에이터 상세 정보 삭제
         void deleteByMemberCreator_MemberId(Long creatorId);
+
+        //매니저 ID로 크리에이터 상세 정보 조회
+        @Query("""
+            select mcd.memberCreator.memberId
+            from MemberCreatorDetail mcd
+            where mcd.memberManager.memberId = :managerMemberId
+        """)
+        List<Long> findCreatorIdsByManagerId(Long managerMemberId);
 }

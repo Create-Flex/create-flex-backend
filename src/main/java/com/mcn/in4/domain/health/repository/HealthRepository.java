@@ -7,8 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HealthRepository extends JpaRepository<Health, Long> {
-    List<Health> findByMemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
+    List<Health> findByMember_MemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
+
+    Optional<Health> findTopByMember_MemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
 }
