@@ -19,4 +19,15 @@ public class ScheduleRequestDTO {
         private String scheduleDetail; // 상세
         private ScheduleType scheduleType; // 이넘 타입
     }
+
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ScheduleUpdateRequestDto {
+        private String scheduleName;
+        private LocalDate scheduleDate;
+        private String scheduleDetail;
+        private ScheduleType scheduleType;
+    }
 }

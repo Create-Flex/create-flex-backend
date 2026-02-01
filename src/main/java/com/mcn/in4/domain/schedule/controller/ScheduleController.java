@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.schedule.controller;
 
+import com.mcn.in4.domain.schedule.controller.api.ScheduleApi;
 import com.mcn.in4.domain.schedule.dto.responseDTO.SchedulReponseDTO;
 import com.mcn.in4.domain.schedule.dto.resquestDTO.ScheduleRequestDTO;
 import com.mcn.in4.domain.schedule.service.SchedulService;
@@ -17,10 +18,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/schedules")
 @RequiredArgsConstructor
-public class ScheduleController {
+public class ScheduleController implements ScheduleApi {
 
     private final SchedulService schedulService;
 
+    @Override
     @PostMapping("/")
     public ResponseEntity<String> createSchedule(
             @AuthenticationPrincipal String userId,
@@ -40,6 +42,7 @@ public class ScheduleController {
         return ResponseEntity.ok("일정이 성공적으로 등록되었습니다.");
     }
 
+    @Override
     @GetMapping("/me")
     public ResponseEntity<List<SchedulReponseDTO.ScheduleResponseDto>> getMyMonthlySchedules(
             @AuthenticationPrincipal String userId,
@@ -49,6 +52,45 @@ public class ScheduleController {
         List<SchedulReponseDTO.ScheduleResponseDto> schedules = schedulService.getMyMonthlySchedules(memberId, month);
 
         return ResponseEntity.ok(schedules);
+    }
+
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<String> deleteSchedule(
+            @AuthenticationPrincipal String userId,
+            Authentication authentication,
+            @PathVariable("scheduleId") Long scheduleId) {
+
+        Long memberId = Long.parseLong(userId);
+
+        // 관리자 권한 체크를 위한 권한 체크
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("");
+
+
+
+        schedulService.deleteSchedule(memberId, role, scheduleId);
+
+        return ResponseEntity.ok("일정이 삭제되었습니다.");
+    }
+
+    // 일정 수정
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<String> updateSchedule(
+            @AuthenticationPrincipal String userId,
+            Authentication authentication,
+            @PathVariable("scheduleId") Long scheduleId,
+            @RequestBody ScheduleRequestDTO.ScheduleUpdateRequestDto requestDto) {
+
+        Long memberId = Long.parseLong(userId);
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("");
+        schedulService.updateSchedule(memberId, role, scheduleId, requestDto);
+
+        return ResponseEntity.ok("일정이 수정되었습니다.");
     }
 
 

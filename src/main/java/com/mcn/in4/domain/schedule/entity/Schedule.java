@@ -46,4 +46,12 @@ public class Schedule {
     @Column(name = "schedule_type", nullable = false)
     private ScheduleType scheduleType;
     //일정 종류
+
+
+    public void update(String scheduleName, LocalDate scheduleDate, String scheduleDetail, ScheduleType scheduleType) {
+        this.scheduleName = scheduleName;
+        this.scheduleDate = scheduleDate;
+        this.scheduleDetail = scheduleDetail;
+        this.scheduleType = scheduleType;
+    }
 }

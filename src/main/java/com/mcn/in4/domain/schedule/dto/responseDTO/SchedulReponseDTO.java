@@ -15,9 +15,10 @@ public class SchedulReponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ScheduleResponseDto {
-        private String scheduleName;
-        private LocalDate scheduleDate;
-        private String scheduleDetail;
-        private ScheduleType scheduleType;
+        private Long scheduleId;
+        private String scheduleName; // 제목
+        private LocalDate scheduleDate; // 날짜
+        private String scheduleDetail; // 상세
+        private ScheduleType scheduleType; // 개인, 회사 등등
     }
 }

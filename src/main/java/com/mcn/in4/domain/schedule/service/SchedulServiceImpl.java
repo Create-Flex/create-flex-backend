@@ -62,14 +62,62 @@ public class SchedulServiceImpl implements SchedulService{
         List<ScheduleType> targetTypes = List.of(ScheduleType.COMPANY, ScheduleType.PERSONAL);
         List<Schedule> schedules = schedulRepository.findMyMonthlySchedules(
                 memberId, startDate, endDate, targetTypes);
+
         return schedules.stream()
                 .map(s -> SchedulReponseDTO.ScheduleResponseDto.builder()
+                        .scheduleId(s.getScheduleId())
                         .scheduleName(s.getScheduleName())
                         .scheduleDate(s.getScheduleDate())
                         .scheduleDetail(s.getScheduleDetail())
                         .scheduleType(s.getScheduleType())
                         .build())
                 .toList();
+
+    }
+
+
+    //어드민 권한 체크 후 일정 삭제
+    @Override
+    public void deleteSchedule(Long memberId, String role, Long scheduleId) {
+
+        Schedule schedule = schedulRepository.findById(scheduleId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 일정입니다."));
+
+        boolean isAdmin = "ROLE_ADMINSTRATOR".equals(role)&& schedule.getScheduleType() == ScheduleType.COMPANY;
+
+        boolean isOwner = schedule.getMember().getMemberId().equals(memberId);
+
+        if (!isAdmin && !isOwner) {
+            throw new IllegalStateException("삭제 권한이 없습니다. (본인의 일정 또는 관리자의 회사 일정 삭제만 가능)");
+        }
+
+        schedulRepository.delete(schedule);
+        log.info("알림 삭제 완료");
+
+
+    }
+
+
+    //일정 수정 로직, 권한 체크, 작성자 체크
+    @Override
+    public void updateSchedule(Long memberId, String role, Long scheduleId, ScheduleRequestDTO.ScheduleUpdateRequestDto requestDto) {
+        Schedule schedule = schedulRepository.findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("일정이 없습니다."));
+        boolean isAdminManager = "ROLE_ADMINISTRATOR".equals(role) && schedule.getScheduleType() == ScheduleType.COMPANY;
+        boolean isOwner = schedule.getMember().getMemberId().equals(memberId);
+        if (!isAdminManager && !isOwner) {
+            throw new IllegalStateException("수정 권한이 없습니다.");
+        }
+        //엔티티안의 메서드로 수정
+        schedule.update(
+                requestDto.getScheduleName(),
+                requestDto.getScheduleDate(),
+                requestDto.getScheduleDetail(),
+                requestDto.getScheduleType()
+        );
+
+        schedulRepository.save(schedule);
+        log.info("알림 수정 완료");
     }
 
 }

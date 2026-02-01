@@ -10,4 +10,7 @@ public interface SchedulService {
     List<SchedulReponseDTO.ScheduleResponseDto> getMyMonthlySchedules(Long memberId, String month);
 
 
+    void deleteSchedule(Long memberId, String role, Long scheduleId);
+
+    void updateSchedule(Long memberId, String role, Long scheduleId, ScheduleRequestDTO.ScheduleUpdateRequestDto requestDto);
 }
