@@ -11,6 +11,6 @@ import java.util.List;
 
 public interface HealthService {
     List<HealthInfo> generateHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate);
-    HealthResponseDto.CreatorHealthInfo generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate);
+    HealthResponseDto.CreatorHealthInfo generateCreatorHealthInfo(Long memberId);
     HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file);
 }

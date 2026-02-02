@@ -21,9 +21,7 @@ public class HealthCreatorController {
 
     @GetMapping("/")
     public CreatorHealthInfo generateCreatorHealthInfo(
-            @RequestParam Long memberId,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate){
-        return healthService.generateCreatorHealthInfo(memberId, startDate, endDate);
+            @RequestParam Long memberId) {
+        return healthService.generateCreatorHealthInfo(memberId);
     }
 }
