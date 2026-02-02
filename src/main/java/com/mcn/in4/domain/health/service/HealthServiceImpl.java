@@ -51,17 +51,14 @@ public class HealthServiceImpl implements HealthService{
     public List<HealthInfo> generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
         List<Long> creatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
-        return creators.stream()
-                .flatMap(member ->
-                        healthRepository
-                                .findTopByMember_MemberIdAndCheckupDateBetween(
-                                        member.getMemberId(), startDate, endDate
-                                )
-                                .stream() // Optional → 0 or 1 Stream
-                                .map(health -> HealthInfo.from(health, member.getMemberName()))
-                )
-                .toList();
+        //List<Health> creatorHealth = healthRepository.findByMember_MemberIdInAndCheckupDateBetween(creatorIds, startDate, endDate);
+        List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
+                        healthRepository.findTopByMember_MemberId(member.getMemberId())
+                                .stream()
+                                .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+        return creatorHealthInfoB;
     }
+
 
     public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file){
         String fileName = file.getOriginalFilename();

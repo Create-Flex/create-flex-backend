@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class HealthResponseDto {
 
@@ -41,6 +42,15 @@ public class HealthResponseDto {
                     health.getCheckupFileUrl()
             );
         }
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CreatorHealthInfo{
+
+        List<HealthInfo> healthInfoList;
     }
 
     @Getter

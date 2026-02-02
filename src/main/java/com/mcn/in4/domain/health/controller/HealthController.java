@@ -18,38 +18,10 @@ import java.util.List;
 @RequestMapping("/api/health")
 @RequiredArgsConstructor
 public class HealthController {
-
-    private final HealthService healthService;
-
-    @GetMapping("/my")
-    public List<HealthInfo> generateHealthInfo(
-            @RequestParam Long memberId,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate){
-        return healthService.generateHealthInfo(memberId, startDate, endDate);
-    }
-
-    @GetMapping("/creater")
-    public List<HealthInfo> generateCreatorHealthInfo(
-            @RequestParam Long memberId,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate){
-        return healthService.generateCreatorHealthInfo(memberId, startDate, endDate);
-    }
-
+/*
     @GetMapping("/manage")
     public List<HealthInfo> generateManageHealthInfo(
 
     )
-
-    @PostMapping("/upload")
-    @ResponseBody
-    public HealthPresigned generatePresignedUrl(HealthUpload request){
-        Long memberId = request.getMemberId();
-        String checkupName = request.getName();
-        LocalDate date = request.getDate();
-        CheckupSummanary checkupSummanary = request.getSummanary();
-        MultipartFile file = request.getFile();
-        return healthService.generatePresignedUrl(memberId, checkupName, date, checkupSummanary, file);
-    }
+*/
 }
