@@ -132,7 +132,12 @@ public class AttendanceServiceImpl implements AttendanceService {
             return AttendanceStatus.EARLY_LEAVE;
         }
 
-        // 3. 정상 (Normal) -> '출근'
+        // 3. 초과 (Overtime): 퇴근 > 18:00 (이미 1번에서 지각은 걸러짐 -> 즉, 정상 출근 후 야근)
+        if (endTime.isAfter(sixPm)) {
+            return AttendanceStatus.OVERTIME;
+        }
+
+        // 4. 정상 (Normal) -> '출근'
         return AttendanceStatus.NORMAL;
     }
 
@@ -140,6 +145,12 @@ public class AttendanceServiceImpl implements AttendanceService {
      * DTO 변환 메서드
      */
     private AttendanceResponseDto toDto(Attendance attendance) {
+        String workDuration = null;
+        if (attendance.getAttendanceStart() != null && attendance.getAttendanceEnd() != null) {
+            Duration duration = Duration.between(attendance.getAttendanceStart(), attendance.getAttendanceEnd());
+            workDuration = formatMinutesToDuration(duration.toMinutes());
+        }
+
         return AttendanceResponseDto.builder()
                 .memberId(attendance.getMember().getMemberId())
                 .memberName(attendance.getMember().getMemberName())
@@ -148,6 +159,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .attendanceStart(attendance.getAttendanceStart())
                 .attendanceEnd(attendance.getAttendanceEnd())
                 .attendanceStatus(attendance.getAttendanceStatus().getDescription())
+                .workDuration(workDuration)
                 .build();
     }
 

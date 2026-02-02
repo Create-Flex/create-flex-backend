@@ -15,6 +15,7 @@ public enum AttendanceStatus {
     NORMAL("출근"), // 정상 출근 사용자가 '출근'이라 명명함
     LATE("지각"), // 지각
     EARLY_LEAVE("조퇴"), // 조퇴
+    OVERTIME("초과"), // 9시 이전 출근 + 18시 이후 퇴근
     OFF_WORK("퇴근");
 
     private final String description;
