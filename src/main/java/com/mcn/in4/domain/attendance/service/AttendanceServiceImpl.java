@@ -122,22 +122,22 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalTime nineAm = LocalTime.of(9, 0);
         LocalTime sixPm = LocalTime.of(18, 0);
 
-        // 1. 지각 (Late): 출근 > 09:00
+        // 지각 (Late): 출근 > 09:00
         if (startTime.isAfter(nineAm)) {
             return AttendanceStatus.LATE;
         }
 
-        // 2. 조퇴 (Early Leave): 퇴근 < 18:00
+        // 조퇴 (Early Leave): 퇴근 < 18:00
         if (endTime.isBefore(sixPm)) {
             return AttendanceStatus.EARLY_LEAVE;
         }
 
-        // 3. 초과 (Overtime): 퇴근 > 18:00 (이미 1번에서 지각은 걸러짐 -> 즉, 정상 출근 후 야근)
+        // 초과 (Overtime): 퇴근 > 18:00 (이미 1번에서 지각은 걸러짐 -> 즉, 정상 출근 후 야근)
         if (endTime.isAfter(sixPm)) {
             return AttendanceStatus.OVERTIME;
         }
 
-        // 4. 정상 (Normal) -> '출근'
+        // 정상 (Normal) -> '출근'
         return AttendanceStatus.NORMAL;
     }
 
@@ -202,10 +202,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public CompanyAttendanceDashboardDto getCompanyDashboardStats() {
-        // 1. 전체 직원 수 조회 (크리에이터 제외)
+        // 전체 직원 수 조회 (크리에이터 제외)
         long totalEmployees = memberRepository.countByMemberRoleNot(MemberRole.CREATOR);
 
-        // 2. 오늘 근태 현황 조회
+        // 오늘 근태 현황 조회
         LocalDate today = LocalDate.now();
         List<Attendance> todayAttendances = attendanceRepository.findAllByAttendanceDate(today);
 
@@ -232,7 +232,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         if (todayAbsentCount < 0)
             todayAbsentCount = 0; // 예외 처리
 
-        // 3. 이번 달 평균 시간 계산
+        // 이번 달 평균 시간 계산
         LocalDate startOfMonth = today.withDayOfMonth(1);
         LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
         List<Attendance> monthAttendances = attendanceRepository.findAllAttendance(startOfMonth, endOfMonth, null);
