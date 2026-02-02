@@ -15,7 +15,7 @@ public class VacationRemainderResponseDTO {
     private String memberName;
     private Double totalVacation;       // 총 연차 (15일)
     private Double usedVacation;        // 사용 연차
-    private Double remainderVacation;   // 잔여 연차
+    private Double vacationRemainder;   // 잔여 연차
 
     /** 직원 상세 정보에서 잔여 연차 DTO 생성 (사용 연차 = 총 연차 - 잔여 연차) */
     public static VacationRemainderResponseDTO from(MemberEmployeeDetail employeeDetail, double totalVacation) {
@@ -27,7 +27,7 @@ public class VacationRemainderResponseDTO {
                 .memberName(employeeDetail.getMember().getMemberName())
                 .totalVacation(totalVacation)
                 .usedVacation(used)
-                .remainderVacation(remainder)
+                .vacationRemainder(remainder)
                 .build();
     }
 }
