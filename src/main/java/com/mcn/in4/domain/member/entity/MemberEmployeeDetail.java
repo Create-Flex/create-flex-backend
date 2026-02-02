@@ -78,6 +78,10 @@ public class MemberEmployeeDetail {
         this.vacationRemainder += days;
     }
 
+    public void resetVacationRemainder() {
+        this.vacationRemainder = 15.0;
+    }
+
     //퇴사 일, 퇴사 이유
     public void markAsQuit(String empDate, String leavingReason) {
         this.empDate = empDate;
