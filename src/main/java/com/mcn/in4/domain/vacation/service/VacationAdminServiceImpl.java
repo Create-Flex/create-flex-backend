@@ -97,14 +97,14 @@ public class VacationAdminServiceImpl implements VacationAdminService {
         LocalDate monthStart = currentMonth.atDay(1);
         LocalDate monthEnd = currentMonth.atEndOfMonth();
 
-        // 1. 이번달 휴가자 수 (승인된 휴가)
+        // 이번달 휴가자 수 (승인된 휴가)
         long monthlyVacationCount = vacationRepository.countMonthlyVacations(
                 monthStart, monthEnd, VacationApprove.APPROVED);
 
-        // 2. 총 미승인 대기자 수
+        // 총 미승인 대기자 수
         long pendingApprovalCount = vacationRepository.countByApproveStatus(VacationApprove.APPROVE_NEED);
 
-        // 3. 이번달 병가자 수 (승인된 병가)
+        // 이번달 병가자 수 (승인된 병가)
         long monthlySickLeaveCount = vacationRepository.countMonthlyByType(
                 monthStart, monthEnd, VacationType.SICK, VacationApprove.APPROVED);
 
