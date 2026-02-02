@@ -1,6 +1,6 @@
 package com.mcn.in4.domain.health.controller;
 
-import com.mcn.in4.domain.health.dto.HealthResponseDto;
+import com.mcn.in4.domain.health.dto.HealthResponseDto.CreatorHealthInfo;
 import com.mcn.in4.domain.health.service.HealthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class HealthCreatorController {
     private final HealthService healthService;
 
     @GetMapping("/")
-    public List<HealthResponseDto.HealthInfo> generateCreatorHealthInfo(
+    public CreatorHealthInfo generateCreatorHealthInfo(
             @RequestParam Long memberId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate){

@@ -1,8 +1,10 @@
 package com.mcn.in4.domain.health.service;
 
 import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
+import com.mcn.in4.domain.health.dto.HealthResponseDto.CreatorHealthInfo;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthPresigned;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
+import com.mcn.in4.domain.health.dto.HealthSummanaryCountDto;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
 import com.mcn.in4.domain.health.entity.Health;
 import com.mcn.in4.domain.health.repository.HealthRepository;
@@ -48,15 +50,15 @@ public class HealthServiceImpl implements HealthService{
                 .toList();
     }
 
-    public List<HealthInfo> generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
+    public CreatorHealthInfo generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
         List<Long> creatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
-        //List<Health> creatorHealth = healthRepository.findByMember_MemberIdInAndCheckupDateBetween(creatorIds, startDate, endDate);
+        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers(creatorIds);
         List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
                         healthRepository.findTopByMember_MemberId(member.getMemberId())
                                 .stream()
                                 .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
-        return creatorHealthInfoB;
+        return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB);
     }
 
 

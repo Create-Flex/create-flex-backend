@@ -19,10 +19,14 @@ public interface HealthRepository extends JpaRepository<Health, Long> {
     @Query("SELECT new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, COUNT(h)) " +
             "FROM Health h " +
             "WHERE h.member.memberId IN :memberIds " +
-            "GROUP BY h.checkupSummanary " +
-            "ORDER BY COUNT(h) DESC")
-    List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers(
-            @Param("memberIds") List<Long> memberIds);
+            "AND h.checkupDate = (" +
+            "    SELECT MAX(h2.checkupDate) " +
+            "    FROM Health h2 " +
+            "    WHERE h2.member.memberId = h.member.memberId" +
+            "   AND h2.member.memberId IN :memberIds" +
+            ") " +
+            "GROUP BY h.checkupSummanary")
+    List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers(@Param("memberIds") List<Long> memberIds);
 
     Optional<Health> findTopByMember_MemberId(Long memberId);
 }
