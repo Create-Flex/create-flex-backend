@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.creator.controller;
 
+import com.mcn.in4.domain.creator.controller.api.CreatorApi;
 import com.mcn.in4.domain.creator.dto.request.CreatorRequestDTO;
 import com.mcn.in4.domain.creator.dto.response.CreatorResponseDTO;
 import com.mcn.in4.domain.creator.service.CreatorService;
@@ -17,11 +18,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/creators")
 @RequiredArgsConstructor
-public class CreatorController {
+public class CreatorController implements CreatorApi {
 
     private final CreatorService creatorService;
 
     // 크리에이터 등록
+    @Override
     @PostMapping
     public ResponseEntity<Map<String, Object>> createCreator(@RequestBody CreatorRequestDTO.Create request) {
         Long creatorId = creatorService.createCreator(request);
@@ -36,6 +38,7 @@ public class CreatorController {
     // 크리에이터 목록 조회
     // GET /api/creators (전체 조회)
     // GET /api/creators?name=감
+    @Override
     @GetMapping
     public ResponseEntity<List<CreatorResponseDTO.Info>> getAllCreators(
             @RequestParam(required = false) String name) {
@@ -43,12 +46,14 @@ public class CreatorController {
     }
 
     // 크리에이터 상세 조회
+    @Override
     @GetMapping("/{creatorId}")
     public ResponseEntity<CreatorResponseDTO.Info> getCreatorById(@PathVariable Long creatorId) {
         return ResponseEntity.ok(creatorService.getCreatorById(creatorId));
     }
 
     // 크리에이터 수정
+    @Override
     @PatchMapping("/{creatorId}")
     public ResponseEntity<Map<String, Object>> updateCreator(
             @PathVariable Long creatorId,
@@ -63,6 +68,7 @@ public class CreatorController {
     }
 
     // 크리에이터 삭제
+    @Override
     @DeleteMapping("/{creatorId}")
     public ResponseEntity<Map<String, Object>> deleteCreator(@PathVariable Long creatorId) {
         creatorService.deleteCreator(creatorId);
@@ -74,6 +80,7 @@ public class CreatorController {
     }
 
     // 매니저별 크리에이터 조회
+    @Override
     @GetMapping("/manager/{managerId}")
     public ResponseEntity<List<CreatorResponseDTO.Info>> getMyCreators(@PathVariable Long managerId) {
         return ResponseEntity.ok(creatorService.getMyCreators(managerId));

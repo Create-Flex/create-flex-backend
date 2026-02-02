@@ -49,17 +49,17 @@ public class VacationServiceImpl implements VacationService {
     @Override
     @Transactional
     public VacationResponseDTO createVacation(String type, VacationRequestDTO request) {
-        // 1. 휴가 타입 검증
+        // 휴가 타입 검증
         VacationType vacationType = parseVacationType(type);
 
-        // 2. 회원 조회
+        // 회원 조회
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId: " + request.getMemberId()));
 
-        // 3. 휴가 일수 계산
+        // 휴가 일수 계산
         double vacationDays = calculateVacationDays(vacationType, request);
 
-        // 4. 연차/반차인 경우 잔여일수 확인 및 차감
+        // 연차/반차인 경우 잔여일수 확인 및 차감
         if (vacationType == VacationType.ANNUAL || vacationType == VacationType.HALF) {
             MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(member.getMemberId())
                     .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다. memberId: " + member.getMemberId()));
@@ -74,7 +74,7 @@ public class VacationServiceImpl implements VacationService {
             employeeDetail.decreaseVacationRemainder(vacationDays);
         }
 
-        // 5. 휴가 엔티티 생성
+        // 휴가 엔티티 생성
         Vacation vacation = Vacation.builder()
                 .member(member)
                 .vacationType(vacationType)
@@ -88,7 +88,7 @@ public class VacationServiceImpl implements VacationService {
 
         Vacation savedVacation = vacationRepository.save(vacation);
 
-        // 6. 타입별 상세 엔티티 저장
+        //타입별 상세 엔티티 저장
         switch (vacationType) {
             case FAMILY -> saveVacationFamily(savedVacation, request);
             case SICK -> saveVacationSick(savedVacation, request);

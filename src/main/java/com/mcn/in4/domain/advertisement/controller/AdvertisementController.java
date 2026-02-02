@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.advertisement.controller;
 
+import com.mcn.in4.domain.advertisement.controller.api.AdvertisementApi;
 import com.mcn.in4.domain.advertisement.dto.request.AdvertisementRequestDTO;
 import com.mcn.in4.domain.advertisement.dto.response.AdvertisementResponseDTO;
 import com.mcn.in4.domain.advertisement.service.AdvertisementService;
@@ -18,12 +19,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/advertisements")
 @RequiredArgsConstructor
-public class AdvertisementController {
+public class AdvertisementController implements AdvertisementApi {
 
     private final AdvertisementService advertisementService;
 
 
     // 광고 캠페인 등록
+    @Override
     @PostMapping
     public ResponseEntity<Map<String, Object>> createAdvertisement(
             @RequestBody AdvertisementRequestDTO.Create request) {
@@ -40,6 +42,7 @@ public class AdvertisementController {
     // GET /api/advertisements?filter=all (전체보기 - 기본값)
     // GET /api/advertisements?filter=waiting (대기중인 제안)
     // GET /api/advertisements?filter=processed (처리내역)
+    @Override
     @GetMapping
     public ResponseEntity<List<AdvertisementResponseDTO.Info>> getMyAdvertisements(
             @AuthenticationPrincipal String userId,
@@ -52,6 +55,7 @@ public class AdvertisementController {
     // 광고 캠페인 수락, 거절 (일정 자동 생성)
     // PATCH /api/advertisements/{id}?status=ACCEPTED (수락)
     // PATCH /api/advertisements/{id}?status=REJECTED (거절)
+    @Override
     @PatchMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateAdvertisementStatus(
             @PathVariable Long id,

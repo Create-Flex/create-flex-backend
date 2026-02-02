@@ -20,4 +20,5 @@ public class AttendanceResponseDto {
     private LocalDateTime attendanceStart;
     private LocalDateTime attendanceEnd;
     private String attendanceStatus;
+    private String workDuration;
 }

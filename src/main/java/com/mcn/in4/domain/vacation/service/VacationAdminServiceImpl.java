@@ -3,6 +3,7 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,8 +44,8 @@ public class VacationAdminServiceImpl implements VacationAdminService {
                     // 잔여 연차 조회
                     Double remainder = memberEmployeeDetailRepository
                             .findByMemberMemberId(vacation.getMember().getMemberId())
-                            .map(MemberEmployeeDetail::getVacationRemainder)
-                            .orElse(0.0);
+                            .map(MemberEmployeeDetail::getVacationRemainder)// 값이 있으면 : double(12.0), 없으면 : empty
+                            .orElse(0.0); //값이 있으면 12.0, 없으면 0.0
                     return AdminVacationListResponseDTO.from(vacation, remainder);
                 })
                 .collect(Collectors.toList());
@@ -85,5 +87,32 @@ public class VacationAdminServiceImpl implements VacationAdminService {
         }
 
         vacation.reject(rejectReason);
+    }
+
+    /** 휴가 통계 조회 (이번달 휴가자, 미승인 대기자, 이번달 병가자) */
+    @Override
+    public VacationStatisticsResponseDTO getVacationStatistics() {
+        // 이번달 기준 날짜 계산
+        YearMonth currentMonth = YearMonth.now();
+        LocalDate monthStart = currentMonth.atDay(1);
+        LocalDate monthEnd = currentMonth.atEndOfMonth();
+
+        // 이번달 휴가자 수 (승인된 휴가)
+        long monthlyVacationCount = vacationRepository.countMonthlyVacations(
+                monthStart, monthEnd, VacationApprove.APPROVED);
+
+        // 총 미승인 대기자 수
+        long pendingApprovalCount = vacationRepository.countByApproveStatus(VacationApprove.APPROVE_NEED);
+
+        // 이번달 병가자 수 (승인된 병가)
+        long monthlySickLeaveCount = vacationRepository.countMonthlyByType(
+                monthStart, monthEnd, VacationType.SICK, VacationApprove.APPROVED);
+
+        return VacationStatisticsResponseDTO.of(
+                monthlyVacationCount,
+                pendingApprovalCount,
+                monthlySickLeaveCount,
+                currentMonth.toString()
+        );
     }
 }

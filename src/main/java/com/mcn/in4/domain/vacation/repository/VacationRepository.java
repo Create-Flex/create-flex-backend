@@ -47,10 +47,38 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
     );
 
 
-    /* 오늘 날짜가 휴가 기간 내에 있고 승인된 상태인 휴가자 수 집계 */
+    /** 오늘 날짜가 휴가 기간 내에 있고 승인된 상태인 휴가자 수 집계 */
     @Query("SELECT COUNT(v) FROM Vacation v " +
             "WHERE v.vacationApprove = :approveStatus " +
             "AND :today BETWEEN v.vacationStart AND v.vacationEnd")
     long countActiveVacations(@Param("today") LocalDate today,
                               @Param("approveStatus") VacationApprove approveStatus);
+
+    /** 이번달 휴가자 수 (승인된 휴가 중 휴가 기간이 해당 월과 겹치는 건수) */
+    @Query("SELECT COUNT(v) FROM Vacation v " +
+           "WHERE v.vacationApprove = :status " +
+           "AND v.vacationStart <= :monthEnd " +
+           "AND v.vacationEnd >= :monthStart")
+    long countMonthlyVacations(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("monthEnd") LocalDate monthEnd,
+            @Param("status") VacationApprove status
+    );
+
+    /** 총 미승인 대기자 수 */
+    @Query("SELECT COUNT(v) FROM Vacation v WHERE v.vacationApprove = :status")
+    long countByApproveStatus(@Param("status") VacationApprove status);
+
+    /** 이번달 병가자 수 (승인된 병가 중 휴가 기간이 해당 월과 겹치는 건수) */
+    @Query("SELECT COUNT(v) FROM Vacation v " +
+           "WHERE v.vacationType = :type " +
+           "AND v.vacationApprove = :status " +
+           "AND v.vacationStart <= :monthEnd " +
+           "AND v.vacationEnd >= :monthStart")
+    long countMonthlyByType(
+            @Param("monthStart") LocalDate monthStart,
+            @Param("monthEnd") LocalDate monthEnd,
+            @Param("type") VacationType type,
+            @Param("status") VacationApprove status
+    );
 }

@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.department.controller;
 
+import com.mcn.in4.domain.department.controller.api.DepartmentApi;
 import com.mcn.in4.domain.department.dto.request.DepartmentRequest;
 import com.mcn.in4.domain.department.dto.response.DepartmentDetailResponse;
 import com.mcn.in4.domain.department.dto.response.DepartmentResponse;
@@ -12,43 +13,44 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
-public class DepartmentController {
+@RequestMapping("/api/admin/departments")
+public class DepartmentController implements DepartmentApi {
 
     private final DepartmentService departmentService;
 
-    // 전체 조회
-    @GetMapping("/departments")
+    @Override
+    @PostMapping
+    public ResponseEntity<String> createDepartment(@RequestBody DepartmentRequest request) {
+        departmentService.createDepartment(request);
+        return ResponseEntity.ok("부서가 성공적으로 생성되었습니다.");
+    }
+
+    @Override
+    @GetMapping
     public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
         return ResponseEntity.ok(departmentService.findAllDepartments());
     }
 
-    // 부서 추가
-    @PostMapping("/departments")
-    public ResponseEntity<Void> createDepartment(@RequestBody DepartmentRequest request) {
-        departmentService.createDepartment(request);
-        return ResponseEntity.ok().build();
+    @Override
+    @GetMapping("/{departmentId}")
+    public ResponseEntity<DepartmentDetailResponse> getDepartmentDetail(@PathVariable("departmentId") Long departmentId) {
+        return ResponseEntity.ok(departmentService.findDepartmentDetail(departmentId));
     }
 
-    // 부서 상세 수정
-    @PatchMapping("/department/{id}")
-    public ResponseEntity<Void> updateDepartment(
-            @PathVariable Long id,
+    @Override
+    @PatchMapping("/{departmentId}")
+    public ResponseEntity<String> updateDepartment(
+            @PathVariable("departmentId") Long departmentId,
             @RequestBody DepartmentRequest request) {
-        departmentService.updateDepartment(id, request);
-        return ResponseEntity.ok().build();
+
+        departmentService.updateDepartment(departmentId, request);
+        return ResponseEntity.ok("부서 정보가 성공적으로 수정되었습니다.");
     }
 
-    // 부서 삭제
-    @DeleteMapping("/department/{id}")
-    public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-        departmentService.deleteDepartment(id);
-        return ResponseEntity.noContent().build(); // 204 No Content 반환
-    }
-
-    // 부서 상세 조회
-    @GetMapping("/department/{id}")
-    public ResponseEntity<DepartmentDetailResponse> getDepartmentDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(departmentService.findDepartmentDetail(id));
+    @Override
+    @DeleteMapping("/{departmentId}")
+    public ResponseEntity<String> deleteDepartment(@PathVariable("departmentId") Long departmentId) {
+        departmentService.deleteDepartment(departmentId);
+        return ResponseEntity.ok("부서가 성공적으로 삭제되었습니다.");
     }
 }

@@ -19,4 +19,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByDepartment_DepartmentId(Long departmentId);
 
     List<Member> findByMemberIdIn(List<Long> memberIds);
+
+    List<Member> findAllById(Iterable<Long> ids);
+
+    long countByMemberRoleNot(MemberRole memberRole);
 }

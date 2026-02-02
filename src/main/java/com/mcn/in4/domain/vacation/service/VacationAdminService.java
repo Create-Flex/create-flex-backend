@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.service;
 
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 
 import java.time.LocalDate;
@@ -39,4 +40,10 @@ public interface VacationAdminService {
      * @param rejectReason 반려 사유
      */
     void rejectVacation(Long vacationId, String rejectReason);
+
+    /**
+     * 휴가 통계 조회
+     * @return 이번달 휴가자 수, 미승인 대기자 수, 이번달 병가자 수
+     */
+    VacationStatisticsResponseDTO getVacationStatistics();
 }
