@@ -219,7 +219,8 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         for (Attendance att : validTodayAttendances) {
             AttendanceStatus status = att.getAttendanceStatus();
-            if (status == AttendanceStatus.NORMAL || status == AttendanceStatus.WORKING) {
+            if (status == AttendanceStatus.NORMAL || status == AttendanceStatus.WORKING
+                    || status == AttendanceStatus.OVERTIME) {
                 todayNormalCount++;
             } else if (status == AttendanceStatus.LATE) {
                 todayLateCount++;
