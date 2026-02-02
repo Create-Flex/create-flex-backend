@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.member.repository;
 
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
