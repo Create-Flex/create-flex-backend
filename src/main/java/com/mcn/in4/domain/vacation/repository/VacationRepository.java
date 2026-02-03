@@ -33,17 +33,19 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
             @Param("type") VacationType type
     );
 
-    /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름 필터 적용) */
+    /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터 적용) */
     @Query("SELECT v FROM Vacation v " +
            "WHERE v.vacationRequest BETWEEN :startDate AND :endDate " +
            "AND (:status IS NULL OR v.vacationApprove = :status) " +
            "AND (:name IS NULL OR :name = '' OR v.member.memberName LIKE %:name%) " +
+           "AND (:type IS NULL OR v.vacationType = :type) " +
            "ORDER BY v.vacationRequest DESC")
     List<Vacation> findAllWithFilters(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("status") VacationApprove status,
-            @Param("name") String name
+            @Param("name") String name,
+            @Param("type") VacationType type
     );
 
 

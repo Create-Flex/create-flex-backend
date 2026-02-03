@@ -29,15 +29,16 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     private final VacationRepository vacationRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
 
-    /** 전체 휴가 목록 조회 (기간, 상태, 이름 필터 적용) */
+    /** 전체 휴가 목록 조회 (기간, 상태, 이름, 휴가유형 필터 적용) */
     @Override
     public List<AdminVacationListResponseDTO> getVacationList(
             LocalDate startDate,
             LocalDate endDate,
             VacationApprove status,
-            String name
+            String name,
+            VacationType type
     ) {
-        List<Vacation> vacations = vacationRepository.findAllWithFilters(startDate, endDate, status, name);
+        List<Vacation> vacations = vacationRepository.findAllWithFilters(startDate, endDate, status, name, type);
 
         return vacations.stream()
                 .map(vacation -> {

@@ -20,9 +20,10 @@ public interface VacationService {
      * 휴가 신청
      * @param type 휴가 타입 (ANNUAL, HALF, FAMILY, SICK, WORKATION)
      * @param request 휴가 신청 정보
+     * @param memberId 회원 ID (토큰에서 추출)
      * @return 생성된 휴가 정보
      */
-    VacationResponseDTO createVacation(String type, VacationRequestDTO request);
+    VacationResponseDTO createVacation(String type, VacationRequestDTO request, Long memberId);
 
     /**
      * 내 휴가 사용 내역 목록 조회
@@ -35,11 +36,12 @@ public interface VacationService {
     List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type);
 
     /**
-     * 휴가 상세 조회
+     * 휴가 상세 조회 (본인 휴가만 조회 가능)
      * @param vacationId 휴가 ID
+     * @param memberId 회원 ID (토큰에서 추출)
      * @return 휴가 상세 정보 (타입별 상세 포함)
      */
-    VacationDetailResponseDTO getVacationDetail(Long vacationId);
+    VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId);
 
     /**
      * 내 잔여 연차 조회

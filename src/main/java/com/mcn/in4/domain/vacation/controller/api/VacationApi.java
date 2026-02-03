@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -35,6 +36,7 @@ public interface VacationApi {
             }
     )
     ResponseEntity<VacationResponseDTO> createVacation(
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(description = "휴가 유형", example = "ANNUAL")
             @RequestParam("type") String type,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -93,8 +95,7 @@ public interface VacationApi {
             }
     )
     ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
-            @Parameter(description = "회원 ID", example = "1001")
-            @RequestParam("memberId") Long memberId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(description = "조회 시작일 (기본: 오늘-1개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
             @Parameter(description = "조회 종료일 (기본: 오늘+1개월)", example = "2026-02-28")
@@ -115,6 +116,7 @@ public interface VacationApi {
             }
     )
     ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(description = "휴가 ID", example = "1")
             @PathVariable Long vacationId,
             @Parameter(hidden = true) Authentication authentication
@@ -130,8 +132,7 @@ public interface VacationApi {
             }
     )
     ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
-            @Parameter(description = "회원 ID", example = "1001")
-            @RequestParam("memberId") Long memberId,
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(hidden = true) Authentication authentication
     );
 }

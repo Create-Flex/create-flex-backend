@@ -23,6 +23,7 @@ public class AdminVacationListResponseDTO {
     private Double vacationDays;            // 휴가일수
     private Double vacationRemainder;       // 잔여연차
     private String vacationApprove;         // 결재상태
+    private String vacationDetail;          // 신청 사유
 
     /** Vacation 엔티티와 잔여 연차 정보를 관리자용 목록 DTO로 변환 */
     public static AdminVacationListResponseDTO from(Vacation vacation, Double vacationRemainder) {
@@ -36,6 +37,7 @@ public class AdminVacationListResponseDTO {
                 .vacationDays(vacation.getVacationDays())
                 .vacationRemainder(vacationRemainder)
                 .vacationApprove(vacation.getVacationApprove().name())
+                .vacationDetail(vacation.getVacationDetail())
                 .build();
     }
 }
