@@ -2,6 +2,7 @@ package com.mcn.in4.domain.health.controller;
 
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
 import com.mcn.in4.domain.health.service.HealthService;
+import com.mcn.in4.domain.health.controller.api.ManageHealthApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/health/manage")
 @RequiredArgsConstructor
-public class HealthManageController {
+public class HealthManageController implements ManageHealthApi {
 
     private final HealthService healthService;
 
