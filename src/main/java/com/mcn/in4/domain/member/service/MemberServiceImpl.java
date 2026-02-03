@@ -9,8 +9,17 @@ import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberProfileRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+
+import java.time.Duration;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +29,16 @@ public class MemberServiceImpl implements MemberService {
         private final MemberRepository memberRepository;
         private final MemberProfileRepository memberProfileRepository;
         private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+        private final S3Presigner s3Presigner;
 
-        @Override
+        @Value("${aws.region}")
+        private String region;
+
+        @Value("${aws.s3.bucket}")
+        private String bucket;
+
+
+    @Override
         public MemberProfileResponseDto getMemberProfile(Long memberId) {
                 // 1. 회원 조회
                 Member member = memberRepository.findById(memberId)
@@ -65,4 +82,32 @@ public class MemberServiceImpl implements MemberService {
 
                 return builder.build();
         }
+
+    public MemberProfileResponseDto generatePresignedUrl(Long memberId, MultipartFile file){
+        String fileName = file.getOriginalFilename();
+        String s3key = "public/" + UUID.randomUUID().toString() + "/" + fileName;
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3key)
+                .contentType(file.getContentType())
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(
+                PutObjectPresignRequest.builder()
+                        .putObjectRequest(putObjectRequest)
+                        .signatureDuration(Duration.ofHours(1)) //유효시간 1시간
+                        .build()
+        );
+
+        String presignedUrl = presignedRequest.url().toString();
+
+        String viewUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
+
+        memberProfileRepository.updateProfileImage(memberId, viewUrl);
+
+        return MemberProfileResponseDto.builder()
+                .presignedURL(presignedUrl)
+                .build();
+    }
 }

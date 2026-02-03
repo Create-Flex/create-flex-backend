@@ -54,6 +54,8 @@ public interface MypageHealthApi {
     @ResponseBody
     HealthResponseDto.HealthPresigned generatePresignedUrl(
 
+            @AuthenticationPrincipal String userId,
+
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "건강 정보 업로드 요청 데이터",
                     required = true

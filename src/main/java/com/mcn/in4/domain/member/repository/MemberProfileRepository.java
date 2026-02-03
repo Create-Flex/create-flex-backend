@@ -3,6 +3,7 @@ package com.mcn.in4.domain.member.repository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,9 @@ public interface MemberProfileRepository extends JpaRepository<MemberProfile, Lo
     List<MemberProfile> findByMemberIds(@Param("memberIds") List<Long> memberIds);
     
     Optional<MemberProfile> findByMember(Member member);
+
+    @Modifying
+    @Query("update MemberProfile mp set mp.profileImage = :profileImage where mp.member.memberId = :memberId ")
+    int updateProfileImage(@Param("memberId") Long memberId,
+                           @Param("profileImage") String profileImage);
 }

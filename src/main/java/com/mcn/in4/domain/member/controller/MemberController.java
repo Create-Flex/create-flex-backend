@@ -2,12 +2,12 @@ package com.mcn.in4.domain.member.controller;
 
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
 import com.mcn.in4.domain.member.service.MemberService;
+import com.mcn.in4.domain.member.dto.MemberProfileRequestDto.ProfileUpload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,4 +23,17 @@ public class MemberController {
         MemberProfileResponseDto profileDto = memberService.getMemberProfile(memberId);
         return ResponseEntity.ok(profileDto);
     }
+
+    @PostMapping("/upload")
+    @ResponseBody
+    public ResponseEntity<MemberProfileResponseDto> generatePresignedUrl(
+            @AuthenticationPrincipal String userId,
+            ProfileUpload request){
+
+        Long memberId = Long.parseLong(userId);
+        MultipartFile file = request.getFile();
+        MemberProfileResponseDto profileContaignPresign = memberService.generatePresignedUrl(memberId, file);
+        return ResponseEntity.ok(profileContaignPresign);
+    }
+
 }
