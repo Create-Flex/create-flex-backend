@@ -81,4 +81,13 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
             @Param("type") VacationType type,
             @Param("status") VacationApprove status
     );
+
+    /** 특정 회원이 특정 날짜에 승인된 휴가 중인지 확인 */
+    @Query("SELECT COUNT(v) > 0 FROM Vacation v " +
+            "WHERE v.member.memberId = :memberId " +
+            "AND v.vacationApprove = :approveStatus " +
+            "AND :today BETWEEN v.vacationStart AND v.vacationEnd")
+    boolean isMemberOnVacation(@Param("memberId") Long memberId,
+                               @Param("today") LocalDate today,
+                               @Param("approveStatus") VacationApprove approveStatus);
 }
