@@ -3,6 +3,7 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
+import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,13 +20,15 @@ public interface VacationAdminService {
      * @param endDate 종료일 (필터)
      * @param status 결재상태 (null이면 전체)
      * @param name 이름 검색 (null이면 전체)
+     * @param type 휴가유형 (null이면 전체)
      * @return 휴가 신청 목록
      */
     List<AdminVacationListResponseDTO> getVacationList(
             LocalDate startDate,
             LocalDate endDate,
             VacationApprove status,
-            String name
+            String name,
+            VacationType type
     );
 
     /**
