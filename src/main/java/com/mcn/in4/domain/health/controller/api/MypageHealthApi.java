@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,12 +25,7 @@ public interface MypageHealthApi {
     @GetMapping("/")
     List<HealthResponseDto.HealthInfo> generateHealthInfo(
 
-            @Parameter(
-                    description = "회원 ID",
-                    example = "1001",
-                    required = true
-            )
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal String userId,
 
             @Parameter(
                     description = "조회 시작 날짜",
