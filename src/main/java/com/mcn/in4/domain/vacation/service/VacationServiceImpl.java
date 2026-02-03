@@ -48,13 +48,13 @@ public class VacationServiceImpl implements VacationService {
     /** 휴가 신청 (연차/반차는 잔여일수 차감 후 저장) */
     @Override
     @Transactional
-    public VacationResponseDTO createVacation(String type, VacationRequestDTO request) {
+    public VacationResponseDTO createVacation(String type, VacationRequestDTO request, Long memberId) {
         // 휴가 타입 검증
         VacationType vacationType = parseVacationType(type);
 
-        // 회원 조회
-        Member member = memberRepository.findById(request.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId: " + request.getMemberId()));
+        // 회원 조회 (토큰에서 추출한 memberId 사용)
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId: " + memberId));
 
         // 휴가 일수 계산
         double vacationDays = calculateVacationDays(vacationType, request);
@@ -180,11 +180,16 @@ public class VacationServiceImpl implements VacationService {
                 .collect(Collectors.toList());
     }
 
-    /** 휴가 상세 조회 (타입별 상세 정보 포함) */
+    /** 휴가 상세 조회 (타입별 상세 정보 포함, 본인 휴가만 조회 가능) */
     @Override
-    public VacationDetailResponseDTO getVacationDetail(Long vacationId) {
+    public VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
+
+        // 본인 휴가인지 확인
+        if (!vacation.getMember().getMemberId().equals(memberId)) {
+            throw new IllegalArgumentException("본인의 휴가만 조회할 수 있습니다.");
+        }
 
         // 타입별 상세 정보 조회
         return switch (vacation.getVacationType()) {

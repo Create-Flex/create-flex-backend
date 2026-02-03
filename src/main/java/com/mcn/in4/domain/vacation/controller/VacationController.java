@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -34,6 +35,7 @@ public class VacationController implements VacationApi {
     @Override
     @PostMapping
     public ResponseEntity<VacationResponseDTO> createVacation(
+            @AuthenticationPrincipal String userId,
             @RequestParam("type") String type,
             @RequestBody VacationRequestDTO request,
             Authentication authentication
@@ -44,14 +46,15 @@ public class VacationController implements VacationApi {
             return ResponseEntity.status(403).build();
         }
 
-        VacationResponseDTO response = vacationService.createVacation(type, request);
+        Long memberId = Long.parseLong(userId);
+        VacationResponseDTO response = vacationService.createVacation(type, request, memberId);
         return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping("/my")
     public ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
-            @RequestParam("memberId") Long memberId,
+            @AuthenticationPrincipal String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) VacationType type,
@@ -62,6 +65,8 @@ public class VacationController implements VacationApi {
         if (isCreator) {
             return ResponseEntity.status(403).build();
         }
+
+        Long memberId = Long.parseLong(userId);
 
         // 기본값: 오늘 기준 앞뒤로 1개월
         if (startDate == null) {
@@ -78,6 +83,7 @@ public class VacationController implements VacationApi {
     @Override
     @GetMapping("/my/{vacationId}")
     public ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
+            @AuthenticationPrincipal String userId,
             @PathVariable Long vacationId,
             Authentication authentication
     ) {
@@ -87,14 +93,15 @@ public class VacationController implements VacationApi {
             return ResponseEntity.status(403).build();
         }
 
-        VacationDetailResponseDTO response = vacationService.getVacationDetail(vacationId);
+        Long memberId = Long.parseLong(userId);
+        VacationDetailResponseDTO response = vacationService.getVacationDetail(vacationId, memberId);
         return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping("/my/remainder")
     public ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
-            @RequestParam("memberId") Long memberId,
+            @AuthenticationPrincipal String userId,
             Authentication authentication
     ) {
         boolean isCreator = authentication.getAuthorities().stream()
@@ -103,6 +110,7 @@ public class VacationController implements VacationApi {
             return ResponseEntity.status(403).build();
         }
 
+        Long memberId = Long.parseLong(userId);
         VacationRemainderResponseDTO response = vacationService.getMyVacationRemainder(memberId);
         return ResponseEntity.ok(response);
     }

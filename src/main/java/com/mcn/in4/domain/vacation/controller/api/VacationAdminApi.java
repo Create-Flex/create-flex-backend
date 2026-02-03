@@ -4,6 +4,7 @@ import com.mcn.in4.domain.vacation.dto.request.VacationRejectRequestDTO;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
+import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,7 +25,7 @@ public interface VacationAdminApi {
 
     @Operation(
             summary = "전체 휴가 목록 조회",
-            description = "전체 직원의 휴가 신청 목록을 조회합니다. 기간, 상태, 이름으로 필터링 가능합니다.",
+            description = "전체 직원의 휴가 신청 목록을 조회합니다. 기간, 상태, 이름, 휴가유형으로 필터링 가능합니다.",
             security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -40,6 +41,8 @@ public interface VacationAdminApi {
             @RequestParam(required = false) VacationApprove status,
             @Parameter(description = "직원 이름 검색", example = "홍길동")
             @RequestParam(required = false) String name,
+            @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
+            @RequestParam(required = false) VacationType type,
             @Parameter(hidden = true) Authentication authentication
     );
 
