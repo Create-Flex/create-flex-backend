@@ -93,5 +93,22 @@ public class ScheduleController implements ScheduleApi {
         return ResponseEntity.ok("일정이 수정되었습니다.");
     }
 
+    @GetMapping("/creator")
+    public ResponseEntity<List<SchedulReponseDTO.ScheduleResponseDto>> getCreatorSchedules(
+            @AuthenticationPrincipal String userId,
+            Authentication authentication,
+            @RequestParam("month") String month) {
+        Long memberId = Long.parseLong(userId);
+
+        // 토큰에서 Role 추출
+        String role = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("");
+
+        List<SchedulReponseDTO.ScheduleResponseDto> schedules =
+                schedulService.getCreatorSchedules(memberId, role, month);
+        return ResponseEntity.ok(schedules);
+    }
 
 }
