@@ -61,13 +61,13 @@ public class TeamServiceImpl implements TeamService {
                     String workStatus = "미출근";
                     LocalDate today = LocalDate.now();
 
-                    // 1. 휴가 여부 확인 (VacationRepository 활용)
+                    // 휴가 여부 확인 (VacationRepository 활용)
                     boolean isVacation = vacationRepository.isMemberOnVacation(m.getMemberId(), today, VacationApprove.APPROVED);
 
                     if (isVacation) {
                         workStatus = "휴가";
                     } else {
-                        // 2. 출근 여부 확인 (AttendanceRepository 활용)
+                        // 출근 여부 확인 (AttendanceRepository 활용)
                         var attendanceOpt = attendanceRepository.findByMemberIdAndAttendanceDate(m.getMemberId(), today);
                         if (attendanceOpt.isPresent()) {
                             // 출근 기록이 있으면 해당 상태(근무중, 퇴근, 지각 등)의 설명을 가져옴
