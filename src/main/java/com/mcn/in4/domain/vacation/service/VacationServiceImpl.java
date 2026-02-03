@@ -74,12 +74,17 @@ public class VacationServiceImpl implements VacationService {
             employeeDetail.decreaseVacationRemainder(vacationDays);
         }
 
+        // 반차인 경우 종료일을 시작일과 동일하게 설정
+        LocalDate vacationEnd = (vacationType == VacationType.HALF)
+                ? request.getVacationStart()
+                : request.getVacationEnd();
+
         // 휴가 엔티티 생성
         Vacation vacation = Vacation.builder()
                 .member(member)
                 .vacationType(vacationType)
                 .vacationStart(request.getVacationStart())
-                .vacationEnd(request.getVacationEnd())
+                .vacationEnd(vacationEnd)
                 .vacationRequest(LocalDate.now())
                 .vacationDetail(request.getVacationDetail())
                 .vacationDays(vacationDays)
