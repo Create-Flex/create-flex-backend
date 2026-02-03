@@ -24,4 +24,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findAllById(Iterable<Long> ids);
 
     long countByMemberRoleNot(MemberRole memberRole);
+
+    List<Member> findByMemberNameContainingAndMemberIdIn(String memberName, List<Long> memberIds);
 }

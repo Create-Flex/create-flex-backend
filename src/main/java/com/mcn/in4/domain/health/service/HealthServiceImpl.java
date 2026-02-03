@@ -1,12 +1,17 @@
 package com.mcn.in4.domain.health.service;
 
 import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
+import com.mcn.in4.domain.health.dto.HealthResponseDto.CreatorHealthInfo;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthPresigned;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
+import com.mcn.in4.domain.health.dto.HealthSummanaryCountDto;
+import com.mcn.in4.domain.health.dto.MentalHealthDto;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
 import com.mcn.in4.domain.health.entity.Health;
+import com.mcn.in4.domain.health.repository.CreatorMentalHealthRepository;
 import com.mcn.in4.domain.health.repository.HealthRepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +36,8 @@ public class HealthServiceImpl implements HealthService{
     private final HealthRepository healthRepository;
     private final MemberRepository memberRepository;
     private final CreatorDetailRepository creatorDetailRepository;
+    private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+    private final CreatorMentalHealthRepository creatorMentalHealthRepository;
     private final S3Presigner s3Presigner;
 
     @Value("${aws.region}")
@@ -48,15 +55,60 @@ public class HealthServiceImpl implements HealthService{
                 .toList();
     }
 
-    public List<HealthInfo> generateCreatorHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
+    public CreatorHealthInfo generateCreatorHealthInfo(Long memberId) {
         List<Long> creatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
-        //List<Health> creatorHealth = healthRepository.findByMember_MemberIdInAndCheckupDateBetween(creatorIds, startDate, endDate);
+        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers(creatorIds);
         List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
                         healthRepository.findTopByMember_MemberId(member.getMemberId())
                                 .stream()
                                 .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
-        return creatorHealthInfoB;
+        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
+        return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC);
+    }
+
+    public List<HealthInfo> generateManageHealthInfo() {
+        List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
+        List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
+        return employees.stream().flatMap(member ->
+                        healthRepository.findTopByMember_MemberId(member.getMemberId())
+                                .stream()
+                                .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+    }
+
+    public List<HealthInfo> findByNameAndPeriod(String name, LocalDate startDate, LocalDate endDate) {
+        List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
+        List<Member> employees = memberRepository.findByMemberNameContainingAndMemberIdIn(name, employeeIds);
+        return employees.stream().flatMap(member ->
+                    healthRepository.findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
+                            .stream()
+                            .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+    }
+
+    public List<HealthInfo> findByName(String name){
+        List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
+        List<Member> employees = memberRepository.findByMemberNameContainingAndMemberIdIn(name, employeeIds);
+        return employees.stream().flatMap(member ->
+                healthRepository.findByMember_MemberId(member.getMemberId()).stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+    }
+
+    public List<HealthInfo> findByPeriod(LocalDate startDate, LocalDate endDate) {
+        List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
+        List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
+        return employees.stream().flatMap(member ->
+                healthRepository.findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
+                        .stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+    }
+
+    public List<HealthInfo> findAll(){
+        List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
+        List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
+        return employees.stream().flatMap(member ->
+                healthRepository.findByMember_MemberId(member.getMemberId())
+                        .stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
     }
 
 

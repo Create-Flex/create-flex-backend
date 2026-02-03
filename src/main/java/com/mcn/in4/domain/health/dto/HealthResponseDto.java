@@ -49,8 +49,9 @@ public class HealthResponseDto {
     @AllArgsConstructor
     @Builder
     public static class CreatorHealthInfo{
-
-        List<HealthInfo> healthInfoList;
+        private List<HealthSummanaryCountDto> healthSummanaryCountList;
+        private List<HealthInfo> healthInfoList;
+        private List<MentalHealthDto> mentalHealthInfoList;
     }
 
     @Getter

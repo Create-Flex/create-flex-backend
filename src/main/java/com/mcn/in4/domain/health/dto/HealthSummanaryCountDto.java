@@ -2,8 +2,10 @@ package com.mcn.in4.domain.health.dto;
 
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor
 @Builder
 public class HealthSummanaryCountDto {
@@ -14,8 +16,4 @@ public class HealthSummanaryCountDto {
         this.checkupSummanary = checkupSummanary;
         this.totalCount = totalCount;
     }
-
-    // getter
-    public CheckupSummanary getCheckupSummanary() { return checkupSummanary; }
-    public Long getTotalCount() { return totalCount; }
 }
