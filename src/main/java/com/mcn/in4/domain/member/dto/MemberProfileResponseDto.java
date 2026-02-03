@@ -31,4 +31,7 @@ public class MemberProfileResponseDto {
     private String hireDate; // 입사일
     private String address; // 주소
     private Double vacationRemainder; // 잔여 연차
+
+    //프리사인드 URL 소통로
+    private String presignedURL;
 }
