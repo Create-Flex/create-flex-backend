@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.team.service;
 
+import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.team.dto.request.TeamCreateRequest;
@@ -11,10 +12,13 @@ import com.mcn.in4.domain.team.entity.Team;
 import com.mcn.in4.domain.team.entity.TeamRelay;
 import com.mcn.in4.domain.team.repository.TeamRelayRepository;
 import com.mcn.in4.domain.team.repository.TeamRepository;
+import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
+import com.mcn.in4.domain.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +32,8 @@ public class TeamServiceImpl implements TeamService {
     private final TeamRepository teamRepository;
     private final TeamRelayRepository teamRelayRepository;
     private final MemberRepository memberRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final VacationRepository vacationRepository;
 
     @Override
     public List<TeamResponse> findAllTeams() {
@@ -45,13 +51,32 @@ public class TeamServiceImpl implements TeamService {
         // 2. 소속 멤버 상세 조회 (Fetch Join 활용)
         List<TeamRelay> relays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(teamId);
 
-        // 3. DTO 변환
+        // 3. DTO 변환 및 근태/휴가 상태 확인
         List<TeamDetailResponse.TeamMemberResponse> memberResponses = relays.stream()
                 .map(tr -> {
                     var m = tr.getMember();
                     String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+
+                    // 근무 상태 확인 로직 시작
+                    String workStatus = "미출근";
+                    LocalDate today = LocalDate.now();
+
+                    // 1. 휴가 여부 확인 (VacationRepository 활용)
+                    boolean isVacation = vacationRepository.isMemberOnVacation(m.getMemberId(), today, VacationApprove.APPROVED);
+
+                    if (isVacation) {
+                        workStatus = "휴가";
+                    } else {
+                        // 2. 출근 여부 확인 (AttendanceRepository 활용)
+                        var attendanceOpt = attendanceRepository.findByMemberIdAndAttendanceDate(m.getMemberId(), today);
+                        if (attendanceOpt.isPresent()) {
+                            // 출근 기록이 있으면 해당 상태(근무중, 퇴근, 지각 등)의 설명을 가져옴
+                            workStatus = attendanceOpt.get().getAttendanceStatus().getDescription();
+                        }
+                    }
+
                     return new TeamDetailResponse.TeamMemberResponse(
-                            m.getMemberId(), m.getMemberName(), deptName, m.getTask()
+                            m.getMemberId(), m.getMemberName(), deptName, m.getTask(), workStatus
                     );
                 }).toList();
 
