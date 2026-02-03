@@ -45,12 +45,13 @@ public class SchedulServiceImpl implements SchedulService {
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
+        log.info("회원 이 유효한지 조회");
         Member targetCreator = null;
         if (requestDto.getCreatorId() != null) {
             targetCreator = memberRepository.findById(requestDto.getCreatorId())
                     .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
         }
+        log.info("크리에이터가 유효한지 조회");
 
 
         //일반 일정 등록
