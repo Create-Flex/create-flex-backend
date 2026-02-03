@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface HealthRepository extends JpaRepository<Health, Long> {
     List<Health> findByMember_MemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
 
+    List<Health> findByMember_MemberId(Long memberId);
+
     @Query("SELECT new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, COUNT(h)) " +
             "FROM Health h " +
             "WHERE h.member.memberId IN :memberIds " +
