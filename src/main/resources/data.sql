@@ -110,16 +110,31 @@ INSERT INTO creator_detail (creator_detail_id, member_creator_id, member_manager
 -- 6. Member Profile (프로필)
 -- ==========================================
 INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner) VALUES
+-- 직원 프로필
 (1001, 1001, 'https://cdn.mcn.com/profiles/kim_insa.jpg', 'https://cdn.mcn.com/banners/kim_insa_banner.jpg'),
+(1002, 1002, 'https://cdn.mcn.com/profiles/lee_chaeyong.jpg', 'https://cdn.mcn.com/banners/lee_chaeyong_banner.jpg'),
 (1003, 1003, 'https://cdn.mcn.com/profiles/park_manager.jpg', 'https://cdn.mcn.com/banners/park_manager_banner.jpg'),
+(1004, 1004, 'https://cdn.mcn.com/profiles/choi_damdang.jpg', 'https://cdn.mcn.com/banners/choi_damdang_banner.jpg'),
+(1005, 1005, 'https://cdn.mcn.com/profiles/jung_gwanli.jpg', 'https://cdn.mcn.com/banners/jung_gwanli_banner.jpg'),
+(1006, 1006, 'https://cdn.mcn.com/profiles/kang_marketing.jpg', 'https://cdn.mcn.com/banners/kang_marketing_banner.jpg'),
 (1007, 1007, 'https://cdn.mcn.com/profiles/yoon_dev.jpg', 'https://cdn.mcn.com/banners/yoon_dev_banner.jpg'),
+(1008, 1008, 'https://cdn.mcn.com/profiles/han_coding.jpg', 'https://cdn.mcn.com/banners/han_coding_banner.jpg'),
+(1009, 1009, 'https://cdn.mcn.com/profiles/song_hongbo.jpg', 'https://cdn.mcn.com/banners/song_hongbo_banner.jpg'),
+(1010, 1010, 'https://cdn.mcn.com/profiles/jo_business.jpg', 'https://cdn.mcn.com/banners/jo_business_banner.jpg'),
+(1011, 1011, 'https://cdn.mcn.com/profiles/shin_gyeong.jpg', 'https://cdn.mcn.com/banners/shin_gyeong_banner.jpg'),
+(1012, 1012, 'https://cdn.mcn.com/profiles/emma_wilson.jpg', 'https://cdn.mcn.com/banners/emma_wilson_banner.jpg'),
+(1013, 1013, 'https://cdn.mcn.com/profiles/moon_thumbnail.jpg', 'https://cdn.mcn.com/banners/moon_thumbnail_banner.jpg'),
+(1014, 1014, 'https://cdn.mcn.com/profiles/gu_jikwon.jpg', 'https://cdn.mcn.com/banners/gu_jikwon_banner.jpg'),
+-- 크리에이터 프로필
 (2001, 2001, 'https://cdn.mcn.com/profiles/gamst.jpg', 'https://cdn.mcn.com/banners/gamst_banner.jpg'),
 (2002, 2002, 'https://cdn.mcn.com/profiles/ddoganjip.jpg', 'https://cdn.mcn.com/banners/ddoganjip_banner.jpg'),
 (2003, 2003, 'https://cdn.mcn.com/profiles/beautyjini.jpg', 'https://cdn.mcn.com/banners/beautyjini_banner.jpg'),
 (2004, 2004, 'https://cdn.mcn.com/profiles/mukbopd.jpg', 'https://cdn.mcn.com/banners/mukbopd_banner.jpg'),
 (2005, 2005, 'https://cdn.mcn.com/profiles/gameking.jpg', 'https://cdn.mcn.com/banners/gameking_banner.jpg'),
 (2006, 2006, 'https://cdn.mcn.com/profiles/dailyvlogger.jpg', 'https://cdn.mcn.com/banners/dailyvlogger_banner.jpg'),
-(2007, 2007, 'https://cdn.mcn.com/profiles/techreviewer.jpg', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg');
+(2007, 2007, 'https://cdn.mcn.com/profiles/techreviewer.jpg', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg'),
+(2008, 2008, 'https://cdn.mcn.com/profiles/restingcreator.jpg', 'https://cdn.mcn.com/banners/restingcreator_banner.jpg'),
+(2009, 2009, 'https://cdn.mcn.com/profiles/retiredcreator.jpg', 'https://cdn.mcn.com/banners/retiredcreator_banner.jpg');
 
 -- ==========================================
 -- 7. Creator Contract (계약)
