@@ -44,14 +44,14 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDetailResponse getTeamDetail(Long teamId) {
-        // 1. 팀 정보 조회
+        //팀 정보 조회
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
-        // 2. 소속 멤버 상세 조회 (Fetch Join 활용)
+        //소속 멤버 상세 조회 (Fetch Join 활용)
         List<TeamRelay> relays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(teamId);
 
-        // 3. DTO 변환 및 근태/휴가 상태 확인
+        //DTO 변환 및 근태/휴가 상태 확인
         List<TeamDetailResponse.TeamMemberResponse> memberResponses = relays.stream()
                 .map(tr -> {
                     var m = tr.getMember();
@@ -91,16 +91,16 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public void createTeam(TeamCreateRequest request) {
-        // 1. 팀 저장 및 즉시 반영
+        //팀 저장 및 즉시 반영
         Team team = new Team(null, request.getTeamName(), request.getTeamDetail());
         Team savedTeam = teamRepository.saveAndFlush(team);
 
-        // 2. 멤버 조회
+        //멤버 조회
         List<Member> members = memberRepository.findAllById(request.getMemberIds());
 
         if (members.isEmpty()) return;
 
-        // 3. TeamRelay 생성
+        //TeamRelay 생성
         List<TeamRelay> relays = members.stream()
                 .map(member -> {
                     // 수동 ID 부여 대신 builder나 생성자를 통해
@@ -109,28 +109,28 @@ public class TeamServiceImpl implements TeamService {
                 })
                 .toList();
 
-        // 4. 저장 및 강제 반영
+        //저장 및 강제 반영
         teamRelayRepository.saveAllAndFlush(relays);
     }
 
     @Override
     @Transactional
     public void updateTeamMembers(Long teamId, TeamMemberUpdateRequest request) {
-        // 1. 대상 팀 존재 확인
+        //대상 팀 존재 확인
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
-        // 2. 기존 팀 멤버 연결(Relay) 전체 삭제
+        //기존 팀 멤버 연결(Relay) 전체 삭제
         teamRelayRepository.deleteAllByTeamId(teamId);
 
-        // 3. 새로 요청된 멤버들 조회
+        //새로 요청된 멤버들 조회
         List<Member> newMembers = memberRepository.findAllById(request.getMemberIds());
 
         if (newMembers.isEmpty()) {
             return; // 혹은 모든 멤버를 제거하는 것이 의도라면 여기서 종료
         }
 
-        // 4. 새로운 연결 데이터(Relay) 생성 및 저장
+        //새로운 연결 데이터(Relay) 생성 및 저장
         List<TeamRelay> newRelays = newMembers.stream()
                 .map(member -> new TeamRelay(null, team, member)) // ID는 자동생성(IDENTITY) 가정
                 .toList();
@@ -141,14 +141,14 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Transactional
     public void deleteTeam(Long teamId) {
-        // 1. 삭제할 팀이 존재하는지 먼저 확인
+        //삭제할 팀이 존재하는지 먼저 확인
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("삭제하려는 팀이 존재하지 않습니다. ID: " + teamId));
 
-        // 2. 해당 팀과 연결된 멤버 관계(TeamRelay)를 먼저 삭제 (FK 제약 조건 해결)
+        //해당 팀과 연결된 멤버 관계(TeamRelay)를 먼저 삭제 (FK 제약 조건 해결)
         teamRelayRepository.deleteAllByTeamId(teamId);
 
-        // 3. 팀 엔티티 삭제
+        //팀 엔티티 삭제
         teamRepository.delete(team);
     }
 
@@ -156,7 +156,6 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<MyTeamResponse> getMyTeams(String memberIdStr) {
-        // [수정] findByMemberAccount 대신 findById 사용 (토큰에 ID가 들어있음)
         Long memberId = Long.parseLong(memberIdStr);
 
         Member member = memberRepository.findById(memberId)
@@ -195,7 +194,6 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public MyTeamResponse getMyTeamDetail(String memberIdStr, Long teamId) {
-        // [수정] 여기도 마찬가지로 ID로 찾도록 변경
         Long memberId = Long.parseLong(memberIdStr);
 
         Member member = memberRepository.findById(memberId)
