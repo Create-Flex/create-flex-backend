@@ -4,6 +4,7 @@ import com.mcn.in4.domain.health.dto.HealthRequestDto;
 import com.mcn.in4.domain.health.dto.HealthResponseDto;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
 import com.mcn.in4.domain.health.service.HealthService;
+import com.mcn.in4.domain.health.controller.api.MypageHealthApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/health/my")
 @RequiredArgsConstructor
-public class HealthMypageController {
+public class HealthMypageController implements MypageHealthApi {
 
     private final HealthService healthService;
 
