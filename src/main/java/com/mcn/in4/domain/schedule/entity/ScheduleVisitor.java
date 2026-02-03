@@ -2,15 +2,13 @@ package com.mcn.in4.domain.schedule.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "schedule_visitor") // 실제 DB 테이블명
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
 public class ScheduleVisitor {
     @Id

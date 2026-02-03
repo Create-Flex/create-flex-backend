@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ScheduleRequestDTO {
 
@@ -18,6 +19,9 @@ public class ScheduleRequestDTO {
         private LocalDate scheduleDate; // 날짜
         private String scheduleDetail; // 상세
         private ScheduleType scheduleType; // 이넘 타입
+
+        private Long creatorId;          // 크리에이터
+        private List<Long> visitorIds; //합방 크리에이터
     }
 
 
@@ -29,5 +33,9 @@ public class ScheduleRequestDTO {
         private LocalDate scheduleDate;
         private String scheduleDetail;
         private ScheduleType scheduleType;
+
+        private Long creatorId;          // 크리에이터
+        private List<Long> visitorIds; //합방 크리에이터
+
     }
 }

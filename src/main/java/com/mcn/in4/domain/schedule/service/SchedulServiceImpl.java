@@ -6,8 +6,12 @@ import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.schedule.dto.responseDTO.SchedulReponseDTO;
 import com.mcn.in4.domain.schedule.dto.resquestDTO.ScheduleRequestDTO;
 import com.mcn.in4.domain.schedule.entity.Schedule;
+import com.mcn.in4.domain.schedule.entity.ScheduleVisitor;
 import com.mcn.in4.domain.schedule.entity.scheduleEnum.ScheduleType;
 import com.mcn.in4.domain.schedule.repository.SchedulRepository;
+import com.mcn.in4.domain.schedule.repository.ScheduleVisitorRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,14 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SchedulServiceImpl implements SchedulService{
+public class SchedulServiceImpl implements SchedulService {
     private final SchedulRepository schedulRepository;
     private final MemberRepository memberRepository;
     private final CreatorDetailRepository creatorDetailRepository;
+    private final ScheduleVisitorRepository scheduleVisitorRepository;
 
 
     @Override
@@ -35,19 +42,46 @@ public class SchedulServiceImpl implements SchedulService{
             throw new IllegalStateException("일반 직원 및 크리에이터는 회사 일정을 등록할 수 있는 권한이 없습니다.");
         }
 
+
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        log.info("회원 이 유효한지 조회");
+        Member targetCreator = null;
+        if (requestDto.getCreatorId() != null) {
+            targetCreator = memberRepository.findById(requestDto.getCreatorId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
+        }
+        log.info("크리에이터가 유효한지 조회");
 
 
+        //일반 일정 등록
         Schedule schedule = Schedule.builder()
                 .member(member)
+                .creator(targetCreator)
                 .scheduleName(requestDto.getScheduleName())
                 .scheduleDate(requestDto.getScheduleDate())
                 .scheduleDetail(requestDto.getScheduleDetail())
                 .scheduleType(requestDto.getScheduleType())
                 .build();
-        schedulRepository.save(schedule);
+        Schedule savedSchedule = schedulRepository.save(schedule);
+
+        //합방 타입일 경우에 합방 크리에이터 등록
+        if (requestDto.getScheduleType() == ScheduleType.MERGE &&
+                requestDto.getVisitorIds() != null && !requestDto.getVisitorIds().isEmpty()) {
+
+            List<ScheduleVisitor> visitors = requestDto.getVisitorIds().stream()
+                    .map(visitorId -> memberRepository.findById(visitorId)
+                            .orElseThrow(() -> new IllegalArgumentException("참가자 정보를 찾을 수 없습니다. ID: " + visitorId)))
+                    .map(visitorMember -> ScheduleVisitor.builder()
+                            .schedule(savedSchedule)
+                            .member(visitorMember)
+                            .build())
+                    .toList();
+
+            scheduleVisitorRepository.saveAll(visitors);
+        }
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<SchedulReponseDTO.ScheduleResponseDto> getMyMonthlySchedules(Long memberId, String month) {
@@ -84,9 +118,9 @@ public class SchedulServiceImpl implements SchedulService{
     public void deleteSchedule(Long memberId, String role, Long scheduleId) {
 
         Schedule schedule = schedulRepository.findById(scheduleId)
-                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 일정입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 일정입니다."));
 
-        boolean isAdmin = "ROLE_ADMINSTRATOR".equals(role)&& schedule.getScheduleType() == ScheduleType.COMPANY;
+        boolean isAdmin = "ROLE_ADMINSTRATOR".equals(role) && schedule.getScheduleType() == ScheduleType.COMPANY;
 
         boolean isOwner = schedule.getMember().getMemberId().equals(memberId);
 
@@ -134,6 +168,7 @@ public class SchedulServiceImpl implements SchedulService{
                 ScheduleType.LIVE,
                 ScheduleType.MEETING,
                 ScheduleType.MERGE,
+                ScheduleType.PROMOTION,
                 ScheduleType.ETC);
 
         //매니저인 경우 크리에이터 목록 조회
@@ -148,15 +183,31 @@ public class SchedulServiceImpl implements SchedulService{
                 startDate, endDate, creatorTypes
         );
 
-        return schedules.stream()
-                .map(s -> SchedulReponseDTO.ScheduleResponseDto.builder()
-                        .scheduleId(s.getScheduleId())
-                        .scheduleName(s.getScheduleName())
-                        .scheduleDate(s.getScheduleDate())
-                        .scheduleDetail(s.getScheduleDetail())
-                        .scheduleType(s.getScheduleType())
-                        .build())
-                .toList();
-    }
+        // 합방 참가자 조회
+        List<Long> scheduleIds = schedules.stream().map(Schedule::getScheduleId).toList();
+        List<ScheduleVisitor> allVisitors = scheduleVisitorRepository.findAllByScheduleIdIn(scheduleIds);
 
+        //<스케줄 id, 합방 참가자리스트> <- 맵
+        Map<Long, List<ScheduleVisitor>> visitorMap = allVisitors.stream()
+                .collect(Collectors.groupingBy(sv -> sv.getSchedule().getScheduleId()));
+
+        return schedules.stream().map(s -> {
+            List<ScheduleVisitor> visitors = visitorMap.getOrDefault(s.getScheduleId(), List.of());
+
+            return SchedulReponseDTO.ScheduleResponseDto.builder()
+                    .scheduleId(s.getScheduleId())
+                    .scheduleName(s.getScheduleName())
+                    .scheduleDate(s.getScheduleDate())
+                    .scheduleDetail(s.getScheduleDetail())
+                    .scheduleType(s.getScheduleType())
+                    // 크리에이터
+                    .creatorId(s.getCreator() != null ? s.getCreator().getMemberId() : null)
+                    .creatorName(s.getCreator() != null ? s.getCreator().getMemberName() : null)
+                    // 합방 상대
+                    .visitorIds(visitors.stream().map(v -> v.getMember().getMemberId()).toList())
+                    .visitorNames(visitors.stream().map(v -> v.getMember().getMemberName()).toList())
+                    .build();
+        }).toList();
+
+    }
 }
