@@ -7,6 +7,7 @@ import com.mcn.in4.domain.health.service.HealthService;
 import com.mcn.in4.domain.health.controller.api.MypageHealthApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,9 +24,10 @@ public class HealthMypageController implements MypageHealthApi {
 
     @GetMapping("/")
     public List<HealthResponseDto.HealthInfo> generateHealthInfo(
-            @RequestParam Long memberId,
+            @AuthenticationPrincipal String userId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate){
+        Long memberId = Long.parseLong(userId);
         return healthService.generateHealthInfo(memberId, startDate, endDate);
     }
 

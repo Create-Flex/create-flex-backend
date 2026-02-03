@@ -5,6 +5,7 @@ import com.mcn.in4.domain.health.service.HealthService;
 import com.mcn.in4.domain.health.controller.api.CreatorHealthApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,7 +20,8 @@ public class HealthCreatorController implements CreatorHealthApi {
 
     @GetMapping("/")
     public CreatorHealthInfo generateCreatorHealthInfo(
-            @RequestParam Long memberId) {
+            @AuthenticationPrincipal String userId) {
+        Long memberId = Long.parseLong(userId);
         return healthService.generateCreatorHealthInfo(memberId);
     }
 }
