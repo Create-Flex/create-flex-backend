@@ -26,6 +26,7 @@ public class MemberProfileResponseDto {
     private String departmentName; // 부서명
     private String engName; // 영문명
     private String personalEmail; // 개인 이메일
+    private String corporEmail; // 사내 이메일
     private String personalCall; // 개인 휴대전화
     private String hireDate; // 입사일
     private String address; // 주소

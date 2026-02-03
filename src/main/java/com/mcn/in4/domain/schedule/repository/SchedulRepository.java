@@ -25,7 +25,8 @@ public interface SchedulRepository extends JpaRepository<Schedule, Long> {
             "LEFT JOIN FETCH s.creator " +
             "WHERE (s.member.memberId = :memberId " + // 본인이 작성한 일정
             "OR s.creator.memberId = :memberId " +    // (크리에이터용) 본인이 대상인 일정
-            "OR s.creator.memberId IN :managedCreatorIds) " + // (매니저용) 관리 중인 크리에이터들의 일정
+            "OR s.creator.memberId IN :managedCreatorIds " + // (매니저용) 관리 중인 크리에이터들의 일정
+            "OR (s.member.memberId IN :managedCreatorIds AND s.creator IS NULL)) " + // 크리에이터가 직접 쓴 일정
             "AND s.scheduleDate BETWEEN :startDate AND :endDate " +
             "AND s.scheduleType IN :types")
     List<Schedule> findCreatorRelatedSchedules( //추후 인덱스 구현하여 조회성능 향상 예정

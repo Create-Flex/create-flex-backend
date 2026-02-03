@@ -168,6 +168,7 @@ public class SchedulServiceImpl implements SchedulService {
                 ScheduleType.LIVE,
                 ScheduleType.MEETING,
                 ScheduleType.MERGE,
+                ScheduleType.PROMOTION,
                 ScheduleType.ETC);
 
         //매니저인 경우 크리에이터 목록 조회

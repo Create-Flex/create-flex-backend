@@ -76,21 +76,21 @@ INSERT INTO members (member_id, department_id, member_account, member_password, 
 -- ==========================================
 -- 4. Employee Detail (직원 상세) - task, department_id 제거됨
 -- ==========================================
-INSERT INTO employee_detail (employee_detail_id, employee_id, nickname, eng_name, personal_email, personal_call, hire_date, emp_date, address, employment_type, leaving_reason, vacation_remainder) VALUES
-(1001, 1001, '인사왕', 'Kim Insa', 'kim.insa@gmail.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
-(1002, 1002, '채용마스터', 'Lee Chaeyong', 'lee.chaeyong@naver.com', '010-2222-2222', '2021-06-15', NULL, '서울시 서초구 서초대로 456', 'NEWBIE', NULL, 15.0),
-(1003, 1003, '매니저박', 'Park Manager', 'park.mg@gmail.com', '010-3333-3333', '2019-01-10', NULL, '서울시 마포구 월드컵로 789', 'EXPERIENCED', NULL, 15.0),
-(1004, 1004, '최담당님', 'Choi Damdang', 'choi.dd@kakao.com', '010-4444-4444', '2022-09-01', NULL, '경기도 성남시 분당구 판교역로 111', 'NEWBIE', NULL, 15.0),
-(1005, 1005, '정매니저', 'Jung Gwanli', 'jung.gl@gmail.com', '010-5555-5555', '2020-11-20', NULL, '인천시 연수구 송도과학로 222', 'EXPERIENCED', NULL, 15.0),
-(1006, 1006, '강마케터', 'Kang Marketing', 'kang.mk@naver.com', '010-6666-6666', '2021-03-15', NULL, '서울시 영등포구 여의대로 333', 'NEWBIE', NULL, 15.0),
-(1007, 1007, '윤개발자', 'Yoon Dev', 'yoon.dev@gmail.com', '010-7777-7777', '2022-01-03', NULL, '서울시 강남구 역삼로 444', 'NEWBIE', NULL, 10.0),
-(1008, 1008, '한코더', 'Han Coding', 'han.code@naver.com', '010-8888-8888', '2020-07-15', NULL, '경기도 고양시 일산동구 중앙로 555', 'EXPERIENCED', NULL, 15.0),
-(1009, 1009, '송마케터', 'Song Hongbo', 'song.sns@gmail.com', '010-9999-9999', '2023-02-01', NULL, '서울시 송파구 올림픽로 666', 'NEWBIE', NULL, 14.5),
-(1010, 1010, '조사업가', 'Jo Business', 'jo.biz@kakao.com', '010-1010-1010', '2019-08-20', NULL, '서울시 중구 세종대로 777', 'EXPERIENCED', NULL, 10.0),
-(1011, 1011, '신경영인', 'Shin Gyeong', 'shin.admin@naver.com', '010-1212-1212', '2021-12-01', NULL, '서울시 종로구 종로 888', 'NEWBIE', NULL, 15.0),
-(1012, 1012, 'Emma', 'Emma Wilson', 'emma.wilson@gmail.com', '010-1313-1313', '2022-05-10', NULL, '서울시 용산구 이태원로 999', 'EXPERIENCED', NULL, 15.0),
-(1013, 1013, '문디자이너', 'Moon Thumbnail', 'moon.thumb@gmail.com', '010-1414-1414', '2023-04-01', NULL, '경기도 수원시 영통구 광교로 1010', 'NEWBIE', NULL, 15.0),
-(1014, 1014, '구직원님', 'Gu Jikwon', 'gu.old@naver.com', '010-1515-1515', '2020-02-01', '2024-12-31', '서울시 동대문구 왕산로 1111', 'NEWBIE', '개인 사정으로 인한 퇴사', 15.0);
+INSERT INTO employee_detail (employee_detail_id, employee_id, nickname, eng_name, personal_email, corpor_email, personal_call, hire_date, emp_date, address, employment_type, leaving_reason, vacation_remainder) VALUES
+(1001, 1001, '인사왕', 'Kim Insa', 'kim.insa@gmail.com', 'kim.insa@mcn.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
+(1002, 1002, '채용마스터', 'Lee Chaeyong', 'lee.chaeyong@naver.com', 'lee.chaeyong@mcn.com', '010-2222-2222', '2021-06-15', NULL, '서울시 서초구 서초대로 456', 'NEWBIE', NULL, 15.0),
+(1003, 1003, '매니저박', 'Park Manager', 'park.mg@gmail.com', 'park.manager@mcn.com', '010-3333-3333', '2019-01-10', NULL, '서울시 마포구 월드컵로 789', 'EXPERIENCED', NULL, 15.0),
+(1004, 1004, '최담당님', 'Choi Damdang', 'choi.dd@kakao.com', 'choi.damdang@mcn.com', '010-4444-4444', '2022-09-01', NULL, '경기도 성남시 분당구 판교역로 111', 'NEWBIE', NULL, 15.0),
+(1005, 1005, '정매니저', 'Jung Gwanli', 'jung.gl@gmail.com', 'jung.gwanli@mcn.com', '010-5555-5555', '2020-11-20', NULL, '인천시 연수구 송도과학로 222', 'EXPERIENCED', NULL, 15.0),
+(1006, 1006, '강마케터', 'Kang Marketing', 'kang.mk@naver.com', 'kang.marketing@mcn.com', '010-6666-6666', '2021-03-15', NULL, '서울시 영등포구 여의대로 333', 'NEWBIE', NULL, 15.0),
+(1007, 1007, '윤개발자', 'Yoon Dev', 'yoon.dev@gmail.com', 'yoon.dev@mcn.com', '010-7777-7777', '2022-01-03', NULL, '서울시 강남구 역삼로 444', 'NEWBIE', NULL, 10.0),
+(1008, 1008, '한코더', 'Han Coding', 'han.code@naver.com', 'han.coding@mcn.com', '010-8888-8888', '2020-07-15', NULL, '경기도 고양시 일산동구 중앙로 555', 'EXPERIENCED', NULL, 15.0),
+(1009, 1009, '송마케터', 'Song Hongbo', 'song.sns@gmail.com', 'song.hongbo@mcn.com', '010-9999-9999', '2023-02-01', NULL, '서울시 송파구 올림픽로 666', 'NEWBIE', NULL, 14.5),
+(1010, 1010, '조사업가', 'Jo Business', 'jo.biz@kakao.com', 'jo.business@mcn.com', '010-1010-1010', '2019-08-20', NULL, '서울시 중구 세종대로 777', 'EXPERIENCED', NULL, 10.0),
+(1011, 1011, '신경영인', 'Shin Gyeong', 'shin.admin@naver.com', 'shin.gyeong@mcn.com', '010-1212-1212', '2021-12-01', NULL, '서울시 종로구 종로 888', 'NEWBIE', NULL, 15.0),
+(1012, 1012, 'Emma', 'Emma Wilson', 'emma.wilson@gmail.com', 'emma.wilson@mcn.com', '010-1313-1313', '2022-05-10', NULL, '서울시 용산구 이태원로 999', 'EXPERIENCED', NULL, 15.0),
+(1013, 1013, '문디자이너', 'Moon Thumbnail', 'moon.thumb@gmail.com', 'moon.thumbnail@mcn.com', '010-1414-1414', '2023-04-01', NULL, '경기도 수원시 영통구 광교로 1010', 'NEWBIE', NULL, 15.0),
+(1014, 1014, '구직원님', 'Gu Jikwon', 'gu.old@naver.com', 'gu.jikwon@mcn.com', '010-1515-1515', '2020-02-01', '2024-12-31', '서울시 동대문구 왕산로 1111', 'NEWBIE', '개인 사정으로 인한 퇴사', 15.0);
 
 -- ==========================================
 -- 5. Creator Detail (크리에이터 상세)
