@@ -17,48 +17,52 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository memberRepository;
-    private final MemberProfileRepository memberProfileRepository;
-    private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+        private final MemberRepository memberRepository;
+        private final MemberProfileRepository memberProfileRepository;
+        private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
 
-    @Override
-    public MemberProfileResponseDto getMemberProfile(Long memberId) {
-        // 1. 회원 조회
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다. id=" + memberId));
+        @Override
+        public MemberProfileResponseDto getMemberProfile(Long memberId) {
+                // 1. 회원 조회
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다. id=" + memberId));
 
-        // 2. 프로필 조회
-        MemberProfile profile = memberProfileRepository.findByMember(member)
-                .orElseThrow(() -> new IllegalArgumentException("프로필 정보를 찾을 수 없습니다. memberId=" + memberId));
+                // 2. 프로필 조회
+                MemberProfile profile = memberProfileRepository.findByMember(member)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "프로필 정보를 찾을 수 없습니다. memberId=" + memberId));
 
-        // 3. 빌더 초기화 (공통 정보)
-        MemberProfileResponseDto.MemberProfileResponseDtoBuilder builder = MemberProfileResponseDto.builder()
-                .memberId(member.getMemberId())
-                .memberName(member.getMemberName())
-                .memberAccount(member.getMemberAccount())
-                .memberRole(member.getMemberRole())
-                .profileImage(profile.getProfileImage())
-                .profileBanner(profile.getProfileBanner());
+                // 3. 빌더 초기화 (공통 정보)
+                MemberProfileResponseDto.MemberProfileResponseDtoBuilder builder = MemberProfileResponseDto.builder()
+                                .memberId(member.getMemberId())
+                                .memberName(member.getMemberName())
+                                .memberAccount(member.getMemberAccount())
+                                .memberRole(member.getMemberRole())
+                                .profileImage(profile.getProfileImage())
+                                .profileBanner(profile.getProfileBanner());
 
-        // 4. 직원인 경우 상세 정보 조회 및 추가
-        if (member.getMemberRole() == MemberRole.EMPLOYEE || member.getMemberRole() == MemberRole.MANAGER
-                || member.getMemberRole() == MemberRole.ADMINISTRATOR) {
-            MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMember(member)
-                    .orElse(null);
+                // 4. 직원인 경우 상세 정보 조회 및 추가
+                if (member.getMemberRole() == MemberRole.EMPLOYEE || member.getMemberRole() == MemberRole.MANAGER
+                                || member.getMemberRole() == MemberRole.ADMINISTRATOR) {
+                        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMember(member)
+                                        .orElse(null);
 
-            if (employeeDetail != null) {
-                builder.task(member.getTask())
-                        .nickname(employeeDetail.getNickname())
-                        .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : null)
-                        .engName(employeeDetail.getEngName())
-                        .personalEmail(employeeDetail.getPersonalEmail())
-                        .personalCall(employeeDetail.getPersonalCall())
-                        .hireDate(employeeDetail.getHireDate())
-                        .address(employeeDetail.getAddress())
-                        .vacationRemainder(employeeDetail.getVacationRemainder());
-            }
+                        if (employeeDetail != null) {
+                                builder.task(member.getTask())
+                                                .nickname(employeeDetail.getNickname())
+                                                .departmentName(member.getDepartment() != null
+                                                                ? member.getDepartment().getDepartmentName()
+                                                                : null)
+                                                .engName(employeeDetail.getEngName())
+                                                .personalEmail(employeeDetail.getPersonalEmail())
+                                                .corporEmail(employeeDetail.getCorporEmail())
+                                                .personalCall(employeeDetail.getPersonalCall())
+                                                .hireDate(employeeDetail.getHireDate())
+                                                .address(employeeDetail.getAddress())
+                                                .vacationRemainder(employeeDetail.getVacationRemainder());
+                        }
+                }
+
+                return builder.build();
         }
-
-        return builder.build();
-    }
 }
