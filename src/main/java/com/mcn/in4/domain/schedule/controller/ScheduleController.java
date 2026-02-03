@@ -93,6 +93,7 @@ public class ScheduleController implements ScheduleApi {
         return ResponseEntity.ok("일정이 수정되었습니다.");
     }
 
+    //크리에이터 일정 조회
     @GetMapping("/creator")
     public ResponseEntity<List<SchedulReponseDTO.ScheduleResponseDto>> getCreatorSchedules(
             @AuthenticationPrincipal String userId,
@@ -110,5 +111,7 @@ public class ScheduleController implements ScheduleApi {
                 schedulService.getCreatorSchedules(memberId, role, month);
         return ResponseEntity.ok(schedules);
     }
+
+
 
 }

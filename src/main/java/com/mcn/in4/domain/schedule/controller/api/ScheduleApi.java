@@ -20,7 +20,7 @@ import java.util.List;
 public interface ScheduleApi {
     @Operation(
             summary = "나의 일정 등록",
-            description = "현재 로그인한 사용자의 일정을 등록합니다. 일반 직원은 개인 일정으로, 매니저는 크리에이터 일정을 등록할 때 사용합니다.",
+            description = "일정의 성격(합방, 개인, 대행 등)에 따라 적절한 파라미터를 전송합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "일정 등록 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
@@ -31,13 +31,32 @@ public interface ScheduleApi {
             @Parameter(hidden = true) String userId,
             @Parameter(hidden = true) Authentication authentication,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "등록할 일정 데이터",
+                    description = "상황별 일정 등록 예시",
                     required = true,
                     content = @Content(
                             mediaType = "application/json",
-                            examples = @ExampleObject(
-                                    value = "{\n  \"scheduleName\": \"주간 업무 보고서 작성\",\n  \"scheduleDate\": \"2026-02-04\",\n  \"scheduleDetail\": \"2월 1주차 업무 실적 정리 및 2월 계획 수립\",\n  \"scheduleType\": \"PERSONAL\"\n}"
-                            )
+                            examples = {
+                                    @ExampleObject(
+                                            name = "1. 합방(MERGE) 일정 등록",
+                                            summary = "매니저가 크리에이터 합방 일정을 등록할 때",
+                                            value = "{\n  \"scheduleName\": \"감스트 x 또간집 콜라보 먹방\",\n  \"scheduleDate\": \"2026-02-15\",\n  \"scheduleDetail\": \"강남역 인근 맛집 탐방 및 합방 진행\",\n  \"scheduleType\": \"MERGE\",\n  \"creatorId\": 2001,\n  \"visitorIds\": [2002, 2005]\n}"
+                                    ),
+                                    @ExampleObject(
+                                            name = "2. 매니저의 크리에이터 일정 대행 등록",
+                                            summary = "매니저가 담당 크리에이터의 단독 일정을 등록할 때",
+                                            value = "{\n  \"scheduleName\": \"갤럭시 S26 홍보 영상 촬영\",\n  \"scheduleDate\": \"2026-02-20\",\n  \"scheduleDetail\": \"삼성전자 본사 스튜디오 촬영\",\n  \"scheduleType\": \"PROMOTION\",\n  \"creatorId\": 2001,\n  \"visitorIds\": []\n}"
+                                    ),
+                                    @ExampleObject(
+                                            name = "3. 크리에이터 본인 일정 등록",
+                                            summary = "크리에이터가 직접 자신의 일정을 등록할 때",
+                                            value = "{\n  \"scheduleName\": \"개인 라이브 방송\",\n  \"scheduleDate\": \"2026-02-10\",\n  \"scheduleDetail\": \"저녁 8시 게임 방송 시작\",\n  \"scheduleType\": \"LIVE\",\n  \"creatorId\": null,\n  \"visitorIds\": null\n}"
+                                    ),
+                                    @ExampleObject(
+                                            name = "4. 매니저 본인 일정 등록",
+                                            summary = "매니저가 자신의 업무 미팅 등을 등록할 때",
+                                            value = "{\n  \"scheduleName\": \"광고주 미팅\",\n  \"scheduleDate\": \"2026-02-05\",\n  \"scheduleDetail\": \"MCN 본사 3층 회의실\",\n  \"scheduleType\": \"MEETING\",\n  \"creatorId\": null,\n  \"visitorIds\": []\n}"
+                                    )
+                            }
                     )
             )
             @RequestBody ScheduleRequestDTO.ScheduleCreateRequestDto requestDto
