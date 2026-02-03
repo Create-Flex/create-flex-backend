@@ -14,6 +14,8 @@ import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,10 +42,10 @@ public class EmployeeServiceImpl implements EmployeeService{
     public EmployeeResponseDTO.EmployeeDetailResponseDto getEmployeeDetail(Long id) {
         //  계정 정보 조회 
         Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다. ID: " + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         //  직원 상세 정보 조회 
         MemberEmployeeDetail detail = detailRepository.findByMemberMemberId(id)
-                .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 존재하지 않습니다. ID: " + id));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
         
         return EmployeeResponseDTO.EmployeeDetailResponseDto.builder()
                 .memberAccount(member.getMemberAccount())

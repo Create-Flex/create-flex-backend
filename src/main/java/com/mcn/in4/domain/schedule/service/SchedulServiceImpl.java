@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.schedule.service;
 
+import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.schedule.dto.responseDTO.SchedulReponseDTO;
@@ -21,6 +22,8 @@ import java.util.List;
 public class SchedulServiceImpl implements SchedulService{
     private final SchedulRepository schedulRepository;
     private final MemberRepository memberRepository;
+    private final CreatorDetailRepository creatorDetailRepository;
+
 
     @Override
     @Transactional
@@ -118,6 +121,42 @@ public class SchedulServiceImpl implements SchedulService{
 
         schedulRepository.save(schedule);
         log.info("알림 수정 완료");
+    }
+
+    //크리에이터 일정 조회
+    @Override
+    public List<SchedulReponseDTO.ScheduleResponseDto> getCreatorSchedules(Long memberId, String role, String month) {
+        String[] parts = month.split("-");
+        LocalDate startDate = LocalDate.of(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]), 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        List<ScheduleType> creatorTypes = List.of(ScheduleType.CONTENT,
+                ScheduleType.LIVE,
+                ScheduleType.MEETING,
+                ScheduleType.MERGE,
+                ScheduleType.ETC);
+
+        //매니저인 경우 크리에이터 목록 조회
+        List<Long> managedCreatorIds = List.of();
+        if ("ROLE_MANAGER".equals(role)) {
+            managedCreatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
+        }
+
+        List<Schedule> schedules = schedulRepository.findCreatorRelatedSchedules(
+                memberId,
+                managedCreatorIds.isEmpty() ? List.of(-1L) : managedCreatorIds, // 빈리스트 일때 -1L 을 임의로 넣어 오류 방지
+                startDate, endDate, creatorTypes
+        );
+
+        return schedules.stream()
+                .map(s -> SchedulReponseDTO.ScheduleResponseDto.builder()
+                        .scheduleId(s.getScheduleId())
+                        .scheduleName(s.getScheduleName())
+                        .scheduleDate(s.getScheduleDate())
+                        .scheduleDetail(s.getScheduleDetail())
+                        .scheduleType(s.getScheduleType())
+                        .build())
+                .toList();
     }
 
 }

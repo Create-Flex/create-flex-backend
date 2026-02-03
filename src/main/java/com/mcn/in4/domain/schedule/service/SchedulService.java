@@ -13,4 +13,5 @@ public interface SchedulService {
     void deleteSchedule(Long memberId, String role, Long scheduleId);
 
     void updateSchedule(Long memberId, String role, Long scheduleId, ScheduleRequestDTO.ScheduleUpdateRequestDto requestDto);
+    List<SchedulReponseDTO.ScheduleResponseDto> getCreatorSchedules(Long memberId, String role, String month);
 }
