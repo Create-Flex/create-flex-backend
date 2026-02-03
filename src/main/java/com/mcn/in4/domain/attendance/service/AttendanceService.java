@@ -33,7 +33,7 @@ public interface AttendanceService {
          * @return 근태 기록 DTO 리스트
          */
         List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate,
-                        String status);
+                        String status, String name);
 
         /**
          * 출근 처리

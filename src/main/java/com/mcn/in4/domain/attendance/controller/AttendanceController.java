@@ -126,7 +126,8 @@ public class AttendanceController implements AttendanceApi {
             Authentication authentication,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
-            @RequestParam(value = "status", required = false) String status) {
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "name", required = false) String name) {
 
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
@@ -139,7 +140,7 @@ public class AttendanceController implements AttendanceApi {
                 : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
 
-        return ResponseEntity.ok(attendanceService.getAllAttendance(start, end, status));
+        return ResponseEntity.ok(attendanceService.getAllAttendance(start, end, status, name));
     }
 
     /**

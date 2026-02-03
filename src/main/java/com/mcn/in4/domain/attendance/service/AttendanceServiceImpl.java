@@ -53,7 +53,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate, String status) {
+    public List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate, String status,
+            String name) {
         // 근태 상태 필터링 (String -> Enum 변환)
         AttendanceStatus attendanceStatus = null;
         if (status != null && !status.isEmpty()) {
@@ -65,7 +66,17 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         // Repository 조회 후 DTO 변환
-        return attendanceRepository.findAllAttendance(startDate, endDate, attendanceStatus).stream()
+        List<Attendance> attendances = attendanceRepository.findAllAttendance(startDate, endDate, attendanceStatus);
+
+        // 이름 필터링 (name이 있으면 LIKE 검색)
+        if (name != null && !name.isEmpty()) {
+            String searchName = name.toLowerCase();
+            attendances = attendances.stream()
+                    .filter(a -> a.getMember().getMemberName().toLowerCase().contains(searchName))
+                    .collect(Collectors.toList());
+        }
+
+        return attendances.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
