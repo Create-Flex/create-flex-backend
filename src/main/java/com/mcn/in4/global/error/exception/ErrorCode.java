@@ -52,7 +52,9 @@ public enum ErrorCode {
     CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "계약 정보를 찾을 수 없습니다."),
     INVALID_CONTRACT_PERIOD(HttpStatus.BAD_REQUEST, "계약 시작일은 종료일보다 이전이어야 합니다."),
     CONTRACT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "계약서 파일이 존재하지 않습니다."),
-    LEGALTAX_NOT_FOUND(HttpStatus.BAD_REQUEST, "계약 시작일은 종료일보다 이전이어야 합니다.");
+    LEGALTAX_NOT_FOUND(HttpStatus.NOT_FOUND, "법률/세무 정보를 찾을 수 없습니다."),
+    // 9. 업무현황 (CreatorWork)
+    WORK_NOT_FOUND(HttpStatus.NOT_FOUND, "업무를 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

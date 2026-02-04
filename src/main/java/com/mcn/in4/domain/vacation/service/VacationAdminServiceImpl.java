@@ -59,10 +59,11 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     @Transactional
     public void approveVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND, "휴가 ID " + vacationId + "를 찾을 수 없습니다."));
 
         if (vacation.getVacationApprove() != VacationApprove.APPROVE_NEED) {
-            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS);
+            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS,
+                    "휴가 ID " + vacationId + "의 현재 상태는 " + vacation.getVacationApprove().name() + "입니다. 승인대기(APPROVE_NEED) 상태의 휴가만 처리할 수 있습니다.");
         }
 
         vacation.approve();
@@ -73,10 +74,11 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     @Transactional
     public void rejectVacation(Long vacationId, String rejectReason) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND, "휴가 ID " + vacationId + "를 찾을 수 없습니다."));
 
         if (vacation.getVacationApprove() != VacationApprove.APPROVE_NEED) {
-            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS);
+            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS,
+                    "휴가 ID " + vacationId + "의 현재 상태는 " + vacation.getVacationApprove().name() + "입니다. 승인대기(APPROVE_NEED) 상태의 휴가만 처리할 수 있습니다.");
         }
 
         // 연차/반차인 경우 잔여 연차 복구
@@ -84,7 +86,7 @@ public class VacationAdminServiceImpl implements VacationAdminService {
         if (type == VacationType.ANNUAL || type == VacationType.HALF) {
             MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository
                     .findByMemberMemberId(vacation.getMember().getMemberId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND, "회원 ID " + vacation.getMember().getMemberId() + "의 직원 상세 정보가 존재하지 않습니다."));
 
             employeeDetail.increaseVacationRemainder(vacation.getVacationDays());
         }
