@@ -32,6 +32,7 @@ public class VacationController implements VacationApi {
 
     private final VacationService vacationService;
 
+    /** 휴가 신청 (연차, 반차, 경조사, 병가, 워케이션) */
     @Override
     @PostMapping
     public ResponseEntity<VacationResponseDTO> createVacation(
@@ -51,6 +52,7 @@ public class VacationController implements VacationApi {
         return ResponseEntity.ok(response);
     }
 
+    /** 내 휴가 사용 내역 목록 조회 (기간, 휴가유형 필터) */
     @Override
     @GetMapping("/my")
     public ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
@@ -80,6 +82,7 @@ public class VacationController implements VacationApi {
         return ResponseEntity.ok(response);
     }
 
+    /** 휴가 상세 조회 (본인 휴가 또는 관리자만 조회 가능) */
     @Override
     @GetMapping("/my/{vacationId}")
     public ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
@@ -93,11 +96,15 @@ public class VacationController implements VacationApi {
             return ResponseEntity.status(403).build();
         }
 
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
+
         Long memberId = Long.parseLong(userId);
-        VacationDetailResponseDTO response = vacationService.getVacationDetail(vacationId, memberId);
+        VacationDetailResponseDTO response = vacationService.getVacationDetail(vacationId, memberId, isAdmin);
         return ResponseEntity.ok(response);
     }
 
+    /** 내 잔여 연차 조회 */
     @Override
     @GetMapping("/my/remainder")
     public ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(

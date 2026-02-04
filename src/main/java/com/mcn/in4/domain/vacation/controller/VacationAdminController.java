@@ -30,6 +30,7 @@ public class VacationAdminController implements VacationAdminApi {
 
     private final VacationAdminService vacationAdminService;
 
+    /** 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터) - 관리자 전용 */
     @Override
     @GetMapping
     public ResponseEntity<List<AdminVacationListResponseDTO>> getVacationList(
@@ -58,6 +59,7 @@ public class VacationAdminController implements VacationAdminApi {
         return ResponseEntity.ok(response);
     }
 
+    /** 휴가 통계 조회 (대기/승인/반려 건수) - 관리자 전용 */
     @Override
     @GetMapping("/statistics")
     public ResponseEntity<VacationStatisticsResponseDTO> getVacationStatistics(Authentication authentication) {
@@ -71,6 +73,7 @@ public class VacationAdminController implements VacationAdminApi {
         return ResponseEntity.ok(response);
     }
 
+    /** 휴가 승인 - 관리자 전용 */
     @Override
     @PatchMapping("/{vacationId}/approve")
     public ResponseEntity<Void> approveVacation(
@@ -87,6 +90,7 @@ public class VacationAdminController implements VacationAdminApi {
         return ResponseEntity.ok().build();
     }
 
+    /** 휴가 반려 (반려 사유 포함) - 관리자 전용 */
     @Override
     @PatchMapping("/{vacationId}/reject")
     public ResponseEntity<Void> rejectVacation(

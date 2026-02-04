@@ -180,14 +180,14 @@ public class VacationServiceImpl implements VacationService {
                 .collect(Collectors.toList());
     }
 
-    /** 휴가 상세 조회 (타입별 상세 정보 포함, 본인 휴가만 조회 가능) */
+    /** 휴가 상세 조회 (타입별 상세 정보 포함, 본인 휴가 또는 관리자만 조회 가능) */
     @Override
-    public VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId) {
+    public VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId, boolean isAdmin) {
         Vacation vacation = vacationRepository.findById(vacationId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
 
-        // 본인 휴가인지 확인
-        if (!vacation.getMember().getMemberId().equals(memberId)) {
+        // 관리자가 아니면 본인 휴가인지 확인
+        if (!isAdmin && !vacation.getMember().getMemberId().equals(memberId)) {
             throw new IllegalArgumentException("본인의 휴가만 조회할 수 있습니다.");
         }
 

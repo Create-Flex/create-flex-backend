@@ -36,12 +36,13 @@ public interface VacationService {
     List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type);
 
     /**
-     * 휴가 상세 조회 (본인 휴가만 조회 가능)
+     * 휴가 상세 조회 (본인 휴가 또는 관리자만 조회 가능)
      * @param vacationId 휴가 ID
      * @param memberId 회원 ID (토큰에서 추출)
+     * @param isAdmin 관리자 여부
      * @return 휴가 상세 정보 (타입별 상세 포함)
      */
-    VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId);
+    VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId, boolean isAdmin);
 
     /**
      * 내 잔여 연차 조회
