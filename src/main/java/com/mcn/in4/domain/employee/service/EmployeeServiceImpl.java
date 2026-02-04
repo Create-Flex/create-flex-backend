@@ -19,6 +19,7 @@ import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -205,5 +206,49 @@ public class EmployeeServiceImpl implements EmployeeService {
                 memberRepository.save(member);
                 // 퇴사 사유랑 일자 넣기
                 detailRepository.save(detail);
+        }
+        @Override
+        @Transactional
+        public void updateEmployee(Long id, EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto) {
+
+                // 엔티티 조회
+                Member member = memberRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다."));
+
+                MemberEmployeeDetail detail = detailRepository.findByMemberMemberId(id)
+                        .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다."));
+                //  부서 정보 조회 (부서 변경이 필요할 수 있으므로)
+                Department department = null;
+                if (requestDto.getDepartmentid() != null) {
+                        department = departmentRepository.findById(requestDto.getDepartmentid().longValue())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "존재하지 않는 부서입니다. ID: " + requestDto.getDepartmentid()));
+                }
+                //  Member 엔티티 수정
+                member.updateInfo(
+                        requestDto.getMemberName(),
+                        requestDto.getMemberRole(),
+                        requestDto.getMemberStatus(),
+                        requestDto.getTask(),
+                        department
+                );
+                // 비밀번호 수정 (입력값이 있을 때만)
+                if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
+
+                        member.updatePassword(requestDto.getPassword());
+                }
+                //  MemberEmployeeDetail 엔티티 수정
+                detail.updateDetail(
+                        requestDto.getNickname(),
+                        requestDto.getPersonalEmail(),
+                        requestDto.getPersonalCall(),
+                        requestDto.getAddress(),
+                        requestDto.getEngName(),
+                        requestDto.getCorporEmail(),
+                        requestDto.getHireDate(),
+                        requestDto.getEmploymentType()
+                );
+
+
         }
 }

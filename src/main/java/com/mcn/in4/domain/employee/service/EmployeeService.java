@@ -14,6 +14,8 @@ public interface EmployeeService {
     // 직원 퇴사 처리
     void quitEmployee(Long id, EmployeeRequestDTO.EmployeeQuitRequestDto requestDto);
 
+    // 직원 정보 수정
+    void updateEmployee(Long id, EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto);
 
 
 }
