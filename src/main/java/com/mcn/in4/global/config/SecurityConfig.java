@@ -45,6 +45,8 @@ public class SecurityConfig {
                           // 크리에이터 관리
                           .requestMatchers(HttpMethod.GET, "/api/creators").hasRole("ADMINISTRATOR")
                           .requestMatchers(HttpMethod.POST, "/api/creators").hasRole("ADMINISTRATOR")
+                          // 담당하는 크리에이터 조회
+                          .requestMatchers(HttpMethod.GET, "/api/creators/my").hasAnyRole("MANAGER", "ADMINISTRATOR")
                           .requestMatchers(HttpMethod.GET, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
                           .requestMatchers(HttpMethod.PATCH, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
                           .requestMatchers(HttpMethod.DELETE, "/api/creators/{creatorId}").hasRole("ADMINISTRATOR")
@@ -57,7 +59,6 @@ public class SecurityConfig {
                           .requestMatchers(HttpMethod.GET, "/api/legaltax/admin/all").hasRole("ADMINISTRATOR")
                           .requestMatchers(HttpMethod.PATCH, "/api/legaltax/{legalTaxId}/complete").hasRole("ADMINISTRATOR")
 
-                          .requestMatchers(HttpMethod.GET, "/api/members/managers").hasRole("ADMINISTRATOR")
 
                         //나머지경로
                         .anyRequest().authenticated()

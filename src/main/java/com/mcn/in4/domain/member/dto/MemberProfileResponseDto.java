@@ -35,3 +35,4 @@ public class MemberProfileResponseDto {
     //프리사인드 URL 소통로
     private String presignedURL;
 }
+
