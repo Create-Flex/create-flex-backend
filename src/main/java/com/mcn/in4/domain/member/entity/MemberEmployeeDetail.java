@@ -87,4 +87,18 @@ public class MemberEmployeeDetail {
         this.empDate = empDate;
         this.leavingReason = leavingReason;
     }
+
+    //디테일 수정
+    public void updateDetail(String nickname, String personalEmail, String personalCall,
+                             String address, String engName, String corporEmail,
+                             String hireDate, EmploymentType employmentType) {
+        this.nickname = nickname;
+        this.personalEmail = personalEmail;
+        this.personalCall = personalCall;
+        this.address = address;
+        this.engName = engName;
+        this.corporEmail = corporEmail;
+        this.hireDate = hireDate;
+        this.employmentType = employmentType;
+    }
 }

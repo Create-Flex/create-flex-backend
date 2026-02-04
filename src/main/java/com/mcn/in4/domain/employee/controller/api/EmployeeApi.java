@@ -6,9 +6,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Employee 관리", description = "직원 등록, 상세 조회 및 퇴사 처리를 담당하는 API입니다.")
 public interface EmployeeApi {
@@ -36,4 +40,37 @@ public interface EmployeeApi {
                 @Parameter(description = "퇴사 처리할 직원 ID", example = "1008") Long id,
                 @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "퇴사 사유 정보", content = @Content(examples = @ExampleObject(value = "{\n  \"leavingReason\": \"성격이 이상합니다.\"\n}"))) EmployeeRequestDTO.EmployeeQuitRequestDto requestDto);
 
+
+        @Operation(summary = "직원 정보 수정", description = "직원의 기본 정보 및 상세 정보를 수정합니다.")
+        @ApiResponses({
+                @ApiResponse(responseCode = "200", description = "수정 성공", content = @Content(schema = @Schema(implementation = String.class))),
+                @ApiResponse(responseCode = "404", description = "직원을 찾을 수 없음")
+        })
+        ResponseEntity<String> updateEmployee(
+                @Parameter(description = "직원 ID", required = true, example = "1005") @PathVariable("id") Long id,
+                @RequestBody(description = "수정할 직원 정보", content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = EmployeeRequestDTO.EmployeeUpdateRequestDto.class),
+                        examples = @ExampleObject(
+                                name = "직원 수정 예시",
+                                value = """
+                                    {
+                                      "memberName": "김수정",
+                                      "memberRole": "MANAGER",
+                                      "memberStatus": "WORKING",
+                                      "task": "매니저",
+                                      "departmentid": 1003,
+                                      "nickname": "Crystal",
+                                      "personalEmail": "crystal.kim@naver.com",
+                                      "personalCall": "010-9876-5432",
+                                      "address": "서울시 마포구 연남동",
+                                      "engName": "Crystal Kim",
+                                      "corporEmail": "crystal@mcn.com",
+                                      "hireDate": "2023-05-01",
+                                      "employmentType": "EXPERIENCED"
+                                    }
+                                    """
+                        )
+                )) EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto
+        );
 }

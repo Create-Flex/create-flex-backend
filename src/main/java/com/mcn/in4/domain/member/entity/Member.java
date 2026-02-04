@@ -57,5 +57,17 @@ public class Member {
         this.memberStatus = newStatus;
     }
 
+    public void updateInfo(String memberName, MemberRole memberRole, MemberStatus memberStatus, String task, Department department) {
+        this.memberName = memberName;
+        this.memberRole = memberRole;
+        this.memberStatus = memberStatus;
+        this.task = task;
+        this.department = department;
+    }
+
+    //비밀번호 변경 메서드
+    public void updatePassword(String password) {
+        this.memberPassword = password;
+    }
 
 }

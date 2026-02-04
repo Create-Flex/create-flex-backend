@@ -51,6 +51,15 @@ public class EmployeeController implements EmployeeApi {
         employeeService.quitEmployee(id, requestDto);
         return ResponseEntity.ok("퇴사 처리가 완료되었습니다.");
     }
+    // 직원 정보 수정
+    @Override
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateEmployee(
+            @PathVariable("id") Long id,
+            @RequestBody EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto) {
+        employeeService.updateEmployee(id, requestDto);
+        return ResponseEntity.ok("직원 정보가 수정되었습니다.");
+    }
 
 
 }
