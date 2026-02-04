@@ -111,12 +111,12 @@ INSERT INTO creator_detail (creator_detail_id, member_creator_id, member_manager
 -- ==========================================
 INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner) VALUES
 -- 직원 프로필
-(1001, 1001, 'https://cdn.mcn.com/profiles/kim_insa.jpg', 'https://cdn.mcn.com/banners/kim_insa_banner.jpg'),
-(1002, 1002, 'https://cdn.mcn.com/profiles/lee_chaeyong.jpg', 'https://cdn.mcn.com/banners/lee_chaeyong_banner.jpg'),
-(1003, 1003, 'https://cdn.mcn.com/profiles/park_manager.jpg', 'https://cdn.mcn.com/banners/park_manager_banner.jpg'),
-(1004, 1004, 'https://cdn.mcn.com/profiles/choi_damdang.jpg', 'https://cdn.mcn.com/banners/choi_damdang_banner.jpg'),
-(1005, 1005, 'https://cdn.mcn.com/profiles/jung_gwanli.jpg', 'https://cdn.mcn.com/banners/jung_gwanli_banner.jpg'),
-(1006, 1006, 'https://cdn.mcn.com/profiles/kang_marketing.jpg', 'https://cdn.mcn.com/banners/kang_marketing_banner.jpg'),
+(1001, 1001, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/0NPR8MPb/photo_1454165804606_c3d57bc86b40.avif'),
+(1002, 1002, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/VNgy5fkH/photo_1486406146926_c627a92ad1ab.avif'),
+(1003, 1003, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://cdn.mcn.com/banners/park_manager_banner.jpg'),
+(1004, 1004, 'https://cdn.mcn.com/profiles/choi_damdang.jpg', 'https://i.postimg.cc/mrjxhLg1/photo_1497366216548_37526070297c.avif'),
+(1005, 1005, 'https://cdn.mcn.com/profiles/jung_gwanli.jpg', 'https://i.postimg.cc/63pkvk8D/photo_1506784983877_45594efa4cbe.avif'),
+(1006, 1006, 'https://cdn.mcn.com/profiles/kang_marketing.jpg', 'https://i.postimg.cc/d3zpgD4x/photo_1519389950473_47ba0277781c.avif'),
 (1007, 1007, 'https://cdn.mcn.com/profiles/yoon_dev.jpg', 'https://cdn.mcn.com/banners/yoon_dev_banner.jpg'),
 (1008, 1008, 'https://cdn.mcn.com/profiles/han_coding.jpg', 'https://cdn.mcn.com/banners/han_coding_banner.jpg'),
 (1009, 1009, 'https://cdn.mcn.com/profiles/song_hongbo.jpg', 'https://cdn.mcn.com/banners/song_hongbo_banner.jpg'),
@@ -126,15 +126,15 @@ INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner
 (1013, 1013, 'https://cdn.mcn.com/profiles/moon_thumbnail.jpg', 'https://cdn.mcn.com/banners/moon_thumbnail_banner.jpg'),
 (1014, 1014, 'https://cdn.mcn.com/profiles/gu_jikwon.jpg', 'https://cdn.mcn.com/banners/gu_jikwon_banner.jpg'),
 -- 크리에이터 프로필
-(2001, 2001, 'https://cdn.mcn.com/profiles/gamst.jpg', 'https://cdn.mcn.com/banners/gamst_banner.jpg'),
-(2002, 2002, 'https://cdn.mcn.com/profiles/ddoganjip.jpg', 'https://cdn.mcn.com/banners/ddoganjip_banner.jpg'),
-(2003, 2003, 'https://cdn.mcn.com/profiles/beautyjini.jpg', 'https://cdn.mcn.com/banners/beautyjini_banner.jpg'),
-(2004, 2004, 'https://cdn.mcn.com/profiles/mukbopd.jpg', 'https://cdn.mcn.com/banners/mukbopd_banner.jpg'),
-(2005, 2005, 'https://cdn.mcn.com/profiles/gameking.jpg', 'https://cdn.mcn.com/banners/gameking_banner.jpg'),
-(2006, 2006, 'https://cdn.mcn.com/profiles/dailyvlogger.jpg', 'https://cdn.mcn.com/banners/dailyvlogger_banner.jpg'),
-(2007, 2007, 'https://cdn.mcn.com/profiles/techreviewer.jpg', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg'),
-(2008, 2008, 'https://cdn.mcn.com/profiles/restingcreator.jpg', 'https://cdn.mcn.com/banners/restingcreator_banner.jpg'),
-(2009, 2009, 'https://cdn.mcn.com/profiles/retiredcreator.jpg', 'https://cdn.mcn.com/banners/retiredcreator_banner.jpg');
+(2001, 2001, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/gamst_banner.jpg'),
+(2002, 2002, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/ddoganjip_banner.jpg'),
+(2003, 2003, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/beautyjini_banner.jpg'),
+(2004, 2004, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/mukbopd_banner.jpg'),
+(2005, 2005, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/gameking_banner.jpg'),
+(2006, 2006, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/dailyvlogger_banner.jpg'),
+(2007, 2007, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg'),
+(2008, 2008, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/restingcreator_banner.jpg'),
+(2009, 2009, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/retiredcreator_banner.jpg');
 
 -- ==========================================
 -- 7. Creator Contract (계약)
@@ -263,8 +263,24 @@ INSERT INTO schedule (schedule_id, member_id, creator_id, schedule_name, schedul
 (1027, 1003, 2001, '감스트 광고 2차 촬영', '2026-03-02', '추가 컷 촬영 및 일정 관리', 'PROMOTION'),
 (1028, 1003, 2002, '또간집 맛집 섭외 미팅', '2026-03-04', '3월 촬영지 선정을 위한 매니저 사전 방문', 'CONTENT'),
 (1029, 1003, 2007, '테크리뷰어 콘텐츠 피드백', '2026-03-06', '지난달 영상 성과 지표 분석 미팅', 'MEETING'),
-(1030, 1003, 2001, '감스트 휴식기 스케줄 조율', '2026-03-10', '장기 휴방 대비 사전 녹화 일정 조절', 'ETC');
+(1030, 1003, 2001, '감스트 휴식기 스케줄 조율', '2026-03-10', '장기 휴방 대비 사전 녹화 일정 조절', 'ETC'),
 
+-- 박매니저(1003) 개인 일정 추가
+(1031, 1003, NULL, '개인 운동', '2026-02-03', '회사 헬스장에서 오전 운동', 'PERSONAL'),
+(1032, 1003, NULL, '치과 정기검진', '2026-02-05', '점심시간 이용 치과 방문', 'PERSONAL'),
+(1033, 1003, NULL, '부모님 생신 준비', '2026-02-10', '선물 구입 및 예약', 'PERSONAL'),
+(1034, 1003, NULL, '개인 운동', '2026-02-12', '회사 헬스장에서 저녁 운동', 'PERSONAL'),
+(1035, 1003, NULL, '자기계발 스터디', '2026-02-14', '매니지먼트 관련 온라인 강의 수강', 'PERSONAL'),
+(1036, 1003, NULL, '동창회 모임', '2026-02-16', '대학 동기들과 저녁 식사', 'PERSONAL'),
+(1037, 1003, NULL, '개인 운동', '2026-02-19', '회사 헬스장에서 오전 운동', 'PERSONAL'),
+(1038, 1003, NULL, '독서 모임', '2026-02-22', '월간 북클럽 참석 - 경영 서적', 'PERSONAL'),
+(1039, 1003, NULL, '개인 운동', '2026-02-26', '회사 헬스장에서 저녁 운동', 'PERSONAL'),
+(1040, 1003, NULL, '부동산 상담', '2026-02-28', '아파트 투자 관련 공인중개사 미팅', 'PERSONAL'),
+(1041, 1003, NULL, '가족 여행 계획', '2026-03-01', '3월 말 가족 여행지 예약 및 일정 조율', 'PERSONAL'),
+(1042, 1003, NULL, '개인 운동', '2026-03-03', '회사 헬스장에서 오전 운동', 'PERSONAL'),
+(1043, 1003, NULL, '자동차 정기점검', '2026-03-05', '차량 점검 및 오일 교환', 'PERSONAL'),
+(1044, 1003, NULL, '요리 클래스', '2026-03-07', '주말 요리 강습 참여 - 일식 기초', 'PERSONAL'),
+(1045, 1003, NULL, '개인 운동', '2026-03-09', '회사 헬스장에서 저녁 운동', 'PERSONAL');
 -- ==========================================
 -- 14. Schedule Visitor (일정 참가자)
 -- ==========================================
