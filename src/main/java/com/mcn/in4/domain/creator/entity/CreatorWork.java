@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "creator_work") // 실제 DB 테이블명
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class CreatorWork {
@@ -38,4 +39,8 @@ public class CreatorWork {
     @JoinColumn(name = "member_worker_id", nullable = false)
     private Member memberWorker;
     //업무자의 사용자 키
+
+    public void updateWorkStatus(WorkStatus newStatus) {
+        this.workStatus = newStatus;
+    }
 }
