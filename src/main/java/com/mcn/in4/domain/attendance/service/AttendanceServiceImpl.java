@@ -10,6 +10,9 @@ import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.domain.vacation.entity.Vacation;
+import com.mcn.in4.domain.vacation.entity.enums.VacationType;
+import com.mcn.in4.domain.vacation.repository.VacationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,12 +35,41 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     private final AttendanceRepository attendanceRepository;
     private final MemberRepository memberRepository;
+    private final VacationRepository vacationRepository;
 
     @Override
     public List<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
             String status) {
-        // Repository 조회 후 DTO 변환 (필터링은 추후 개선 가능)
-        return attendanceRepository.findAttendanceByMemberId(memberId, startDate, endDate).stream()
+        // Repository 조회
+        List<Attendance> attendances = attendanceRepository.findAttendanceByMemberId(memberId, startDate, endDate);
+
+        // 상태 필터링 (status가 있으면 필터링)
+        if (status != null && !status.isEmpty()) {
+            attendances = attendances.stream()
+                    .filter(a -> {
+                        // "정상" 필터: 출근=NORMAL AND 퇴근=NORMAL
+                        if ("NORMAL".equals(status)) {
+                            return a.getCheckInStatus() == CheckInStatus.NORMAL
+                                    && a.getCheckOutStatus() == CheckOutStatus.NORMAL;
+                        }
+                        // CheckInStatus 매칭
+                        if (a.getCheckInStatus() != null && a.getCheckInStatus().name().equals(status)) {
+                            return true;
+                        }
+                        // CheckOutStatus 매칭
+                        if (a.getCheckOutStatus() != null && a.getCheckOutStatus().name().equals(status)) {
+                            return true;
+                        }
+                        // 근무중 (퇴근 상태가 null인 경우)
+                        if ("WORKING".equals(status) && a.getCheckOutStatus() == null && a.getCheckInStatus() != null) {
+                            return true;
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        return attendances.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -53,6 +85,32 @@ public class AttendanceServiceImpl implements AttendanceService {
             String searchName = name.toLowerCase();
             attendances = attendances.stream()
                     .filter(a -> a.getMember().getMemberName().toLowerCase().contains(searchName))
+                    .collect(Collectors.toList());
+        }
+
+        // 상태 필터링 (status가 있으면 checkInStatus 또는 checkOutStatus로 필터링)
+        if (status != null && !status.isEmpty()) {
+            attendances = attendances.stream()
+                    .filter(a -> {
+                        // "정상" 필터: 출근=NORMAL AND 퇴근=NORMAL
+                        if ("NORMAL".equals(status)) {
+                            return a.getCheckInStatus() == CheckInStatus.NORMAL
+                                    && a.getCheckOutStatus() == CheckOutStatus.NORMAL;
+                        }
+                        // CheckInStatus 매칭
+                        if (a.getCheckInStatus() != null && a.getCheckInStatus().name().equals(status)) {
+                            return true;
+                        }
+                        // CheckOutStatus 매칭
+                        if (a.getCheckOutStatus() != null && a.getCheckOutStatus().name().equals(status)) {
+                            return true;
+                        }
+                        // 근무중 (퇴근 상태가 null인 경우)
+                        if ("WORKING".equals(status) && a.getCheckOutStatus() == null && a.getCheckInStatus() != null) {
+                            return true;
+                        }
+                        return false;
+                    })
                     .collect(Collectors.toList());
         }
 
@@ -72,16 +130,46 @@ public class AttendanceServiceImpl implements AttendanceService {
         // Member 객체 생성 (ID만으로 참조 생성)
         Member member = Member.builder().memberId(memberId).build();
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = LocalDate.now();
 
-        // 9시 이후 출근 여부 판정
-        CheckInStatus checkInStatus = now.toLocalTime().isAfter(LocalTime.of(9, 0))
-                ? CheckInStatus.LATE
-                : CheckInStatus.NORMAL;
+        // 오늘 승인된 휴가가 있는지 확인
+        CheckInStatus checkInStatus;
+        var vacationOpt = vacationRepository.findApprovedVacationByMemberAndDate(memberId, today);
+
+        if (vacationOpt.isPresent()) {
+            Vacation vacation = vacationOpt.get();
+            VacationType type = vacation.getVacationType();
+
+            switch (type) {
+                case WORKATION:
+                    checkInStatus = CheckInStatus.WORKATION;
+                    break;
+                case HALF:
+                    // 오전 반차인 경우 (오후 출근) - 지각 면제
+                    checkInStatus = CheckInStatus.HALF_VACATION;
+                    break;
+                case ANNUAL:
+                case SICK:
+                case FAMILY:
+                    // 전일 휴가인데 출근 버튼을 눌렀다면
+                    checkInStatus = CheckInStatus.VACATION;
+                    break;
+                default:
+                    checkInStatus = now.toLocalTime().isAfter(LocalTime.of(9, 0))
+                            ? CheckInStatus.LATE
+                            : CheckInStatus.NORMAL;
+            }
+        } else {
+            // 휴가 없음: 기존 로직 (9시 이후 = 지각)
+            checkInStatus = now.toLocalTime().isAfter(LocalTime.of(9, 0))
+                    ? CheckInStatus.LATE
+                    : CheckInStatus.NORMAL;
+        }
 
         // 출근 기록 생성
         Attendance attendance = Attendance.builder()
                 .member(member)
-                .attendanceDate(LocalDate.now())
+                .attendanceDate(today)
                 .attendanceStart(now)
                 .checkInStatus(checkInStatus)
                 .checkOutStatus(null) // 아직 퇴근 안 함
@@ -93,8 +181,10 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public void checkOut(Long memberId) {
+        LocalDate today = LocalDate.now();
+
         // 오늘 출근 기록이 있는지 확인
-        Attendance attendance = attendanceRepository.findByMemberIdAndAttendanceDate(memberId, LocalDate.now())
+        Attendance attendance = attendanceRepository.findByMemberIdAndAttendanceDate(memberId, today)
                 .orElseThrow(() -> new IllegalStateException("오늘 출근 기록이 없습니다."));
 
         // 이미 퇴근 처리가 되었는지 확인
@@ -103,8 +193,38 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
 
         LocalDateTime endTime = LocalDateTime.now();
-        // 퇴근 시간을 기반으로 퇴근 상태 계산
-        CheckOutStatus checkOutStatus = calculateCheckOutStatus(endTime);
+        CheckOutStatus checkOutStatus;
+
+        // 오늘 승인된 휴가가 있는지 확인
+        var vacationOpt = vacationRepository.findApprovedVacationByMemberAndDate(memberId, today);
+
+        if (vacationOpt.isPresent()) {
+            Vacation vacation = vacationOpt.get();
+            VacationType type = vacation.getVacationType();
+
+            switch (type) {
+                case WORKATION:
+                    // 워케이션은 시간 관계없이 워케이션 상태
+                    checkOutStatus = CheckOutStatus.WORKATION;
+                    break;
+                case HALF:
+                    // 오후 반차인 경우 (오후 퇴근) - 조퇴 면제
+                    // 출근 상태가 HALF_VACATION이면 오전 반차이므로 일반 계산
+                    if (attendance.getCheckInStatus() == CheckInStatus.HALF_VACATION) {
+                        // 오전 반차: 일반 퇴근 로직 적용
+                        checkOutStatus = calculateCheckOutStatus(endTime);
+                    } else {
+                        // 오후 반차: 조퇴 면제
+                        checkOutStatus = CheckOutStatus.HALF_VACATION;
+                    }
+                    break;
+                default:
+                    checkOutStatus = calculateCheckOutStatus(endTime);
+            }
+        } else {
+            // 휴가 없음: 기존 로직
+            checkOutStatus = calculateCheckOutStatus(endTime);
+        }
 
         // 퇴근 시간 및 상태 업데이트
         attendance.completeWork(endTime, checkOutStatus);

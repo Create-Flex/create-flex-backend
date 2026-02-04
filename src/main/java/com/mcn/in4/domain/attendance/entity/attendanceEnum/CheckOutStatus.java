@@ -12,7 +12,9 @@ import lombok.Getter;
 public enum CheckOutStatus {
     EARLY_LEAVE("조퇴"), // 조퇴 (18:00 이전)
     NORMAL("퇴근"), // 정상 퇴근 (18:00)
-    OVERTIME("초과"); // 초과 근무 (18:00 이후)
+    OVERTIME("초과"), // 초과 근무 (18:00 이후)
+    HALF_VACATION("반차"), // 오후 반차 (오후 퇴근)
+    WORKATION("워케이션"); // 워케이션 퇴근
 
     private final String description;
 }

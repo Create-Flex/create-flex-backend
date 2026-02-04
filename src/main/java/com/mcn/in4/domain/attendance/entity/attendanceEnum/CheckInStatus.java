@@ -12,7 +12,10 @@ import lombok.Getter;
 public enum CheckInStatus {
     NORMAL("출근"), // 정상 출근 (09:00 이전)
     LATE("지각"), // 지각 (09:00 이후)
-    ABSENT("결근"); // 결근 (배치 처리)
+    ABSENT("결근"), // 결근 (배치 처리)
+    HALF_VACATION("반차"), // 오전 반차 (오후 출근)
+    VACATION("휴가"), // 연차/병가/경조사
+    WORKATION("워케이션"); // 워케이션
 
     private final String description;
 }
