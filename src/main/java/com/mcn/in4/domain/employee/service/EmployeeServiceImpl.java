@@ -48,6 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService{
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
         
         return EmployeeResponseDTO.EmployeeDetailResponseDto.builder()
+                .memberid(member.getMemberId())
                 .memberAccount(member.getMemberAccount())
                 .memberName(member.getMemberName())
                 .memberRole(member.getMemberRole())
@@ -103,6 +104,7 @@ public class EmployeeServiceImpl implements EmployeeService{
             //  status가 있으면 설명을 가져오고 없으면 미출근 문자열 넣기
             String statusText = (status != null) ? status.getDescription() : "미출근";
             return EmployeeResponseDTO.EmployeeListDto.builder()
+                    .memberid(memberId)
                     .memberName(member.getMemberName())
                     .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : "소속 없음")
                     .task(member.getTask())
