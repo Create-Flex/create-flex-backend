@@ -11,7 +11,9 @@ public interface EmployeeService {
 
     void registerEmployee(EmployeeRequestDTO.EmployeeInsertRequestDto requestDto);
 
-    //직원 퇴사 처리
+    // 직원 퇴사 처리
     void quitEmployee(Long id, EmployeeRequestDTO.EmployeeQuitRequestDto requestDto);
+
+
 
 }

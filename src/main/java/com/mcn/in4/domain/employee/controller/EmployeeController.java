@@ -6,15 +6,14 @@ import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/employees")
 @RequiredArgsConstructor
 public class EmployeeController implements EmployeeApi {
     private final EmployeeService employeeService;
+
     // 직원 관리 리스트 및 통계 조회
     @Override
     @GetMapping("/")
@@ -24,10 +23,11 @@ public class EmployeeController implements EmployeeApi {
         return ResponseEntity.ok(response);
     }
 
-    //직원 상세 조회
+    // 직원 상세 조회
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(@PathVariable("id") Long id) {
+    public ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(
+            @PathVariable("id") Long id) {
         EmployeeResponseDTO.EmployeeDetailResponseDto response = employeeService.getEmployeeDetail(id);
         return ResponseEntity.ok(response);
     }
@@ -35,7 +35,8 @@ public class EmployeeController implements EmployeeApi {
     // 직원 등록
     @Override
     @PostMapping("/insert")
-    public ResponseEntity<String> registerEmployee(@RequestBody EmployeeRequestDTO.EmployeeInsertRequestDto requestDto) {
+    public ResponseEntity<String> registerEmployee(
+            @RequestBody EmployeeRequestDTO.EmployeeInsertRequestDto requestDto) {
         employeeService.registerEmployee(requestDto);
         return ResponseEntity.ok("직원 등록이 완료되었습니다.");
     }

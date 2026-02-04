@@ -58,7 +58,7 @@ public class EmployeeResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class EmployeeListDto {
-        private Long memberid;
+        private Long memberid; // 멤버 아이디
         private String memberName;      // 이름
         private String departmentName;  // 부서
         private String task;            // 직무
