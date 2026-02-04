@@ -49,6 +49,9 @@ public class CreatorResponseDTO {
         @JsonProperty("creator_status")
         private CreatorStatus creatorStatus;
 
+        @JsonProperty("creator_main_contact")
+        private String creatorMainContact;
+
         @JsonProperty("manager_id")
         private Long managerId;
 
@@ -70,6 +73,7 @@ public class CreatorResponseDTO {
                     .creatorSubscribe(detail.getCreatorSubscribe())
                     .creatorCategory(detail.getCreatorCategory())
                     .creatorStatus(detail.getCreatorStatus())
+                    .creatorMainContact(detail.getCreatorMainContact())
                     .managerId(detail.getMemberManager().getMemberId())
                     .managerName(detail.getMemberManager().getMemberName())
                     .build();
@@ -85,6 +89,7 @@ public class CreatorResponseDTO {
                     .creatorSubscribe(detail.getCreatorSubscribe())
                     .creatorCategory(detail.getCreatorCategory())
                     .creatorStatus(detail.getCreatorStatus())
+                    .creatorMainContact(detail.getCreatorMainContact())
                     .managerId(detail.getMemberManager().getMemberId())
                     .managerName(detail.getMemberManager().getMemberName())
                     .profileImage(profileImage)
