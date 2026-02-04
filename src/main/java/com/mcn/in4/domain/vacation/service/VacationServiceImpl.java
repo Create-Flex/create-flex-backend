@@ -3,6 +3,8 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -54,7 +56,7 @@ public class VacationServiceImpl implements VacationService {
 
         // 회원 조회 (토큰에서 추출한 memberId 사용)
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다. memberId: " + memberId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 휴가 일수 계산
         double vacationDays = calculateVacationDays(vacationType, request);
@@ -62,12 +64,10 @@ public class VacationServiceImpl implements VacationService {
         // 연차/반차인 경우 잔여일수 확인 및 차감
         if (vacationType == VacationType.ANNUAL || vacationType == VacationType.HALF) {
             MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(member.getMemberId())
-                    .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다. memberId: " + member.getMemberId()));
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
 
             if (employeeDetail.getVacationRemainder() < vacationDays) {
-                throw new IllegalArgumentException(
-                        String.format("잔여 연차가 부족합니다. 잔여: %.1f일, 신청: %.1f일",
-                                employeeDetail.getVacationRemainder(), vacationDays));
+                throw new CustomException(ErrorCode.INSUFFICIENT_VACATION_REMAINDER);
             }
 
             // 잔여 연차 차감
@@ -118,14 +118,14 @@ public class VacationServiceImpl implements VacationService {
         try {
             return VacationType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("유효하지 않은 휴가 타입입니다: " + type);
+            throw new CustomException(ErrorCode.INVALID_VACATION_TYPE);
         }
     }
 
     /** 경조사 휴가 상세 정보 저장 */
     private void saveVacationFamily(Vacation vacation, VacationRequestDTO request) {
         if (request.getFamilyRelation() == null || request.getFamilyDetail() == null) {
-            throw new IllegalArgumentException("경조사 휴가는 대상(관계)과 경조내용이 필수입니다.");
+            throw new CustomException(ErrorCode.VACATION_DETAIL_REQUIRED);
         }
 
         VacationFamily vacationFamily = VacationFamily.builder()
@@ -140,7 +140,7 @@ public class VacationServiceImpl implements VacationService {
     /** 병가 휴가 상세 정보 저장 */
     private void saveVacationSick(Vacation vacation, VacationRequestDTO request) {
         if (request.getSickDetail() == null || request.getSickHospital() == null) {
-            throw new IllegalArgumentException("병가는 증상 및 사유와 진료예정병원이 필수입니다.");
+            throw new CustomException(ErrorCode.VACATION_DETAIL_REQUIRED);
         }
 
         VacationSick vacationSick = VacationSick.builder()
@@ -156,7 +156,7 @@ public class VacationServiceImpl implements VacationService {
     private void saveVacationWorkation(Vacation vacation, VacationRequestDTO request) {
         if (request.getWorkationWhere() == null || request.getWorkationContact() == null ||
                 request.getWorkationPlan() == null || request.getWorkationHandover() == null) {
-            throw new IllegalArgumentException("워케이션은 근무장소, 비상연락망, 업무계획, 업무인계사항이 필수입니다.");
+            throw new CustomException(ErrorCode.VACATION_DETAIL_REQUIRED);
         }
 
         VacationWorkation vacationWorkation = VacationWorkation.builder()
@@ -184,11 +184,11 @@ public class VacationServiceImpl implements VacationService {
     @Override
     public VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId, boolean isAdmin) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND));
 
         // 관리자가 아니면 본인 휴가인지 확인
         if (!isAdmin && !vacation.getMember().getMemberId().equals(memberId)) {
-            throw new IllegalArgumentException("본인의 휴가만 조회할 수 있습니다.");
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
         // 타입별 상세 정보 조회
@@ -222,7 +222,7 @@ public class VacationServiceImpl implements VacationService {
     @Override
     public VacationRemainderResponseDTO getMyVacationRemainder(Long memberId) {
         MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다. memberId: " + memberId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
 
         // 총 연차 15일 (기본값)
         double totalVacation = 15.0;
