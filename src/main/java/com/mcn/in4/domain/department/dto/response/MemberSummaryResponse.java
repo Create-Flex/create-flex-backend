@@ -3,7 +3,6 @@ package com.mcn.in4.domain.department.dto.response;
 import com.mcn.in4.domain.attendance.entity.Attendance;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 import lombok.Getter;
 
 @Getter
@@ -20,12 +19,17 @@ public class MemberSummaryResponse {
         this.task = member.getTask();
         this.engName = (detail != null) ? detail.getEngName() : null;
 
-        // 1. 근태 기록(attendance)이 아예 없는 경우 -> "미출근"
+        // 근태 기록(attendance)이 아예 없는 경우 -> "미출근"
         if (attendance == null) {
             this.attendanceStatus = "미출근";
+        } else if (attendance.getCheckOutStatus() == null) {
+            // 퇴근 기록이 없으면 근무중
+            this.attendanceStatus = "근무중";
         } else {
-            // 2. 기록이 있다면 Enum에 정의된 description("근무중", "지각", "퇴근" 등)을 가져옴
-            this.attendanceStatus = attendance.getAttendanceStatus().getDescription();
+            // 출근 상태 표시
+            this.attendanceStatus = attendance.getCheckInStatus() != null
+                    ? attendance.getCheckInStatus().getDescription()
+                    : "출근";
         }
     }
 }

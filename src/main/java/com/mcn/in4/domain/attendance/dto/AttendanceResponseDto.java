@@ -19,6 +19,7 @@ public class AttendanceResponseDto {
     private LocalDate attendanceDate;
     private LocalDateTime attendanceStart;
     private LocalDateTime attendanceEnd;
-    private String attendanceStatus;
+    private String checkInStatus; // 출근 상태: 정상, 지각, 결근
+    private String checkOutStatus; // 퇴근 상태: 조퇴, 정상, 초과 (null = 근무중)
     private String workDuration;
 }

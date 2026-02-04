@@ -1,15 +1,16 @@
 package com.mcn.in4.domain.attendance.entity;
 
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckInStatus;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckOutStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
 
 @Entity
-@Table(name = "attendance") // 실제 DB 테이블명
+@Table(name = "attendance")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -23,43 +24,44 @@ public class Attendance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attendance_id")
     private Long attendanceId;
-    // 근태 키
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-    // 근무자 키
 
     @Column(name = "attendance_date", nullable = false)
     private LocalDate attendanceDate;
-    // 근무일
 
-    @Column(name = "attendance_start", nullable = false)
+    @Column(name = "attendance_start")
     private LocalDateTime attendanceStart;
-    // 근무 시작시간
 
-    @Column(name = "attendance_end", nullable = true)
+    @Column(name = "attendance_end")
     private LocalDateTime attendanceEnd;
-    // 근무 종료시간
 
-    @Enumerated(EnumType.STRING) // DB에 "WORKING", "LATE" 같은 문자열로 저장됨
-    private AttendanceStatus attendanceStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_in_status")
+    private CheckInStatus checkInStatus; // 출근 상태: NORMAL, LATE, ABSENT
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_out_status")
+    private CheckOutStatus checkOutStatus; // 퇴근 상태: EARLY_LEAVE, NORMAL, OVERTIME (null = 미퇴근)
 
     @Builder
     public Attendance(Member member, LocalDate attendanceDate, LocalDateTime attendanceStart,
-            LocalDateTime attendanceEnd, AttendanceStatus attendanceStatus) {
+            LocalDateTime attendanceEnd, CheckInStatus checkInStatus, CheckOutStatus checkOutStatus) {
         this.member = member;
         this.attendanceDate = attendanceDate;
         this.attendanceStart = attendanceStart;
         this.attendanceEnd = attendanceEnd;
-        this.attendanceStatus = attendanceStatus;
+        this.checkInStatus = checkInStatus;
+        this.checkOutStatus = checkOutStatus;
     }
 
     /**
      * 퇴근 처리 및 상태 업데이트
      */
-    public void completeWork(LocalDateTime endTime, AttendanceStatus attendanceStatus) {
+    public void completeWork(LocalDateTime endTime, CheckOutStatus checkOutStatus) {
         this.attendanceEnd = endTime;
-        this.attendanceStatus = attendanceStatus;
+        this.checkOutStatus = checkOutStatus;
     }
 }

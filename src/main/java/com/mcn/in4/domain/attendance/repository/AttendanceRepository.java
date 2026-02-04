@@ -1,7 +1,7 @@
 package com.mcn.in4.domain.attendance.repository;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckInStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +24,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
         Optional<Attendance> findByMemberAndAttendanceDate(Member member, LocalDate attendanceDate);
 
         // 특정 날짜의 모든 근태 기록을 한번에 조회함, 직원 통계(오늘 근태를 가져올때 사용)
-        List<Attendance> findAllByAttendanceDate(LocalDate attendanceDate);
+        @Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE a.attendanceDate = :attendanceDate")
+        List<Attendance> findAllByAttendanceDate(@Param("attendanceDate") LocalDate attendanceDate);
 
         /**
          * 직원 ID와 날짜로 근태 기록 조회
@@ -37,17 +38,14 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
         /**
          * 조건별 근태 조회 (특정 직원)
          */
-        @Query("SELECT a FROM Attendance a WHERE a.member.memberId = :memberId "
-                        +
+        @Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE a.member.memberId = :memberId " +
                         "AND (:startDate IS NULL OR a.attendanceDate >= :startDate) " +
                         "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
-                        "AND (:attendanceStatus IS NULL OR a.attendanceStatus = :attendanceStatus) " +
                         "ORDER BY a.attendanceDate DESC")
-        List<Attendance> findAttendance(
+        List<Attendance> findAttendanceByMemberId(
                         @Param("memberId") Long memberId,
                         @Param("startDate") LocalDate startDate,
-                        @Param("endDate") LocalDate endDate,
-                        @Param("attendanceStatus") AttendanceStatus attendanceStatus);
+                        @Param("endDate") LocalDate endDate);
 
         /**
          * 조건별 전체 근태 조회 (관리자용)
@@ -55,11 +53,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
         @Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE " +
                         "(:startDate IS NULL OR a.attendanceDate >= :startDate) " +
                         "AND (:endDate IS NULL OR a.attendanceDate <= :endDate) " +
-                        "AND (:attendanceStatus IS NULL OR a.attendanceStatus = :attendanceStatus) " +
                         "ORDER BY a.attendanceDate DESC")
         List<Attendance> findAllAttendance(
                         @Param("startDate") LocalDate startDate,
-                        @Param("endDate") LocalDate endDate,
-                        @Param("attendanceStatus") AttendanceStatus attendanceStatus);
-
+                        @Param("endDate") LocalDate endDate);
 }
