@@ -23,12 +23,12 @@ public class HealthMypageController implements MypageHealthApi {
     private final HealthService healthService;
 
     @GetMapping("/")
-    public List<HealthInfo> generateHealthInfo(
+    public MypageHealthInfo generateMypageHealthInfo(
             @AuthenticationPrincipal String userId,
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate){
         Long memberId = Long.parseLong(userId);
-        return healthService.generateHealthInfo(memberId, startDate, endDate);
+        return healthService.generateMypageHealthInfo(memberId, startDate, endDate);
     }
 
     @PostMapping("/upload")

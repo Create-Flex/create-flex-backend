@@ -1,9 +1,7 @@
 package com.mcn.in4.domain.health.service;
 
 import com.mcn.in4.domain.creator.repository.CreatorDetailRepository;
-import com.mcn.in4.domain.health.dto.HealthResponseDto.CreatorHealthInfo;
-import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthPresigned;
-import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
+import com.mcn.in4.domain.health.dto.HealthResponseDto.*;
 import com.mcn.in4.domain.health.dto.HealthSummanaryCountDto;
 import com.mcn.in4.domain.health.dto.MentalHealthDto;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
@@ -46,13 +44,20 @@ public class HealthServiceImpl implements HealthService{
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    public List<HealthInfo> generateHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
-        return healthRepository.findByMember_MemberIdAndCheckupDateBetween(
+    public MypageHealthInfo generateMypageHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate) {
+        List<HealthInfo> memberHealthInfo = healthRepository.findByMember_MemberIdAndCheckupDateBetween(
                 memberId,
                 startDate,
                 endDate).stream()
                 .map(HealthInfo::from)
                 .toList();
+
+        int year = LocalDate.now().getYear();
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end   = LocalDate.of(year, 12, 31);
+        boolean memberHaveHealthCheck = healthRepository.existsByMember_MemberIdAndCheckupDateBetween(memberId, start, end);
+
+        return new MypageHealthInfo(memberHealthInfo, memberHaveHealthCheck);
     }
 
     public CreatorHealthInfo generateCreatorHealthInfo(Long memberId) {
