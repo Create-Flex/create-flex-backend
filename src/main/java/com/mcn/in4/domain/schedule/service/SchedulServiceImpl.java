@@ -95,10 +95,14 @@ public class SchedulServiceImpl implements SchedulService {
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
 
 
-        // COMPANY(회사, PERSONAL(개인일정) 타입만 필터링
-        List<ScheduleType> targetTypes = List.of(ScheduleType.COMPANY, ScheduleType.PERSONAL);
+
         List<Schedule> schedules = schedulRepository.findMyMonthlySchedules(
-                memberId, startDate, endDate, targetTypes);
+                memberId,
+                startDate,
+                endDate,
+                ScheduleType.COMPANY,
+                ScheduleType.PERSONAL
+        );
 
         return schedules.stream()
                 .map(s -> SchedulReponseDTO.ScheduleResponseDto.builder()

@@ -76,7 +76,7 @@ public class ScheduleController implements ScheduleApi {
     }
 
     // 일정 수정
-    @PutMapping("/{scheduleId}")
+    @PatchMapping("/{scheduleId}")
     public ResponseEntity<String> updateSchedule(
             @AuthenticationPrincipal String userId,
             Authentication authentication,

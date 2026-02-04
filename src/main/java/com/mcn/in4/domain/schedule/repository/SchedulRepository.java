@@ -12,14 +12,18 @@ import java.util.List;
 public interface SchedulRepository extends JpaRepository<Schedule, Long> {
 
     @Query("SELECT s FROM Schedule s " +
-            "WHERE s.member.memberId = :memberId " +
-            "AND s.scheduleDate BETWEEN :startDate AND :endDate " +
-            "AND s.scheduleType IN :types")
+            "WHERE s.scheduleDate BETWEEN :startDate AND :endDate " +
+            "AND (" +
+            "   s.scheduleType = :companyType " +  // 회사 일정 모두 조회
+            "   OR " +
+            "   (s.member.memberId = :memberId AND s.scheduleType = :personalType)" + //  개인 일정 조회
+            ")")
     List<Schedule> findMyMonthlySchedules(
             @Param("memberId") Long memberId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("types") List<ScheduleType> types);
+            @Param("companyType") ScheduleType companyType,
+            @Param("personalType") ScheduleType personalType);
 
     @Query("SELECT s FROM Schedule s " +
             "LEFT JOIN FETCH s.creator " +
