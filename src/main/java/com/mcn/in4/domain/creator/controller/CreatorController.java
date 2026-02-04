@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -83,6 +84,13 @@ public class CreatorController implements CreatorApi {
     @Override
     @GetMapping("/manager/{managerId}")
     public ResponseEntity<List<CreatorResponseDTO.Info>> getMyCreators(@PathVariable Long managerId) {
+        return ResponseEntity.ok(creatorService.getMyCreators(managerId));
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<CreatorResponseDTO.Info>> getMyCreatorsForCurrentUser(
+            @AuthenticationPrincipal String userId) {
+        Long managerId = Long.parseLong(userId);
         return ResponseEntity.ok(creatorService.getMyCreators(managerId));
     }
 }
