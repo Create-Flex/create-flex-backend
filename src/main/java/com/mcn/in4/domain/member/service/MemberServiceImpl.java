@@ -1,10 +1,12 @@
 package com.mcn.in4.domain.member.service;
 
+import com.mcn.in4.domain.member.dto.ManagerResponseDto;
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.entity.MemberProfile;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
+import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberProfileRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
@@ -19,7 +21,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -109,5 +113,16 @@ public class MemberServiceImpl implements MemberService {
         return MemberProfileResponseDto.builder()
                 .presignedURL(presignedUrl)
                 .build();
+    }
+    @Override
+    public List<ManagerResponseDto.ManagerInfo> getAllManagers() {
+        List<Member> managers = memberRepository.findAllManagersWithDepartment(
+                MemberRole.MANAGER,
+                MemberStatus.WORKING
+        );
+
+        return managers.stream()
+                .map(ManagerResponseDto.ManagerInfo::from)
+                .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.member.controller;
 
+import com.mcn.in4.domain.member.dto.ManagerResponseDto;
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
 import com.mcn.in4.domain.member.service.MemberService;
 import com.mcn.in4.domain.member.dto.MemberProfileRequestDto.ProfileUpload;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +37,12 @@ public class MemberController {
         MultipartFile file = request.getFile();
         MemberProfileResponseDto profileContaignPresign = memberService.generatePresignedUrl(memberId, file);
         return ResponseEntity.ok(profileContaignPresign);
+    }
+
+    @GetMapping("/managers")
+    public ResponseEntity<List<ManagerResponseDto.ManagerInfo>> getAllManagers() {
+        List<ManagerResponseDto.ManagerInfo> managers = memberService.getAllManagers();
+        return ResponseEntity.ok(managers);
     }
 
 }
