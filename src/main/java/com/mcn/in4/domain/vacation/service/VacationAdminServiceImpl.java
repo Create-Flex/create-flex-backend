@@ -3,6 +3,8 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
@@ -57,10 +59,10 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     @Transactional
     public void approveVacation(Long vacationId) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND));
 
         if (vacation.getVacationApprove() != VacationApprove.APPROVE_NEED) {
-            throw new IllegalArgumentException("승인 대기 상태의 휴가만 승인할 수 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS);
         }
 
         vacation.approve();
@@ -71,10 +73,10 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     @Transactional
     public void rejectVacation(Long vacationId, String rejectReason) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 휴가입니다. vacationId: " + vacationId));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND));
 
         if (vacation.getVacationApprove() != VacationApprove.APPROVE_NEED) {
-            throw new IllegalArgumentException("승인 대기 상태의 휴가만 반려할 수 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_VACATION_STATUS);
         }
 
         // 연차/반차인 경우 잔여 연차 복구
@@ -82,7 +84,7 @@ public class VacationAdminServiceImpl implements VacationAdminService {
         if (type == VacationType.ANNUAL || type == VacationType.HALF) {
             MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository
                     .findByMemberMemberId(vacation.getMember().getMemberId())
-                    .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다."));
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
 
             employeeDetail.increaseVacationRemainder(vacation.getVacationDays());
         }
