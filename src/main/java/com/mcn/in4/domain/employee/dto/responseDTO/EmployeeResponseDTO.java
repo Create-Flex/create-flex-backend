@@ -14,6 +14,7 @@ public class EmployeeResponseDTO {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class EmployeeDetailResponseDto {
         // Member 엔티티 데이터
+        private Long memberid;
         private String memberAccount;    // 아이디
         private String memberName;       // 이름
         private MemberRole memberRole;   // 권한
@@ -57,6 +58,7 @@ public class EmployeeResponseDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class EmployeeListDto {
+        private Long memberid;
         private String memberName;      // 이름
         private String departmentName;  // 부서
         private String task;            // 직무
