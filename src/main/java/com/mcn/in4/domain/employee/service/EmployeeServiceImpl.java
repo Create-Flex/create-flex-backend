@@ -1,7 +1,7 @@
 package com.mcn.in4.domain.employee.service;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.AttendanceStatus;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckInStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.department.entity.Department;
 import com.mcn.in4.domain.department.repository.DepartmentRepository;
@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         private final MemberEmployeeDetailRepository detailRepository;// 직원 상세
         private final AttendanceRepository attendanceRepository; // 근태
         private final VacationRepository vacationRepository; // 휴가 조회
+
         private final DepartmentRepository departmentRepository; // 부서 레포
 
         // 직원 상세 조회
@@ -80,9 +82,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 .collect(Collectors.toMap(d -> d.getMember().getMemberId(), d -> d));
                 // 오늘 날짜의 모든 근태 기록을 가져옴
                 List<Attendance> attendanceList = attendanceRepository.findAllByAttendanceDate(today);
-                Map<Long, AttendanceStatus> attendanceStatusMap = attendanceList.stream()
-                                .collect(Collectors.toMap(a -> a.getMember().getMemberId(),
-                                                Attendance::getAttendanceStatus));
+                Map<Long, Attendance> attendanceMap = attendanceList.stream()
+                                .collect(Collectors.toMap(a -> a.getMember().getMemberId(), a -> a));
 
                 // 검색 필터 로직
                 List<Member> filteredMembers = members;
@@ -96,11 +97,23 @@ public class EmployeeServiceImpl implements EmployeeService {
                         Long memberId = member.getMemberId();
                         MemberEmployeeDetail detail = detailMap.get(memberId);
 
-                        // Map에서 Enum을 먼저 꺼냄 없으면 null
-                        AttendanceStatus status = attendanceStatusMap.get(memberId);
+                        // Map에서 Attendance를 먼저 꺼냄, 없으면 null
+                        Attendance attendance = attendanceMap.get(memberId);
 
-                        // status가 있으면 설명을 가져오고 없으면 미출근 문자열 넣기
-                        String statusText = (status != null) ? status.getDescription() : "미출근";
+                        // 상태 텍스트 계산
+                        String statusText;
+                        if (attendance == null) {
+                                statusText = "미출근";
+                        } else if (attendance.getCheckOutStatus() == null) {
+                                // 퇴근 기록이 없으면 근무중
+                                statusText = "근무중";
+                        } else {
+                                // 출근 상태 표시
+                                statusText = attendance.getCheckInStatus() != null
+                                                ? attendance.getCheckInStatus().getDescription()
+                                                : "출근";
+                        }
+
                         return EmployeeResponseDTO.EmployeeListDto.builder()
                                         .memberid(memberId)
                                         .memberName(member.getMemberName())
@@ -119,7 +132,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 long totalCount = members.size();
                 long workingCount = list.stream()
                                 .filter(e -> "출근".equals(e.getAttendanceStatus())
-                                                || "근무중".equals(e.getAttendanceStatus()))
+                                                || "근무중".equals(e.getAttendanceStatus())
+                                                || "정상".equals(e.getAttendanceStatus()))
                                 .count();
                 long vacationCount = vacationRepository.countActiveVacations(today, VacationApprove.APPROVED);
                 long newHireCount = details.stream()
@@ -192,6 +206,4 @@ public class EmployeeServiceImpl implements EmployeeService {
                 // 퇴사 사유랑 일자 넣기
                 detailRepository.save(detail);
         }
-
-
 }
