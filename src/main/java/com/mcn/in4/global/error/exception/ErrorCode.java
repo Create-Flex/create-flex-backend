@@ -45,12 +45,15 @@ public enum ErrorCode {
     ALREADY_CHECKED_OUT(HttpStatus.BAD_REQUEST, "이미 퇴근 처리가 완료되었습니다."),
     // 8. 크리에이터/광고/계약 (Creator / Ad / Contract)
     CREATOR_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 크리에이터입니다."),
+    CREATOR_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "크리에이터 상세정보가 존재하지 않습니다."),
     MANAGER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 매니저입니다."),
     ADVERTISEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "광고 캠페인을 찾을 수 없습니다."),
     INVALID_ADVERTISEMENT_STATUS(HttpStatus.BAD_REQUEST, "대기중 상태의 광고만 처리할 수 있습니다."),
     CONTRACT_NOT_FOUND(HttpStatus.NOT_FOUND, "계약 정보를 찾을 수 없습니다."),
     INVALID_CONTRACT_PERIOD(HttpStatus.BAD_REQUEST, "계약 시작일은 종료일보다 이전이어야 합니다."),
-    CONTRACT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "계약서 파일이 존재하지 않습니다.");
+    CONTRACT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "계약서 파일이 존재하지 않습니다."),
+    LEGALTAX_NOT_FOUND(HttpStatus.BAD_REQUEST, "계약 시작일은 종료일보다 이전이어야 합니다.");
+
     private final HttpStatus status;
     private final String message;
 }

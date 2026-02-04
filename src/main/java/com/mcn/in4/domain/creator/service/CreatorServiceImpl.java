@@ -12,6 +12,8 @@ import com.mcn.in4.domain.member.entity.memberEnum.CreatorPlatform;
 import com.mcn.in4.domain.member.entity.memberEnum.CreatorStatus;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -114,26 +116,26 @@ public class CreatorServiceImpl implements CreatorService {
     // 사번 중복 검사
     private void validateDuplicateAccount(String memberAccount) {
         if (creatorRepository.existsByMemberAccount(memberAccount)) {
-            throw new IllegalArgumentException("이미 존재하는 사번입니다: " + memberAccount);
+            throw new CustomException(ErrorCode.DUPLICATE_MEMBER_ACCOUNT);
         }
     }
 
     // 매니저 조회
     private Member findManager(Long managerId) {
         return creatorRepository.findManagerById(managerId, MemberRole.MANAGER)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매니저입니다: " + managerId));
+                .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
     }
     
     // 크리에이터 조회
     private Member findCreator(Long creatorId) {
         return creatorRepository.findCreatorByIdWithDepartment(
                         creatorId, MemberRole.CREATOR, MemberStatus.WORKING)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 크리에이터입니다: " + creatorId));
+                .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
     }
     // 크리에이터 상세 정보 조회
     private MemberCreatorDetail findCreatorDetail(Long creatorId) {
         return creatorDetailRepository.findByCreatorIdWithManager(creatorId)
-                .orElseThrow(() -> new IllegalArgumentException("크리에이터 상세 정보가 없습니다"));
+                .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_DETAIL_NOT_FOUND));
     }
 
     // 프로필 정보 조회
@@ -238,7 +240,7 @@ public class CreatorServiceImpl implements CreatorService {
                 .map(creator -> {
                     MemberCreatorDetail detail = detailMap.get(creator.getMemberId());
                     if (detail == null) {
-                        throw new IllegalArgumentException("크리에이터 상세 정보가 없습니다: " + creator.getMemberId());
+                        throw new CustomException(ErrorCode.CREATOR_NOT_FOUND);
                     }
                     return buildResponse(creator, detail, profileMap.get(creator.getMemberId()));
                 })
