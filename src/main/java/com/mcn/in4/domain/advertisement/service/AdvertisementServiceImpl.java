@@ -8,6 +8,8 @@ import com.mcn.in4.domain.creator.entity.creatorEnum.PromotionStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 // import com.mcn.in4.entity.schedule.ScheduleRepository; 일정 구현 후 적용
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     public Long createAdvertisement(AdvertisementRequestDTO.Create request) {
         // 크리에이터 존재 확인
         Member creator = memberRepository.findById(request.getCreatorId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 크리에이터입니다. creatorId: " + request.getCreatorId()));
+                .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
 
         // 광고 캠페인 엔티티 생성
         CreatorPromotion promotion = CreatorPromotion.builder()
@@ -84,7 +85,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         // 대기중 상태만 수락 가능
         if (promotion.getPromotionStatus() != PromotionStatus.WAITING) {
-            throw new IllegalArgumentException("대기중 상태의 광고만 수락할 수 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_ADVERTISEMENT_STATUS);
         }
 
         // 상태를 ACCEPTED로 변경
@@ -113,7 +114,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         // 대기중 상태만 거절 가능
         if (promotion.getPromotionStatus() != PromotionStatus.WAITING) {
-            throw new IllegalArgumentException("대기중 상태의 광고만 거절할 수 있습니다.");
+            throw new CustomException(ErrorCode.INVALID_ADVERTISEMENT_STATUS);
         }
 
         // 상태를 REJECTED로 변경
@@ -135,8 +136,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     // 광고 유효성 검사
     private CreatorPromotion findPromotion(Long promotionId) {
         return advertisementRepository.findByIdWithCreator(promotionId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 광고 캠페인입니다. promotionId: " + promotionId));
+                .orElseThrow(() -> new CustomException(ErrorCode.ADVERTISEMENT_NOT_FOUND));
     }
 
     // 광고 수락 시 크리에이터 일정에 자동 추가 => 일정 구현 후 적용

@@ -5,6 +5,8 @@ import com.mcn.in4.domain.contract.dto.response.ContractResponseDTO;
 import com.mcn.in4.domain.contract.entity.CreatorContract;
 import com.mcn.in4.domain.contract.repository.ContractRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,7 @@ public class ContractServiceImpl implements ContractService {
     public Long createContract(ContractRequestDTO.Create request) {
         // 계약 기간 검증
         if (request.getContractStart().isAfter(request.getContractEnd())) {
-            throw new IllegalArgumentException("계약 시작일은 종료일보다 이전이어야 합니다.");
+            throw new CustomException(ErrorCode.INVALID_CONTRACT_PERIOD);
         }
 
         // 계약 엔티티 생성 및 저장

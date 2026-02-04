@@ -9,6 +9,8 @@ import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.legalTax.repository.LegalTaxRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,7 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     public Long createLegalTax(LegalTaxRequestDTO.Create request) {
         // 크리에이터 존재 확인
         Member creator = memberRepository.findById(request.getCreatorId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 크리에이터입니다. creatorId: " + request.getCreatorId()));
+                .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
 
         // 상담 유형 검증
         LegalTaxType legalTaxType = parseLegalTaxType(request.getLegalTaxType());
@@ -94,13 +95,12 @@ public class LegalTaxServiceImpl implements LegalTaxService {
         try {
             return LegalTaxType.valueOf(type.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("유효하지 않은 상담 유형입니다: " + type);
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
         }
     }
 
     private CreatorLegalTax findLegalTax(Long legalTaxId) {
         return legalTaxRepository.findById(legalTaxId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "존재하지 않는 상담 신청입니다. legalTaxId: " + legalTaxId));
+                .orElseThrow(() -> new CustomException(ErrorCode.LEGALTAX_NOT_FOUND));
     }
 }
