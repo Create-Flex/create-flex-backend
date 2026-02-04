@@ -58,6 +58,15 @@ public class HealthResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class MypageHealthInfo{
+        private List<HealthInfo> healthInfoList;
+        private boolean haveHealthChecked;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class HealthPresigned{
         private String presignedUrl; //업로드용 프리사인드 Url
     }

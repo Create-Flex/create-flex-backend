@@ -31,4 +31,10 @@ public interface HealthRepository extends JpaRepository<Health, Long> {
     List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers(@Param("memberIds") List<Long> memberIds);
 
     Optional<Health> findTopByMember_MemberId(Long memberId);
+
+    boolean existsByMember_MemberIdAndCheckupDateBetween(
+            Long memberId,
+            LocalDate start,
+            LocalDate end
+    );
 }

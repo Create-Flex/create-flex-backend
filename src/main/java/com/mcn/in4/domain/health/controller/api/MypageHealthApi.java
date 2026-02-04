@@ -23,7 +23,7 @@ public interface MypageHealthApi {
             description = "memberId와 시작/종료 날짜를 기준으로 해당 기간의 건강 정보를 조회합니다."
     )
     @GetMapping("/")
-    List<HealthResponseDto.HealthInfo> generateHealthInfo(
+    HealthResponseDto.MypageHealthInfo generateMypageHealthInfo(
 
             @AuthenticationPrincipal String userId,
 
