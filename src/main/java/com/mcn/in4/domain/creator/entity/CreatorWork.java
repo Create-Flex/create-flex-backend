@@ -5,7 +5,6 @@ import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "creator_work") // 실제 DB 테이블명
 @Getter

@@ -9,11 +9,19 @@ import java.util.List;
 
 public interface TeamService {
     List<TeamResponse> findAllTeams();
+
     TeamDetailResponse getTeamDetail(Long teamId);
-    void createTeam(TeamCreateRequest request);
+
+    Long createTeam(TeamCreateRequest request);
+
+    void updateTeamInfo(Long teamId, TeamCreateRequest request);
+
     void updateTeamMembers(Long teamId, TeamMemberUpdateRequest request);
+
     void deleteTeam(Long teamId);
-    // 1. 내 팀 목록 조회
+
+    // 내 팀 목록 조회
     List<MyTeamResponse> getMyTeams(String memberAccount);
+
     MyTeamResponse getMyTeamDetail(String memberAccount, Long teamId);
 }

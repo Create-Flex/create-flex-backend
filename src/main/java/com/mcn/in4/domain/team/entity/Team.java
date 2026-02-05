@@ -22,4 +22,9 @@ public class Team {
 
     @Column(name = "team_detail")
     private String teamDetail;
+
+    public void updateInfo(String teamName, String teamDetail) {
+        this.teamName = teamName;
+        this.teamDetail = teamDetail;
+    }
 }
