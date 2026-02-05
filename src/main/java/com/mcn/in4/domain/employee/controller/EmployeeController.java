@@ -6,6 +6,7 @@ import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -51,7 +52,8 @@ public class EmployeeController implements EmployeeApi {
         employeeService.quitEmployee(id, requestDto);
         return ResponseEntity.ok("퇴사 처리가 완료되었습니다.");
     }
-    // 직원 정보 수정
+
+    // 직원 정보 수정 (관리자용)
     @Override
     @PatchMapping("/{id}")
     public ResponseEntity<String> updateEmployee(
@@ -61,5 +63,24 @@ public class EmployeeController implements EmployeeApi {
         return ResponseEntity.ok("직원 정보가 수정되었습니다.");
     }
 
+    // 마이페이지 프로필 수정 (본인용 - JWT 토큰에서 ID 추출)
+    @PatchMapping("/me")
+    public ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> updateMyProfile(
+            @AuthenticationPrincipal String userId,
+            @RequestBody EmployeeRequestDTO.MyProfileUpdateDto request) {
+        Long memberId = Long.parseLong(userId);
+        EmployeeResponseDTO.EmployeeDetailResponseDto response = employeeService.updateMyProfile(memberId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 비밀번호 변경 (본인용 - JWT 토큰에서 ID 추출)
+    @PatchMapping("/password")
+    public ResponseEntity<String> changePassword(
+            @AuthenticationPrincipal String userId,
+            @RequestBody EmployeeRequestDTO.PasswordChangeDto request) {
+        Long memberId = Long.parseLong(userId);
+        employeeService.changePassword(memberId, request);
+        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+    }
 
 }

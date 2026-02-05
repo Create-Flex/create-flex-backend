@@ -63,6 +63,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/legaltax/{legalTaxId}/complete")
                         .hasRole("ADMINISTRATOR")
 
+                        // 직원 마이페이지 (CREATOR 제외)
+                        .requestMatchers(HttpMethod.PATCH, "/api/employees/me")
+                        .hasAnyRole("EMPLOYEE", "MANAGER", "ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.PATCH, "/api/employees/password")
+                        .hasAnyRole("EMPLOYEE", "MANAGER", "ADMINISTRATOR")
+
                         // 나머지경로
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -18,6 +18,7 @@ import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +36,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         private final MemberEmployeeDetailRepository detailRepository;// 직원 상세
         private final AttendanceRepository attendanceRepository; // 근태
         private final VacationRepository vacationRepository; // 휴가 조회
-
         private final DepartmentRepository departmentRepository; // 부서 레포
+        private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
 
         // 직원 상세 조회
         @Override
@@ -207,48 +208,96 @@ public class EmployeeServiceImpl implements EmployeeService {
                 // 퇴사 사유랑 일자 넣기
                 detailRepository.save(detail);
         }
+
         @Override
         @Transactional
         public void updateEmployee(Long id, EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto) {
 
                 // 엔티티 조회
                 Member member = memberRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다."));
+                                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 직원입니다."));
 
                 MemberEmployeeDetail detail = detailRepository.findByMemberMemberId(id)
-                        .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다."));
-                //  부서 정보 조회 (부서 변경이 필요할 수 있으므로)
+                                .orElseThrow(() -> new IllegalArgumentException("직원 상세 정보가 없습니다."));
+                // 부서 정보 조회 (부서 변경이 필요할 수 있으므로)
                 Department department = null;
                 if (requestDto.getDepartmentid() != null) {
                         department = departmentRepository.findById(requestDto.getDepartmentid().longValue())
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                        "존재하지 않는 부서입니다. ID: " + requestDto.getDepartmentid()));
+                                        .orElseThrow(() -> new IllegalArgumentException(
+                                                        "존재하지 않는 부서입니다. ID: " + requestDto.getDepartmentid()));
                 }
-                //  Member 엔티티 수정
+                // Member 엔티티 수정
                 member.updateInfo(
-                        requestDto.getMemberName(),
-                        requestDto.getMemberRole(),
-                        requestDto.getMemberStatus(),
-                        requestDto.getTask(),
-                        department
-                );
+                                requestDto.getMemberName(),
+                                requestDto.getMemberRole(),
+                                requestDto.getMemberStatus(),
+                                requestDto.getTask(),
+                                department);
                 // 비밀번호 수정 (입력값이 있을 때만)
                 if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
 
                         member.updatePassword(requestDto.getPassword());
                 }
-                //  MemberEmployeeDetail 엔티티 수정
+                // MemberEmployeeDetail 엔티티 수정
                 detail.updateDetail(
-                        requestDto.getNickname(),
-                        requestDto.getPersonalEmail(),
-                        requestDto.getPersonalCall(),
-                        requestDto.getAddress(),
-                        requestDto.getEngName(),
-                        requestDto.getCorporEmail(),
-                        requestDto.getHireDate(),
-                        requestDto.getEmploymentType()
+                                requestDto.getNickname(),
+                                requestDto.getPersonalEmail(),
+                                requestDto.getPersonalCall(),
+                                requestDto.getAddress(),
+                                requestDto.getEngName(),
+                                requestDto.getCorporEmail(),
+                                requestDto.getHireDate(),
+                                requestDto.getEmploymentType());
+
+        }
+
+        // 마이페이지 프로필 수정 (본인용)
+        @Override
+        @Transactional
+        public EmployeeResponseDTO.EmployeeDetailResponseDto updateMyProfile(Long memberId,
+                        EmployeeRequestDTO.MyProfileUpdateDto request) {
+                // 1. 회원 조회
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+                // 2. 직원 상세 정보 조회
+                MemberEmployeeDetail detail = detailRepository.findByMember(member)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
+
+                // 3. 정보 업데이트
+                // 3. 정보 업데이트
+                detail.updateDetail(
+                                request.getNickname() != null ? request.getNickname() : detail.getNickname(),
+                                request.getPersonalEmail() != null ? request.getPersonalEmail()
+                                                : detail.getPersonalEmail(),
+                                request.getPersonalCall() != null ? request.getPersonalCall()
+                                                : detail.getPersonalCall(),
+                                request.getAddress() != null ? request.getAddress() : detail.getAddress(),
+                                request.getEngName() != null ? request.getEngName() : detail.getEngName(),
+                                detail.getCorporEmail(), // 기존 값 유지
+                                detail.getHireDate(), // 기존 값 유지
+                                detail.getEmploymentType() // 기존 값 유지
                 );
 
+                // 4. 업데이트된 정보 반환
+                return getEmployeeDetail(memberId);
+        }
 
+        // 비밀번호 변경 (본인용)
+        @Override
+        @Transactional
+        public void changePassword(Long memberId, EmployeeRequestDTO.PasswordChangeDto request) {
+                // 1. 회원 조회
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+                // 2. 현재 비밀번호 검증 (평문 비교 - 기존 로그인 로직과 동일하게)
+                if (!request.getCurrentPassword().equals(member.getMemberPassword())) {
+                        throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+                }
+
+                // 3. 새 비밀번호 업데이트 (평문 저장)
+                member.updatePassword(request.getNewPassword());
+                memberRepository.save(member);
         }
 }

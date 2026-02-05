@@ -14,8 +14,13 @@ public interface EmployeeService {
     // 직원 퇴사 처리
     void quitEmployee(Long id, EmployeeRequestDTO.EmployeeQuitRequestDto requestDto);
 
-    // 직원 정보 수정
+    // 직원 정보 수정 (관리자용)
     void updateEmployee(Long id, EmployeeRequestDTO.EmployeeUpdateRequestDto requestDto);
 
+    // 마이페이지 프로필 수정 (본인용)
+    EmployeeResponseDTO.EmployeeDetailResponseDto updateMyProfile(Long memberId,
+            EmployeeRequestDTO.MyProfileUpdateDto request);
 
+    // 비밀번호 변경 (본인용)
+    void changePassword(Long memberId, EmployeeRequestDTO.PasswordChangeDto request);
 }
