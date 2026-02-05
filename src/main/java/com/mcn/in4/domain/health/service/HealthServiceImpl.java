@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,7 +70,9 @@ public class HealthServiceImpl implements HealthService{
         MemberRole role = memberRepository.findMemberRoleByMemberId(memberId);
         if (role==MemberRole.ADMINISTRATOR){
             creatorHealthInfo = generateCreatorForAdmin();
-        } else{
+        } else if(role==MemberRole.CREATOR) {
+            creatorHealthInfo = generateCreatorForCreator(memberId);
+        }else{
             creatorHealthInfo = generateCreatorForManager(memberId);
         }
 
@@ -99,6 +102,19 @@ public class HealthServiceImpl implements HealthService{
                         .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
         List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
+        return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
+    }
+
+    public CreatorHealthInfo generateCreatorForCreator(Long memberId){
+        List<Long> creatorId = Collections.singletonList(memberId);
+        List<Member> creators = memberRepository.findByMemberIdIn(creatorId);
+        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers();
+        List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
+                healthRepository.findTopByMember_MemberId(member.getMemberId())
+                        .stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorId);
+        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorId);
         return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
     }
 
