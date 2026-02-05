@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.health.controller.api;
 
+import com.mcn.in4.domain.health.dto.HealthResponseDto;
 import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,7 +19,7 @@ public interface ManageHealthApi {
             description = "관리자가 확인하는 전체 건강 정보 목록을 반환합니다."
     )
     @GetMapping("/")
-    List<HealthInfo> generateManageHealthInfo();
+    HealthResponseDto.AssembledHealthInfo generateManageHealthInfo();
 
     @Operation(
             summary = "건강 정보 검색",
@@ -31,7 +32,7 @@ public interface ManageHealthApi {
         """
     )
     @GetMapping("/search")
-    List<HealthInfo> search(
+    HealthResponseDto.AssembledHealthInfo search(
             @Parameter(
                     description = "회원 이름 (포함 검색)",
                     example = "김인",

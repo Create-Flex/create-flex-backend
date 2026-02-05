@@ -1,6 +1,6 @@
 package com.mcn.in4.domain.health.controller;
 
-import com.mcn.in4.domain.health.dto.HealthResponseDto.HealthInfo;
+import com.mcn.in4.domain.health.dto.HealthResponseDto.AssembledHealthInfo;
 import com.mcn.in4.domain.health.service.HealthService;
 import com.mcn.in4.domain.health.controller.api.ManageHealthApi;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,12 @@ public class HealthManageController implements ManageHealthApi {
     private final HealthService healthService;
 
     @GetMapping("/")
-    public List<HealthInfo> generateManageHealthInfo(){
+    public AssembledHealthInfo generateManageHealthInfo(){
         return healthService.generateManageHealthInfo();
     }
 
     @GetMapping("/search")
-    public List<HealthInfo> search(
+    public AssembledHealthInfo search(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {

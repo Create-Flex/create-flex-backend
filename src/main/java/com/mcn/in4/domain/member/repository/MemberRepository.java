@@ -38,4 +38,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     );
 
     Long countByDepartment_DepartmentId(Long departmentId);
+
+    @Query("SELECT m.memberRole FROM Member m WHERE m.memberId = :memberId")
+    MemberRole findMemberRoleByMemberId(@Param("memberId") Long memberId);
 }
