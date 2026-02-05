@@ -3,10 +3,8 @@ package com.mcn.in4.domain.creator.entity;
 import com.mcn.in4.domain.creator.entity.creatorEnum.WorkStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 @Entity
 @Table(name = "creator_work") // 실제 DB 테이블명
