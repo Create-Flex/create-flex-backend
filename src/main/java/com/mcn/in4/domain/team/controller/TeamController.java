@@ -33,9 +33,18 @@ public class TeamController implements TeamApi { // 인터페이스 구현
 
     @Override
     @PostMapping
-    public ResponseEntity<String> createTeam(@RequestBody TeamCreateRequest request) {
-        teamService.createTeam(request);
-        return ResponseEntity.ok("팀이 성공적으로 생성되었습니다.");
+    public ResponseEntity<Long> createTeam(@RequestBody TeamCreateRequest request) {
+        Long id = teamService.createTeam(request);
+        return ResponseEntity.ok(id);
+    }
+
+    @Override
+    @PatchMapping("/{teamId}/info")
+    public ResponseEntity<String> updateTeamInfo(
+            @PathVariable("teamId") Long teamId,
+            @RequestBody TeamCreateRequest request) {
+        teamService.updateTeamInfo(teamId, request);
+        return ResponseEntity.ok("팀 기본 정보가 성공적으로 수정되었습니다.");
     }
 
     @Override

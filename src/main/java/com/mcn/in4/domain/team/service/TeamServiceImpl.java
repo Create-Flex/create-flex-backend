@@ -38,7 +38,13 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<TeamResponse> findAllTeams() {
         return teamRepository.findAll().stream()
-                .map(TeamResponse::new)
+                .map(team -> {
+                    List<Long> memberIds = teamRelayRepository.findAllByTeamIdWithMemberAndDept(team.getTeamId())
+                            .stream()
+                            .map(relay -> relay.getMember().getMemberId())
+                            .toList();
+                    return new TeamResponse(team, memberIds);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -98,28 +104,36 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
-    public void createTeam(TeamCreateRequest request) {
+    public Long createTeam(TeamCreateRequest request) {
         // 팀 저장 및 즉시 반영
         Team team = new Team(null, request.getTeamName(), request.getTeamDetail());
         Team savedTeam = teamRepository.saveAndFlush(team);
 
-        // 멤버 조회
-        List<Member> members = memberRepository.findAllById(request.getMemberIds());
+        // 멤버 ID 리스트가 있고 비어있지 않은 경우에만 멤버 추가
+        if (request.getMemberIds() != null && !request.getMemberIds().isEmpty()) {
+            List<Member> members = memberRepository.findAllById(request.getMemberIds());
+            if (!members.isEmpty()) {
+                List<TeamRelay> relays = members.stream()
+                        .map(member -> new TeamRelay(null, savedTeam, member))
+                        .toList();
+                teamRelayRepository.saveAllAndFlush(relays);
+            }
+        }
+        return savedTeam.getTeamId();
+    }
 
-        if (members.isEmpty())
-            return;
+    @Override
+    @Transactional
+    public void updateTeamInfo(Long teamId, TeamCreateRequest request) {
+        if (request.getTeamName() == null || request.getTeamName().trim().isEmpty()) {
+            throw new IllegalArgumentException("팀 이름은 필수입니다.");
+        }
 
-        // TeamRelay 생성
-        List<TeamRelay> relays = members.stream()
-                .map(member -> {
-                    // 수동 ID 부여 대신 builder나 생성자를 통해
-                    // ID를 제외한 정보만 세팅 (엔티티에 @GeneratedValue가 있을 경우)
-                    return new TeamRelay(null, savedTeam, member);
-                })
-                .toList();
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다. ID: " + teamId));
 
-        // 저장 및 강제 반영
-        teamRelayRepository.saveAllAndFlush(relays);
+        team.updateInfo(request.getTeamName(), request.getTeamDetail());
+        teamRepository.save(team);
     }
 
     @Override
