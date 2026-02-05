@@ -126,15 +126,15 @@ INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner
 (1013, 1013, 'https://cdn.mcn.com/profiles/moon_thumbnail.jpg', 'https://cdn.mcn.com/banners/moon_thumbnail_banner.jpg'),
 (1014, 1014, 'https://cdn.mcn.com/profiles/gu_jikwon.jpg', 'https://cdn.mcn.com/banners/gu_jikwon_banner.jpg'),
 -- 크리에이터 프로필
-(2001, 2001, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/gamst_banner.jpg'),
-(2002, 2002, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/ddoganjip_banner.jpg'),
-(2003, 2003, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/beautyjini_banner.jpg'),
-(2004, 2004, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/mukbopd_banner.jpg'),
-(2005, 2005, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/gameking_banner.jpg'),
-(2006, 2006, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/dailyvlogger_banner.jpg'),
-(2007, 2007, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/techreviewer_banner.jpg'),
-(2008, 2008, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/restingcreator_banner.jpg'),
-(2009, 2009, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://cdn.mcn.com/banners/retiredcreator_banner.jpg');
+(2001, 2001, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80'),
+(2002, 2002, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2003, 2003, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2004, 2004, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2005, 2005, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2006, 2006, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2007, 2007, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2008, 2008, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80'),
+(2009, 2009, 'https://i.postimg.cc/qBczxYv8/creator.png', 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80');
 
 -- ==========================================
 -- 7. Creator Contract (계약)
