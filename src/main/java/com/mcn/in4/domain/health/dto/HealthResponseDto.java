@@ -68,6 +68,15 @@ public class HealthResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class AssembledHealthInfo{
+        private List<HealthInfo> healthInfoList;
+        private List<HealthSummanaryCountDto> healthSummanaryCountList;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class HealthPresigned{
         private String presignedUrl; //업로드용 프리사인드 Url
     }

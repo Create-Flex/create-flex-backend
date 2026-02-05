@@ -34,4 +34,7 @@ public interface CreatorDetailRepository extends JpaRepository<MemberCreatorDeta
             where mcd.memberManager.memberId = :managerMemberId
         """)
         List<Long> findCreatorIdsByManagerId(Long managerMemberId);
+
+        @Query("SELECT c.memberCreator.memberId FROM MemberCreatorDetail c")
+        List<Long> findCreatorIds();
 }
