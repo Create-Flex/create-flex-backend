@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CreatorMentalHealthRepository extends JpaRepository<CreatorMentalHealth, Long> {
 
-    @Query("SELECT new com.mcn.in4.domain.health.dto.MentalHealthDto(h.member.memberId, h.creatorMentalDate, h.creatorMentalScore) " +
+    @Query("SELECT new com.mcn.in4.domain.health.dto.MentalHealthDto(h.member.memberId, h.member.memberName,h.creatorMentalDate, h.creatorMentalScore) " +
             "FROM CreatorMentalHealth h " + // 엔티티 클래스명으로 변경
             "WHERE h.member.memberId IN :memberIds " +
             "AND h.creatorMentalDate = (" +
@@ -20,4 +20,15 @@ public interface CreatorMentalHealthRepository extends JpaRepository<CreatorMent
             "    WHERE h2.member.memberId = h.member.memberId" +
             ")")
     List<MentalHealthDto> findLatestMentalHealthByMemberIds(@Param("memberIds") List<Long> memberIds);
+
+    @Query("SELECT new com.mcn.in4.domain.health.dto.MentalHealthDto(h.member.memberId, h.member.memberName,h.creatorMentalDate, h.creatorMentalScore) " +
+            "FROM CreatorMentalHealth h " + // 엔티티 클래스명으로 변경
+            "WHERE h.member.memberId IN :memberIds " +
+            "AND h.creatorMentalDate = (" +
+            "    SELECT MAX(h2.creatorMentalDate) " +
+            "    FROM CreatorMentalHealth h2 " +
+            "    WHERE h2.member.memberId = h.member.memberId" +
+            "    AND h.creatorMentalScore > 9 " +
+            ")")
+    List<MentalHealthDto> findLatestMentalHealthByMemberIdsWhoesDanger(@Param("memberIds") List<Long> memberIds);
 }

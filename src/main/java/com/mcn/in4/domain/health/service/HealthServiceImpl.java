@@ -5,6 +5,7 @@ import com.mcn.in4.domain.health.dto.HealthResponseDto.*;
 import com.mcn.in4.domain.health.dto.HealthSummanaryCountDto;
 import com.mcn.in4.domain.health.dto.MentalHealthDto;
 import com.mcn.in4.domain.health.entity.CheckupSummanary;
+import com.mcn.in4.domain.health.entity.CreatorMentalHealth;
 import com.mcn.in4.domain.health.entity.Health;
 import com.mcn.in4.domain.health.repository.CreatorMentalHealthRepository;
 import com.mcn.in4.domain.health.repository.HealthRepository;
@@ -13,6 +14,7 @@ import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,7 +71,8 @@ public class HealthServiceImpl implements HealthService{
                                 .stream()
                                 .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
-        return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC);
+        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
+        return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
     }
 
     public List<HealthInfo> generateManageHealthInfo() {
@@ -154,5 +157,18 @@ public class HealthServiceImpl implements HealthService{
         return HealthPresigned.builder()
                 .presignedUrl(presignedUrl)
                 .build();
+    }
+
+    public void saveMentalHealthTest(Long memberId, Long score){
+        LocalDate today = LocalDate.now();
+        Member creator = Member.builder()
+                .memberId(memberId)
+                .build();
+        CreatorMentalHealth mentalHealth = CreatorMentalHealth.builder()
+                .creatorMentalDate(today)
+                .creatorMentalScore(score)
+                .member(creator)
+                .build();
+        creatorMentalHealthRepository.save(mentalHealth);
     }
 }
