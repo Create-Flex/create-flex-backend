@@ -17,6 +17,8 @@ public class SchedulReponseDTO {
     @NoArgsConstructor
     public static class ScheduleResponseDto {
         private Long scheduleId;
+        private Long memberId; //작성자 아이디
+        private String memberName; // 작성자 이름
         private String scheduleName; // 제목
         private LocalDate scheduleDate; // 날짜
         private String scheduleDetail; // 상세

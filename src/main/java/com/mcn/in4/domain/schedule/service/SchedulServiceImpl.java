@@ -200,6 +200,8 @@ public class SchedulServiceImpl implements SchedulService {
 
             return SchedulReponseDTO.ScheduleResponseDto.builder()
                     .scheduleId(s.getScheduleId())
+                    .memberId(s.getMember().getMemberId())
+                    .memberName(s.getMember().getMemberName())
                     .scheduleName(s.getScheduleName())
                     .scheduleDate(s.getScheduleDate())
                     .scheduleDetail(s.getScheduleDetail())
