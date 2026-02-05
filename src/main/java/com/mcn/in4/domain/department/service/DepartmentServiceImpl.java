@@ -68,8 +68,18 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void deleteDepartment(Long id) {
+        //삭제할 부서 조회
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 부서가 존재하지 않습니다. id=" + id));
+
+        //해당 부서에 소속된 직원들을 조회
+        List<Member> members = memberRepository.findByDepartment_DepartmentId(id);
+
+        //직원들의 부서 정보를 null로 변경 (연관관계 끊기)
+        for (Member member : members) {
+            member.changeDepartment(null); // 방금 추가한 메서드 사용
+        }
+        //부서 삭제
         departmentRepository.delete(department);
     }
 

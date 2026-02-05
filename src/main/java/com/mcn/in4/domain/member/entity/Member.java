@@ -70,4 +70,7 @@ public class Member {
         this.memberPassword = password;
     }
 
+    public void changeDepartment(Department department) {
+        this.department = department;
+    }
 }
