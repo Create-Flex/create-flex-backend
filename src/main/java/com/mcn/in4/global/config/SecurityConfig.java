@@ -45,7 +45,7 @@ public class SecurityConfig {
 
                         // 관리자 전용
                         // 크리에이터 관리
-                        .requestMatchers(HttpMethod.GET, "/api/creators").hasRole("ADMINISTRATOR")
+                        
                         .requestMatchers(HttpMethod.POST, "/api/creators").hasRole("ADMINISTRATOR")
                         // 담당하는 크리에이터 조회
                         .requestMatchers(HttpMethod.GET, "/api/creators/my").hasAnyRole("MANAGER", "ADMINISTRATOR")
