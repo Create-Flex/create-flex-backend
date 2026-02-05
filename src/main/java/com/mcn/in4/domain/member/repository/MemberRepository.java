@@ -36,4 +36,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             @Param("role") MemberRole role,
             @Param("status") MemberStatus status
     );
+
+    Long countByDepartment_DepartmentId(Long departmentId);
 }

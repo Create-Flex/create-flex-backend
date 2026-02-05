@@ -34,7 +34,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional(readOnly = true)
     public List<DepartmentResponse> findAllDepartments() {
         return departmentRepository.findAll().stream()
-                .map(DepartmentResponse::from)
+                .map(dept -> DepartmentResponse.from(
+                        dept,
+                        memberRepository.countByDepartment_DepartmentId(
+                                dept.getDepartmentId())))
                 .toList();
     }
 
