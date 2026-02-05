@@ -13,14 +13,16 @@ public class DepartmentResponse {
     private final String departmentCall;
     private final String departmentDetail;
     private final String departmentColor;
+    private final Long memberCount;
 
-    public static DepartmentResponse from(Department department) {
+    public static DepartmentResponse from(Department department, Long memberCount) {
         return new DepartmentResponse(
                 department.getDepartmentId(),
                 department.getDepartmentName(),
                 department.getDepartmentCall(),
                 department.getDepartmentDetail(),
-                department.getDepartmentColor()
+                department.getDepartmentColor(),
+                memberCount
         );
     }
 }
