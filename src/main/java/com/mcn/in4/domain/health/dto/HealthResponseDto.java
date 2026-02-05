@@ -52,6 +52,7 @@ public class HealthResponseDto {
         private List<HealthSummanaryCountDto> healthSummanaryCountList;
         private List<HealthInfo> healthInfoList;
         private List<MentalHealthDto> mentalHealthInfoList;
+        private List<MentalHealthDto> mentalWarningHealthInfoList;
     }
 
     @Getter

@@ -11,11 +11,13 @@ import java.time.LocalDate;
 @Builder
 public class MentalHealthDto {
     private Long memberId;
+    private String memberName;
     private LocalDate creatorMentalDate;
     private Long creatorMentalScore;
 
-    public MentalHealthDto(Long memberId, LocalDate creatorMentalDate, Long creatorMentalScore) {
+    public MentalHealthDto(Long memberId, String memberName, LocalDate creatorMentalDate, Long creatorMentalScore) {
         this.memberId = memberId;
+        this.memberName = memberName;
         this.creatorMentalDate = creatorMentalDate;
         this.creatorMentalScore = creatorMentalScore;
     }
