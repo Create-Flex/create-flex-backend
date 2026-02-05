@@ -30,6 +30,7 @@ public class ContractController implements ContractApi {
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "계약이 성공적으로 등록되었습니다.");
+        response.put("contract_id", contractId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
