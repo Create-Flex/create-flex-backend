@@ -13,6 +13,8 @@ import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,7 +126,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public void checkIn(Long memberId) {
         // 이미 오늘 출근 기록이 있는지 확인 (중복 출근 방지)
         if (attendanceRepository.findByMemberIdAndAttendanceDate(memberId, LocalDate.now()).isPresent()) {
-            throw new IllegalStateException("이미 오늘 출근 처리가 되었습니다.");
+            throw new CustomException(ErrorCode.ATTENDANCE_ALREADY_MARKED);
         }
 
         // Member 객체 생성 (ID만으로 참조 생성)
@@ -185,11 +187,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         // 오늘 출근 기록이 있는지 확인
         Attendance attendance = attendanceRepository.findByMemberIdAndAttendanceDate(memberId, today)
-                .orElseThrow(() -> new IllegalStateException("오늘 출근 기록이 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ATTENDANCE_NOT_FOUND));
 
         // 이미 퇴근 처리가 되었는지 확인
         if (attendance.getAttendanceEnd() != null) {
-            throw new IllegalStateException("이미 퇴근 처리가 되었습니다.");
+            throw new CustomException(ErrorCode.ALREADY_CHECKED_OUT);
         }
 
         LocalDateTime endTime = LocalDateTime.now();
