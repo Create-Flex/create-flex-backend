@@ -28,14 +28,14 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
         // 해시 비밀번호 확인
-        // if (!passwordEncoder.matches(request.getPassword(),
-        // member.getMemberPassword())) {
-        // throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        // }
+         if (!passwordEncoder.matches(request.getPassword(),
+         member.getMemberPassword())) {
+         throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+         }
         // 비밀번호 확인
-        if (!(request.getPassword().equals(member.getMemberPassword()))) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+//        if (!(request.getPassword().equals(member.getMemberPassword()))) {
+//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//        }
         // 토큰 생성 (Member ID를 String으로 변환하여 전달)
         String token = jwtTokenProvider.generateToken(String.valueOf(member.getMemberId()),
                 member.getMemberRole().name());

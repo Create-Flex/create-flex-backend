@@ -1,7 +1,6 @@
 package com.mcn.in4.domain.employee.service;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckInStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.department.entity.Department;
 import com.mcn.in4.domain.department.repository.DepartmentRepository;
@@ -9,8 +8,10 @@ import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
+import com.mcn.in4.domain.member.entity.MemberProfile;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
+import com.mcn.in4.domain.member.repository.MemberProfileRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,6 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         private final AttendanceRepository attendanceRepository; // 근태
         private final VacationRepository vacationRepository; // 휴가 조회
         private final DepartmentRepository departmentRepository; // 부서 레포
+        private final MemberProfileRepository memberProfileRepository; // 프로필 레포
         private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
 
         // 직원 상세 조회
@@ -162,10 +163,9 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "존재하지 않는 부서입니다. ID: " + requestDto.getDepartmentid()));
                 // Member 엔티티 생성 및 저장 (계정 정보)
-                // 패스워드 인코더 없이 사번(memberAccount)으로 - 패스워드 인코더 기능 추후 보안
                 Member member = Member.builder()
                                 .memberAccount(requestDto.getMemberAccount())
-                                .memberPassword(requestDto.getPassword()) // 현재 평문 저장
+                                .memberPassword(passwordEncoder.encode(requestDto.getPassword()))
                                 .memberName(requestDto.getMemberName())
                                 .memberRole(requestDto.getMemberRole())
                                 .memberStatus(requestDto.getMemberStatus())
@@ -187,6 +187,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 .vacationRemainder(15.0)
                                 .build();
                 detailRepository.save(detail);
+
+                // 기본 프로필 생성 및 저장
+                MemberProfile profile = MemberProfile.builder()
+                                .member(savedMember)
+                                .profileImage("https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png")
+                                .profileBanner("https://i.postimg.cc/mrjxhLg1/photo_1497366216548_37526070297c.avif")
+                                .build();
+                memberProfileRepository.save(profile);
         }
 
         @Override
@@ -207,6 +215,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 memberRepository.save(member);
                 // 퇴사 사유랑 일자 넣기
                 detailRepository.save(detail);
+
         }
 
         @Override
@@ -236,7 +245,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 // 비밀번호 수정 (입력값이 있을 때만)
                 if (requestDto.getPassword() != null && !requestDto.getPassword().isEmpty()) {
 
-                        member.updatePassword(requestDto.getPassword());
+                        member.updatePassword(passwordEncoder.encode(requestDto.getPassword()));
                 }
                 // MemberEmployeeDetail 엔티티 수정
                 detail.updateDetail(
@@ -287,22 +296,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         @Override
         @Transactional
         public void changePassword(Long memberId, EmployeeRequestDTO.PasswordChangeDto request) {
-                // 1. 회원 조회
+                // 회원 조회
                 Member member = memberRepository.findById(memberId)
                                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-                // 2. 현재 비밀번호 검증 (평문 비교 - 기존 로그인 로직과 동일하게)
-                if (!request.getCurrentPassword().equals(member.getMemberPassword())) {
+                // 현재 비밀번호 검증
+                if (!passwordEncoder.matches(request.getCurrentPassword(), member.getMemberPassword())) {
                         throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
                 }
 
                 // 새로운 비밀번호가 기존 비밀번호와 같은지, 같다면 에러
-                if (request.getNewPassword().equals(member.getMemberPassword())) {
+                if (passwordEncoder.matches(request.getNewPassword(), member.getMemberPassword())) {
                         throw new CustomException(ErrorCode.SAME_PASSWORD);
                 }
 
-                // 3. 새 비밀번호 업데이트 (평문 저장)
-                member.updatePassword(request.getNewPassword());
+                // 새 비밀번호 업데이트
+                member.updatePassword(passwordEncoder.encode(request.getNewPassword()));
                 memberRepository.save(member);
         }
 }

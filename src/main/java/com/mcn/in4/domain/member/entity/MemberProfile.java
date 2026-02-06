@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class MemberProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,5 +27,7 @@ public class MemberProfile {
 
     @Column(name = "profile_banner", nullable = false)
     private String profileBanner;
+
+
     //배너 사진
 }
