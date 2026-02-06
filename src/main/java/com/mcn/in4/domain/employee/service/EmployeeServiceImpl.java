@@ -296,6 +296,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                         throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
                 }
 
+                // 새로운 비밀번호가 기존 비밀번호와 같은지, 같다면 에러
+                if (request.getNewPassword().equals(member.getMemberPassword())) {
+                        throw new CustomException(ErrorCode.SAME_PASSWORD);
+                }
+
                 // 3. 새 비밀번호 업데이트 (평문 저장)
                 member.updatePassword(request.getNewPassword());
                 memberRepository.save(member);
