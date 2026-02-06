@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.employee.service;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
+import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckOutStatus;
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.department.entity.Department;
 import com.mcn.in4.domain.department.repository.DepartmentRepository;
@@ -111,10 +112,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 // 퇴근 기록이 없으면 근무중
                                 statusText = "근무중";
                         } else {
-                                // 출근 상태 표시
-                                statusText = attendance.getCheckInStatus() != null
-                                                ? attendance.getCheckInStatus().getDescription()
-                                                : "출근";
+                                // 퇴근 상태 표시
+                                if (attendance.getCheckOutStatus() == CheckOutStatus.NORMAL) {
+                                        statusText = "정상";
+                                } else {
+                                        statusText = attendance.getCheckOutStatus().getDescription();
+                                }
                         }
 
                         return EmployeeResponseDTO.EmployeeListDto.builder()
@@ -265,16 +268,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         @Transactional
         public EmployeeResponseDTO.EmployeeDetailResponseDto updateMyProfile(Long memberId,
                         EmployeeRequestDTO.MyProfileUpdateDto request) {
-                // 1. 회원 조회
+                // 회원 조회
                 Member member = memberRepository.findById(memberId)
                                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-                // 2. 직원 상세 정보 조회
+                // 직원 상세 정보 조회
                 MemberEmployeeDetail detail = detailRepository.findByMember(member)
                                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND));
 
-                // 3. 정보 업데이트
-                // 3. 정보 업데이트
+                // 정보 업데이트
                 detail.updateDetail(
                                 request.getNickname() != null ? request.getNickname() : detail.getNickname(),
                                 request.getPersonalEmail() != null ? request.getPersonalEmail()
