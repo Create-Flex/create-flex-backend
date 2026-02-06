@@ -42,6 +42,7 @@ public class CreatorServiceImpl implements CreatorService {
         Member manager = findManager(request.getMemberManagerId());
         Member creator = saveCreator(request);
         saveCreatorDetail(request, creator, manager);
+        saveCreatorProfile(creator);
 
         return creator.getMemberId();
     }
@@ -125,13 +126,14 @@ public class CreatorServiceImpl implements CreatorService {
         return creatorRepository.findManagerById(managerId, MemberRole.MANAGER)
                 .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
     }
-    
+
     // 크리에이터 조회
     private Member findCreator(Long creatorId) {
         return creatorRepository.findCreatorByIdWithDepartment(
-                        creatorId, MemberRole.CREATOR, MemberStatus.WORKING)
+                creatorId, MemberRole.CREATOR, MemberStatus.WORKING)
                 .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
     }
+
     // 크리에이터 상세 정보 조회
     private MemberCreatorDetail findCreatorDetail(Long creatorId) {
         return creatorDetailRepository.findByCreatorIdWithManager(creatorId)
@@ -186,12 +188,12 @@ public class CreatorServiceImpl implements CreatorService {
     private Member updateMember(Member creator, CreatorRequestDTO.Update request) {
         return creatorRepository.save(Member.builder()
                 .memberId(creator.getMemberId())
-                .memberAccount(request.getMemberAccount() != null ?
-                        request.getMemberAccount() : creator.getMemberAccount())
-                .memberPassword(request.getMemberPassword() != null ?
-                        passwordEncoder.encode(request.getMemberPassword()) : creator.getMemberPassword())
-                .memberName(request.getMemberName() != null ?
-                        request.getMemberName() : creator.getMemberName())
+                .memberAccount(
+                        request.getMemberAccount() != null ? request.getMemberAccount() : creator.getMemberAccount())
+                .memberPassword(
+                        request.getMemberPassword() != null ? passwordEncoder.encode(request.getMemberPassword())
+                                : creator.getMemberPassword())
+                .memberName(request.getMemberName() != null ? request.getMemberName() : creator.getMemberName())
                 .memberRole(creator.getMemberRole())
                 .memberStatus(creator.getMemberStatus())
                 .department(creator.getDepartment())
@@ -200,21 +202,22 @@ public class CreatorServiceImpl implements CreatorService {
 
     // 크리에이터 상세 정보 업데이트
     private MemberCreatorDetail updateDetail(Member creator, MemberCreatorDetail detail,
-                                             Member manager, CreatorRequestDTO.Update request) {
+            Member manager, CreatorRequestDTO.Update request) {
         return creatorDetailRepository.save(MemberCreatorDetail.builder()
                 .creatorDetailId(detail.getCreatorDetailId())
                 .memberCreator(creator)
                 .memberManager(manager)
-                .creatorSubscribe(request.getCreatorSubscribe() != null ?
-                        request.getCreatorSubscribe() : detail.getCreatorSubscribe())
-                .creatorCategory(request.getCreatorCategory() != null ?
-                        request.getCreatorCategory() : detail.getCreatorCategory())
-                .creatorPlatform(request.getCreatorPlatform() != null ?
-                        CreatorPlatform.valueOf(request.getCreatorPlatform()) : detail.getCreatorPlatform())
-                .creatorStatus(request.getCreatorStatus() != null ?
-                        CreatorStatus.valueOf(request.getCreatorStatus()) : detail.getCreatorStatus())
-                .creatorMainContact(request.getCreatorMainContact() != null ?
-                        request.getCreatorMainContact() : detail.getCreatorMainContact())
+                .creatorSubscribe(request.getCreatorSubscribe() != null ? request.getCreatorSubscribe()
+                        : detail.getCreatorSubscribe())
+                .creatorCategory(request.getCreatorCategory() != null ? request.getCreatorCategory()
+                        : detail.getCreatorCategory())
+                .creatorPlatform(
+                        request.getCreatorPlatform() != null ? CreatorPlatform.valueOf(request.getCreatorPlatform())
+                                : detail.getCreatorPlatform())
+                .creatorStatus(request.getCreatorStatus() != null ? CreatorStatus.valueOf(request.getCreatorStatus())
+                        : detail.getCreatorStatus())
+                .creatorMainContact(request.getCreatorMainContact() != null ? request.getCreatorMainContact()
+                        : detail.getCreatorMainContact())
                 .build());
     }
 
@@ -249,10 +252,16 @@ public class CreatorServiceImpl implements CreatorService {
 
     // 단일 크리에이터를 응답 DTO로 변환
     private CreatorResponseDTO.Info buildResponse(Member creator, MemberCreatorDetail detail,
-                                                  MemberProfile profile) {
-        return profile != null ?
-                CreatorResponseDTO.Info.fromWithProfile(creator, detail,
-                        profile.getProfileImage(), profile.getProfileBanner()) :
-                CreatorResponseDTO.Info.from(creator, detail);
+            MemberProfile profile) {
+        return profile != null ? CreatorResponseDTO.Info.fromWithProfile(creator, detail,
+                profile.getProfileImage(), profile.getProfileBanner()) : CreatorResponseDTO.Info.from(creator, detail);
+    }
+        // 크리에이터 기본 프로필 저장
+    private void saveCreatorProfile(Member creator) {
+        memberProfileRepository.save(MemberProfile.builder()
+                .member(creator)
+                .profileImage("https://i.postimg.cc/qBczxYv8/creator.png")
+                .profileBanner("https://i.postimg.cc/d3zpgD4x/photo_1519389950473_47ba0277781c.avif")
+                .build());
     }
 }

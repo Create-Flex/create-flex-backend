@@ -46,32 +46,32 @@ INSERT INTO department (department_id, department_name, department_call, departm
 -- ==========================================
 -- 관리자, 매니저, 일반 직원
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status, task) VALUES
-(1001, 1006, 'HR001', 'admin123!', '김인사', 'ADMINISTRATOR', 'WORKING', '인사 관리'),
-(1002, 1006, 'HR002', 'admin456!', '이채용', 'ADMINISTRATOR', 'WORKING', '채용 담당'),
-(1003, 1003, 'MG001', 'manager123', '박매니저', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1004, 1003, 'MG002', 'manager456', '최담당', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1005, 1003, 'MG003', 'manager789', '정관리', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1006, 1004, 'MK001', 'manager111', '강마케팅', 'MANAGER', 'WORKING', '마케팅 기획'),
-(1007, 1005, 'IT001', 'dev12345', '윤개발', 'EMPLOYEE', 'WORKING', '백엔드 개발자'),
-(1008, 1005, 'IT002', 'dev67890', '한코딩', 'EMPLOYEE', 'WORKING', '프론트엔드 개발자'),
-(1009, 1004, 'MK002', 'mark1234', '송홍보', 'EMPLOYEE', 'WORKING', 'SNS 마케터'),
-(1010, 1002, 'BIZ001', 'biz12345', '조사업', 'EMPLOYEE', 'WORKING', '사업 기획'),
-(1011, 1001, 'ADM001', 'admin999', '신경영', 'EMPLOYEE', 'WORKING', '경영 지원'),
-(1012, 1007, 'GL001', 'global11', 'Emma Wilson', 'EMPLOYEE', 'WORKING', '글로벌 매니저'),
-(1013, 1003, 'MG004', 'thumb123', '문썸네일', 'EMPLOYEE', 'WORKING', '썸네일러'),
-(1014, 1004, 'MK003', 'old12345', '구직원', 'EMPLOYEE', 'SUSPENDED', '마케터');
+(1001, 1006, 'HR001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '김인사', 'ADMINISTRATOR', 'WORKING', '인사 관리'),
+(1002, 1006, 'HR002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '이채용', 'ADMINISTRATOR', 'WORKING', '채용 담당'),
+(1003, 1003, 'MG001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '박매니저', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1004, 1003, 'MG002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '최담당', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1005, 1003, 'MG003', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '정관리', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1006, 1004, 'MK001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '강마케팅', 'MANAGER', 'WORKING', '마케팅 기획'),
+(1007, 1005, 'IT001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '윤개발', 'EMPLOYEE', 'WORKING', '백엔드 개발자'),
+(1008, 1005, 'IT002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '한코딩', 'EMPLOYEE', 'WORKING', '프론트엔드 개발자'),
+(1009, 1004, 'MK002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '송홍보', 'EMPLOYEE', 'WORKING', 'SNS 마케터'),
+(1010, 1002, 'BIZ001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '조사업', 'EMPLOYEE', 'WORKING', '사업 기획'),
+(1011, 1001, 'ADM001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '신경영', 'EMPLOYEE', 'WORKING', '경영 지원'),
+(1012, 1007, 'GL001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', 'Emma Wilson', 'EMPLOYEE', 'WORKING', '글로벌 매니저'),
+(1013, 1003, 'MG004', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '문썸네일', 'EMPLOYEE', 'WORKING', '썸네일러'),
+(1014, 1004, 'MK003', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '구직원', 'EMPLOYEE', 'SUSPENDED', '마케터');
 
 -- 크리에이터 (department_id는 NULL, task는 NULL)
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status, task) VALUES
-(2001, NULL, 'gamst', 'gam12345', '감스트', 'CREATOR', 'WORKING', NULL),
-(2002, NULL, 'ddoganjip', 'ddogan99', '또간집', 'CREATOR', 'WORKING', NULL),
-(2003, NULL, 'beautyjini', 'beauty88', '뷰티지니', 'CREATOR', 'WORKING', NULL),
-(2004, NULL, 'mukbopd', 'mukbang7', '먹보PD', 'CREATOR', 'WORKING', NULL),
-(2005, NULL, 'gamekingminsu', 'game2win', '게임왕민수', 'CREATOR', 'WORKING', NULL),
-(2006, NULL, 'dailyvlogger', 'vlog1234', '일상브이로거', 'CREATOR', 'WORKING', NULL),
-(2007, NULL, 'techreviewer', 'tech9999', '테크리뷰어', 'CREATOR', 'WORKING', NULL),
-(2008, NULL, 'restingcreator', 'rest0000', '휴식중크리에이터', 'CREATOR', 'WORKING', NULL),
-(2009, NULL, 'retiredcreator', 'retired1', '은퇴한크리', 'CREATOR', 'WORKING', NULL);
+(2001, NULL, 'gamst', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '감스트', 'CREATOR', 'WORKING', NULL),
+(2002, NULL, 'ddoganjip', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '또간집', 'CREATOR', 'WORKING', NULL),
+(2003, NULL, 'beautyjini', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '뷰티지니', 'CREATOR', 'WORKING', NULL),
+(2004, NULL, 'mukbopd', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '먹보PD', 'CREATOR', 'WORKING', NULL),
+(2005, NULL, 'gamekingminsu', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '게임왕민수', 'CREATOR', 'WORKING', NULL),
+(2006, NULL, 'dailyvlogger', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '일상브이로거', 'CREATOR', 'WORKING', NULL),
+(2007, NULL, 'techreviewer', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '테크리뷰어', 'CREATOR', 'WORKING', NULL),
+(2008, NULL, 'restingcreator', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '휴식중크리에이터', 'CREATOR', 'WORKING', NULL),
+(2009, NULL, 'retiredcreator', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '은퇴한크리', 'CREATOR', 'WORKING', NULL);
 
 -- ==========================================
 -- 4. Employee Detail (직원 상세) - task, department_id 제거됨
@@ -113,10 +113,10 @@ INSERT INTO member_profile (profile_id, member_id, profile_image, profile_banner
 -- 직원 프로필
 (1001, 1001, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/0NPR8MPb/photo_1454165804606_c3d57bc86b40.avif'),
 (1002, 1002, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/VNgy5fkH/photo_1486406146926_c627a92ad1ab.avif'),
-(1003, 1003, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://cdn.mcn.com/banners/park_manager_banner.jpg'),
-(1004, 1004, 'https://cdn.mcn.com/profiles/choi_damdang.jpg', 'https://i.postimg.cc/mrjxhLg1/photo_1497366216548_37526070297c.avif'),
-(1005, 1005, 'https://cdn.mcn.com/profiles/jung_gwanli.jpg', 'https://i.postimg.cc/63pkvk8D/photo_1506784983877_45594efa4cbe.avif'),
-(1006, 1006, 'https://cdn.mcn.com/profiles/kang_marketing.jpg', 'https://i.postimg.cc/d3zpgD4x/photo_1519389950473_47ba0277781c.avif'),
+(1003, 1003, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/VNgy5fkH/photo_1486406146926_c627a92ad1ab.avif'),
+(1004, 1004, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/mrjxhLg1/photo_1497366216548_37526070297c.avif'),
+(1005, 1005, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/63pkvk8D/photo_1506784983877_45594efa4cbe.avif'),
+(1006, 1006, 'https://i.postimg.cc/bJSGpBqg/Gemini-Generated-Image-s33rl9s33rl9s33r-(1).png', 'https://i.postimg.cc/d3zpgD4x/photo_1519389950473_47ba0277781c.avif'),
 (1007, 1007, 'https://cdn.mcn.com/profiles/yoon_dev.jpg', 'https://cdn.mcn.com/banners/yoon_dev_banner.jpg'),
 (1008, 1008, 'https://cdn.mcn.com/profiles/han_coding.jpg', 'https://cdn.mcn.com/banners/han_coding_banner.jpg'),
 (1009, 1009, 'https://cdn.mcn.com/profiles/song_hongbo.jpg', 'https://cdn.mcn.com/banners/song_hongbo_banner.jpg'),
@@ -394,3 +394,23 @@ INSERT INTO attendance (attendance_id, member_id, attendance_date, attendance_st
 (1026, 1003, '2026-02-04', TIMESTAMP '2026-02-04 09:00:00', NULL, 'NORMAL', NULL),
 (1027, 1007, '2026-02-04', TIMESTAMP '2026-02-04 10:00:00', NULL, 'LATE', NULL),
 (1028, 1009, '2026-02-04', TIMESTAMP '2026-02-04 09:00:00', NULL, 'NORMAL', NULL);
+
+-- 2026-02-06 (금) - 오늘
+INSERT INTO attendance (attendance_id, member_id, attendance_date, attendance_start, attendance_end, check_in_status, check_out_status) VALUES
+(1029, 1001, '2026-02-06', TIMESTAMP '2026-02-06 08:55:00', NULL, 'NORMAL', NULL),
+(1030, 1002, '2026-02-06', TIMESTAMP '2026-02-06 09:05:00', NULL, 'LATE', NULL),
+(1031, 1003, '2026-02-06', TIMESTAMP '2026-02-06 08:50:00', NULL, 'NORMAL', NULL),
+(1032, 1004, '2026-02-06', TIMESTAMP '2026-02-06 09:10:00', NULL, 'LATE', NULL),
+(1033, 1005, '2026-02-06', TIMESTAMP '2026-02-06 08:58:00', NULL, 'NORMAL', NULL),
+(1034, 1006, '2026-02-06', TIMESTAMP '2026-02-06 09:00:00', NULL, 'NORMAL', NULL),
+(1035, 1007, '2026-02-06', TIMESTAMP '2026-02-06 10:15:00', NULL, 'LATE', NULL),
+(1036, 1008, '2026-02-06', TIMESTAMP '2026-02-06 08:45:00', NULL, 'NORMAL', NULL);
+
+
+-- 추가 휴가 데이터
+INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vacation_end, vacation_request, vacation_detail, vacation_approve, vacation_rejected, vacation_days) VALUES
+(1010, 1004, 'ANNUAL', '2026-03-10', '2026-03-12', '2026-02-01', '개인 사정으로 인한 연차', 'APPROVED', NULL, 3.0),
+(1011, 1006, 'SICK', '2026-02-06', '2026-02-06', '2026-02-06', '급성 장염', 'APPROVED', NULL, 1.0),
+(1012, 1002, 'HALF', '2026-02-14', '2026-02-14', '2026-02-05', '은행 업무', 'APPROVE_NEED', NULL, 0.5),
+(1013, 1005, 'ANNUAL', '2026-04-01', '2026-04-05', '2026-02-06', '벚꽃 여행', 'APPROVE_NEED', NULL, 3.0),
+(1014, 1001, 'FAMILY', '2026-03-20', '2026-03-20', '2026-02-04', '가족 결혼식', 'APPROVED', NULL, 1.0);
