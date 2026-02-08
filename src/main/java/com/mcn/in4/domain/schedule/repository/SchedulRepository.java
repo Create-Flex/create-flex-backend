@@ -40,4 +40,5 @@ public interface SchedulRepository extends JpaRepository<Schedule, Long> {
             @Param("endDate") LocalDate endDate,
             @Param("types") List<ScheduleType> types);
 
+    Schedule findByScheduleId(Long scheduleId);
 }
