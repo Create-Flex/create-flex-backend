@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.schedule.entity;
 
+import com.mcn.in4.domain.creator.dto.request.CreatorRequestDTO;
 import com.mcn.in4.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,4 +26,6 @@ public class ScheduleVisitor {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
     //참가자 키
+
+
 }

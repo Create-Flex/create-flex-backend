@@ -13,6 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
@@ -42,4 +45,29 @@ public interface ScheduleApi {
         ResponseEntity<List<SchedulReponseDTO.ScheduleResponseDto>> getMyMonthlySchedules(
                         @Parameter(hidden = true) String userId,
                         @Parameter(description = "조회 년월 (YYYY-MM)", example = "2026-02") @RequestParam("month") String month);
+
+        @Operation(summary = "일정 수정", description = "기존 일정을 수정합니다. 일정 타입이 변경될 경우, 방문자(Visitor) 정보가 그에 맞게 초기화되거나 갱신될 수 있습니다.", responses = {
+                        @ApiResponse(responseCode = "200", description = "수정 성공"),
+                        @ApiResponse(responseCode = "403", description = "수정 권한 없음 (본인 일정 또는 관리자의 회사 일정만 수정 가능)")
+        })
+        @PatchMapping("/{scheduleId}")
+        ResponseEntity<String> updateSchedule(
+                        @Parameter(hidden = true) String userId,
+                        @Parameter(hidden = true) Authentication authentication,
+                        @Parameter(description = "일정 ID", required = true) @PathVariable("scheduleId") Long scheduleId,
+                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "수정할 일정 정보 (타입 변경 시 visitorIds 처리 주의)", required = true, content = @Content(mediaType = "application/json", examples = {
+                                        @ExampleObject(name = "1. 콘텐츠 -> 합방(MERGE)으로 변경", summary = "일반 일정을 합방으로 변경하며 방문자 추가", value = "{\n  \"scheduleName\": \"급하게 잡힌 합방\",\n  \"scheduleDate\": \"2026-02-15\",\n  \"scheduleDetail\": \"갑자기 합방하기로 함\",\n  \"scheduleType\": \"MERGE\",\n  \"creatorId\": 2001,\n  \"visitorIds\": [2002, 2005]\n}"),
+                                        @ExampleObject(name = "2. 합방 -> 기타(PERSONAL)로 변경", summary = "합방이 취소되어 개인 일정으로 변경 (방문자 자동 삭제됨)", value = "{\n  \"scheduleName\": \"합방 취소 - 개인 휴식\",\n  \"scheduleDate\": \"2026-02-15\",\n  \"scheduleDetail\": \"합방 취소됨\",\n  \"scheduleType\": \"ETC\",\n  \"creatorId\": null,\n  \"visitorIds\": []\n}"),
+                                        @ExampleObject(name = "3. 개인일정 단순 수정", summary = "타입 변경 없이 제목/내용만 수정", value = "{\n  \"scheduleName\": \"수정된 제목\",\n  \"scheduleDate\": \"2026-02-15\",\n  \"scheduleDetail\": \"내용 보완\",\n  \"scheduleType\": \"PERSONAL\",\n  \"creatorId\": null,\n  \"visitorIds\": []\n}")
+                        })) @RequestBody ScheduleRequestDTO.ScheduleUpdateRequestDto requestDto);
+
+        @Operation(summary = "일정 삭제", description = "일정을 삭제합니다. 본인 일정 또는 관리자의 회사 일정만 삭제 가능합니다.", responses = {
+                        @ApiResponse(responseCode = "200", description = "삭제 성공"),
+                        @ApiResponse(responseCode = "403", description = "삭제 권한 없음")
+        })
+        @DeleteMapping("/{scheduleId}")
+        ResponseEntity<String> deleteSchedule(
+                        @Parameter(hidden = true) String userId,
+                        @Parameter(hidden = true) Authentication authentication,
+                        @Parameter(description = "일정 ID", required = true) @PathVariable("scheduleId") Long scheduleId);
 }
