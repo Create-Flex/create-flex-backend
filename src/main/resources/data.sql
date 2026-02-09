@@ -46,32 +46,32 @@ INSERT INTO department (department_id, department_name, department_call, departm
 -- ==========================================
 -- 관리자, 매니저, 일반 직원
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status, task) VALUES
-(1001, 1006, 'HR001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '김인사', 'ADMINISTRATOR', 'WORKING', '인사 관리'),
-(1002, 1006, 'HR002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '이채용', 'ADMINISTRATOR', 'WORKING', '채용 담당'),
-(1003, 1003, 'MG001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '박매니저', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1004, 1003, 'MG002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '최담당', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1005, 1003, 'MG003', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '정관리', 'MANAGER', 'WORKING', '크리에이터 매니저'),
-(1006, 1004, 'MK001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '강마케팅', 'MANAGER', 'WORKING', '마케팅 기획'),
-(1007, 1005, 'IT001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '윤개발', 'EMPLOYEE', 'WORKING', '백엔드 개발자'),
-(1008, 1005, 'IT002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '한코딩', 'EMPLOYEE', 'WORKING', '프론트엔드 개발자'),
-(1009, 1004, 'MK002', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '송홍보', 'EMPLOYEE', 'WORKING', 'SNS 마케터'),
-(1010, 1002, 'BIZ001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '조사업', 'EMPLOYEE', 'WORKING', '사업 기획'),
-(1011, 1001, 'ADM001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '신경영', 'EMPLOYEE', 'WORKING', '경영 지원'),
-(1012, 1007, 'GL001', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', 'Emma Wilson', 'EMPLOYEE', 'WORKING', '글로벌 매니저'),
-(1013, 1003, 'MG004', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '문썸네일', 'EMPLOYEE', 'WORKING', '썸네일러'),
-(1014, 1004, 'MK003', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '구직원', 'EMPLOYEE', 'SUSPENDED', '마케터');
+(1001, 1006, 'HR001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '김인사', 'ADMINISTRATOR', 'WORKING', '인사 관리'),
+(1002, 1006, 'HR002', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '이채용', 'ADMINISTRATOR', 'WORKING', '채용 담당'),
+(1003, 1003, 'MG001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '박매니저', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1004, 1003, 'MG002', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '최담당', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1005, 1003, 'MG003', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '정관리', 'MANAGER', 'WORKING', '크리에이터 매니저'),
+(1006, 1004, 'MK001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '강마케팅', 'MANAGER', 'WORKING', '마케팅 기획'),
+(1007, 1005, 'IT001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '윤개발', 'EMPLOYEE', 'WORKING', '백엔드 개발자'),
+(1008, 1005, 'IT002', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '한코딩', 'EMPLOYEE', 'WORKING', '프론트엔드 개발자'),
+(1009, 1004, 'MK002', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '송홍보', 'EMPLOYEE', 'WORKING', 'SNS 마케터'),
+(1010, 1002, 'BIZ001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '조사업', 'EMPLOYEE', 'WORKING', '사업 기획'),
+(1011, 1001, 'ADM001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '신경영', 'EMPLOYEE', 'WORKING', '경영 지원'),
+(1012, 1007, 'GL001', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', 'Emma Wilson', 'EMPLOYEE', 'WORKING', '글로벌 매니저'),
+(1013, 1003, 'MG004', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '문썸네일', 'EMPLOYEE', 'WORKING', '썸네일러'),
+(1014, 1004, 'MK003', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '구직원', 'EMPLOYEE', 'SUSPENDED', '마케터');
 
 -- 크리에이터 (department_id는 NULL, task는 NULL)
 INSERT INTO members (member_id, department_id, member_account, member_password, member_name, member_role, member_status, task) VALUES
-(2001, NULL, 'gamst', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '감스트', 'CREATOR', 'WORKING', NULL),
-(2002, NULL, 'ddoganjip', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '또간집', 'CREATOR', 'WORKING', NULL),
-(2003, NULL, 'beautyjini', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '뷰티지니', 'CREATOR', 'WORKING', NULL),
-(2004, NULL, 'mukbopd', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '먹보PD', 'CREATOR', 'WORKING', NULL),
-(2005, NULL, 'gamekingminsu', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '게임왕민수', 'CREATOR', 'WORKING', NULL),
-(2006, NULL, 'dailyvlogger', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '일상브이로거', 'CREATOR', 'WORKING', NULL),
-(2007, NULL, 'techreviewer', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '테크리뷰어', 'CREATOR', 'WORKING', NULL),
-(2008, NULL, 'restingcreator', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '휴식중크리에이터', 'CREATOR', 'WORKING', NULL),
-(2009, NULL, 'retiredcreator', '$2a$10$3Q3t9frDjKQDaA5d.uuOvuFS4v.Hu4j6LxAF7VeUcVzD5GH3b63zW', '은퇴한크리', 'CREATOR', 'WORKING', NULL);
+(2001, NULL, 'gamst', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '감스트', 'CREATOR', 'WORKING', NULL),
+(2002, NULL, 'ddoganjip', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '또간집', 'CREATOR', 'WORKING', NULL),
+(2003, NULL, 'beautyjini', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '뷰티지니', 'CREATOR', 'WORKING', NULL),
+(2004, NULL, 'mukbopd', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '먹보PD', 'CREATOR', 'WORKING', NULL),
+(2005, NULL, 'gamekingminsu', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '게임왕민수', 'CREATOR', 'WORKING', NULL),
+(2006, NULL, 'dailyvlogger', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '일상브이로거', 'CREATOR', 'WORKING', NULL),
+(2007, NULL, 'techreviewer', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '테크리뷰어', 'CREATOR', 'WORKING', NULL),
+(2008, NULL, 'restingcreator', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '휴식중크리에이터', 'CREATOR', 'WORKING', NULL),
+(2009, NULL, 'retiredcreator', '$2a$10$X/gsyQUYbf4R3N6Nmj2WseJTkR21hBjxJ0N8CtTs2C7uqsQ4BX/EK', '은퇴한크리', 'CREATOR', 'WORKING', NULL);
 
 -- ==========================================
 -- 4. Employee Detail (직원 상세) - task, department_id 제거됨

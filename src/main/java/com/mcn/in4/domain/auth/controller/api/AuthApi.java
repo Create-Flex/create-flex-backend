@@ -35,7 +35,7 @@ public interface AuthApi {
                                             value = """
                                                     {
                                                       "memberAccount": "HR001",
-                                                      "password": "password123"
+                                                      "password": "1234"
                                                     }
                                                     """
                                     ),
@@ -46,7 +46,7 @@ public interface AuthApi {
                                             value = """
                                                     {
                                                       "memberAccount": "MG001",
-                                                      "password": "password123"
+                                                      "password": "1234"
                                                     }
                                                     """
                                     ),
@@ -57,7 +57,7 @@ public interface AuthApi {
                                             value = """
                                                     {
                                                       "memberAccount": "gamst",
-                                                      "password": "password123"
+                                                      "password": "1234"
                                                     }
                                                     """
                                     )
