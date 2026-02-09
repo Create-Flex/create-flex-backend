@@ -12,4 +12,5 @@ import lombok.Getter;
 public class AttendanceDashboardDto {
     private int lateCount;
     private long totalOvertimeMinutes;
+    private long totalWorkMinutes;
 }
