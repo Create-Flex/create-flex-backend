@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,7 +62,7 @@ public class TeamServiceImpl implements TeamService {
                     var m = tr.getMember();
                     String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
 
-                    // 근무 상태 확인 로직 (기존 유지)
+                    // 근무 상태 확인 로직
                     String workStatus = "미출근";
                     LocalDate today = LocalDate.now();
                     boolean isVacation = vacationRepository.isMemberOnVacation(m.getMemberId(), today, VacationApprove.APPROVED);
@@ -81,8 +80,6 @@ public class TeamServiceImpl implements TeamService {
                             }
                         }
                     }
-
-                    // [추가] 프로필 이미지 조회
                     MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
                     String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
                     String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
@@ -174,8 +171,6 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.delete(team);
     }
 
-    // TeamServiceImpl.java
-
     @Override
     public List<MyTeamResponse> getMyTeams(String memberIdStr) {
         Long memberId = Long.parseLong(memberIdStr);
@@ -250,8 +245,6 @@ public class TeamServiceImpl implements TeamService {
                 .map(tr -> {
                     Member m = tr.getMember();
                     String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
-
-                    // [추가] 프로필 및 배너 이미지 조회
                     MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
                     String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
                     String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
@@ -261,8 +254,8 @@ public class TeamServiceImpl implements TeamService {
                             m.getMemberName(),
                             deptName,
                             m.getTask(),
-                            profileImageUrl,  // DTO에 추가된 필드
-                            profileBannerUrl  // DTO에 추가된 필드
+                            profileImageUrl,
+                            profileBannerUrl
                     );
                 }).toList();
 
