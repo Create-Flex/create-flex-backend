@@ -21,5 +21,7 @@ public class MyTeamResponse {
         private String memberName;
         private String departmentName;
         private String task;
+        private String profileImageUrl;
+        private String profileBannerUrl;
     }
 }

@@ -22,5 +22,7 @@ public class TeamDetailResponse {
         private String departmentName; // Department.departmentName
         private String task;           // Member.task (직책/직무)
         private String workStatus;     // 근무 상태 (출근, 휴가, 미출근 등)
+        private String profileImageUrl;
+        private String profileBannerUrl;
     }
 }

@@ -2,6 +2,8 @@ package com.mcn.in4.domain.team.service;
 
 import com.mcn.in4.domain.attendance.repository.AttendanceRepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.MemberProfile;
+import com.mcn.in4.domain.member.repository.MemberProfileRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.team.dto.request.TeamCreateRequest;
 import com.mcn.in4.domain.team.dto.request.TeamMemberUpdateRequest;
@@ -21,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +35,7 @@ public class TeamServiceImpl implements TeamService {
     private final MemberRepository memberRepository;
     private final AttendanceRepository attendanceRepository;
     private final VacationRepository vacationRepository;
+    private final MemberProfileRepository memberProfileRepository;
 
     @Override
     public List<TeamResponse> findAllTeams() {
@@ -50,48 +52,42 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDetailResponse getTeamDetail(Long teamId) {
-        // 팀 정보 조회
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
-        // 소속 멤버 상세 조회 (Fetch Join 활용)
         List<TeamRelay> relays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(teamId);
 
-        // DTO 변환 및 근태/휴가 상태 확인
         List<TeamDetailResponse.TeamMemberResponse> memberResponses = relays.stream()
                 .map(tr -> {
                     var m = tr.getMember();
                     String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
 
-                    // 근무 상태 확인 로직 시작
+                    // 근무 상태 확인 로직
                     String workStatus = "미출근";
                     LocalDate today = LocalDate.now();
-
-                    // 휴가 여부 확인 (VacationRepository 활용)
-                    boolean isVacation = vacationRepository.isMemberOnVacation(m.getMemberId(), today,
-                            VacationApprove.APPROVED);
+                    boolean isVacation = vacationRepository.isMemberOnVacation(m.getMemberId(), today, VacationApprove.APPROVED);
 
                     if (isVacation) {
                         workStatus = "휴가";
                     } else {
-                        // 출근 여부 확인 (AttendanceRepository 활용)
-                        var attendanceOpt = attendanceRepository.findByMemberIdAndAttendanceDate(m.getMemberId(),
-                                today);
+                        var attendanceOpt = attendanceRepository.findByMemberIdAndAttendanceDate(m.getMemberId(), today);
                         if (attendanceOpt.isPresent()) {
                             var attendance = attendanceOpt.get();
-                            // 퇴근 상태가 없으면 "근무중", 있으면 출근 상태 표시
                             if (attendance.getCheckOutStatus() == null) {
                                 workStatus = "근무중";
                             } else {
-                                workStatus = attendance.getCheckInStatus() != null
-                                        ? attendance.getCheckInStatus().getDescription()
-                                        : "출근";
+                                workStatus = attendance.getCheckInStatus() != null ? attendance.getCheckInStatus().getDescription() : "출근";
                             }
                         }
                     }
+                    MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
+                    String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
+                    String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
 
                     return new TeamDetailResponse.TeamMemberResponse(
-                            m.getMemberId(), m.getMemberName(), deptName, m.getTask(), workStatus);
+                            m.getMemberId(), m.getMemberName(), deptName, m.getTask(), workStatus,
+                            profileImageUrl, profileBannerUrl // 추가된 생성자 파라미터
+                    );
                 }).toList();
 
         return TeamDetailResponse.builder()
@@ -175,8 +171,6 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.delete(team);
     }
 
-    // TeamServiceImpl.java
-
     @Override
     public List<MyTeamResponse> getMyTeams(String memberIdStr) {
         Long memberId = Long.parseLong(memberIdStr);
@@ -198,11 +192,18 @@ public class TeamServiceImpl implements TeamService {
                     .map(tr -> {
                         var m = tr.getMember();
                         String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+                        MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
+                        String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
+                        String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
+
                         return new MyTeamResponse.TeamMemberResponse(
                                 m.getMemberId(),
                                 m.getMemberName(),
                                 deptName,
-                                m.getTask());
+                                m.getTask(),
+                                profileImageUrl,
+                                profileBannerUrl
+                        );
                     }).toList();
 
             return MyTeamResponse.builder()
@@ -221,7 +222,7 @@ public class TeamServiceImpl implements TeamService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 보안 검증: 내 ID로 검색
+        // 보안 검증: 요청한 사용자가 해당 팀에 소속되어 있는지 확인
         boolean isMyTeam = teamRelayRepository.findAllByMemberMemberId(member.getMemberId())
                 .stream()
                 .anyMatch(relay -> relay.getTeam().getTeamId().equals(teamId));
@@ -230,6 +231,7 @@ public class TeamServiceImpl implements TeamService {
             throw new IllegalArgumentException("해당 팀의 정보를 조회할 권한이 없습니다.");
         }
 
+        // 팀원 목록 조회 (부서 정보 포함 Fetch Join)
         List<TeamRelay> teamRelays = teamRelayRepository.findAllByTeamIdWithMemberAndDept(teamId);
 
         if (teamRelays.isEmpty()) {
@@ -238,15 +240,23 @@ public class TeamServiceImpl implements TeamService {
 
         Team team = teamRelays.get(0).getTeam();
 
+        // 팀원 정보 매핑 (프로필 이미지 포함)
         List<MyTeamResponse.TeamMemberResponse> memberResponses = teamRelays.stream()
                 .map(tr -> {
                     Member m = tr.getMember();
                     String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
+                    MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
+                    String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
+                    String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
+
                     return new MyTeamResponse.TeamMemberResponse(
                             m.getMemberId(),
                             m.getMemberName(),
                             deptName,
-                            m.getTask());
+                            m.getTask(),
+                            profileImageUrl,
+                            profileBannerUrl
+                    );
                 }).toList();
 
         return MyTeamResponse.builder()
