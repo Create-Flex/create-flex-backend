@@ -12,27 +12,28 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Tag(name = "휴가 관리 (관리자)", description = "휴가 승인/반려, 전체 목록 조회, 통계를 담당하는 API입니다. 관리자 권한이 필요합니다.")
 public interface VacationAdminApi {
 
     @Operation(
-            summary = "전체 휴가 목록 조회",
-            description = "전체 직원의 휴가 신청 목록을 조회합니다. 기간, 상태, 이름, 휴가유형으로 필터링 가능합니다.",
+            summary = "전체 휴가 목록 조회 (페이징)",
+            description = "전체 직원의 휴가 신청 목록을 조회합니다. 기간, 상태, 이름, 휴가유형으로 필터링 가능하며, 페이징이 적용됩니다.",
             security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공"),
                     @ApiResponse(responseCode = "403", description = "권한 없음 (관리자만 접근 가능)")
             }
     )
-    ResponseEntity<List<AdminVacationListResponseDTO>> getVacationList(
+    ResponseEntity<Page<AdminVacationListResponseDTO>> getVacationList(
             @Parameter(description = "조회 시작일 (기본: 오늘-1개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
             @Parameter(description = "조회 종료일 (기본: 오늘)", example = "2026-01-31")
@@ -43,6 +44,7 @@ public interface VacationAdminApi {
             @RequestParam(required = false) String name,
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,
+            @Parameter(hidden = true) Pageable pageable,
             @Parameter(hidden = true) Authentication authentication
     );
 
