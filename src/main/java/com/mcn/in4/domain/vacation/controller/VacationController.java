@@ -2,6 +2,7 @@ package com.mcn.in4.domain.vacation.controller;
 
 import com.mcn.in4.domain.vacation.controller.api.VacationApi;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -119,6 +120,24 @@ public class VacationController implements VacationApi {
 
         Long memberId = Long.parseLong(userId);
         VacationRemainderResponseDTO response = vacationService.getMyVacationRemainder(memberId);
+        return ResponseEntity.ok(response);
+    }
+
+    /** 내 휴가 통계 조회 (승인된 휴가 수, 미승인 휴가 수) */
+    @Override
+    @GetMapping("/my/stats")
+    public ResponseEntity<MyVacationStatsResponseDTO> getMyVacationStats(
+            @AuthenticationPrincipal String userId,
+            Authentication authentication
+    ) {
+        boolean isCreator = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
+        if (isCreator) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Long memberId = Long.parseLong(userId);
+        MyVacationStatsResponseDTO response = vacationService.getMyVacationStats(memberId);
         return ResponseEntity.ok(response);
     }
 }

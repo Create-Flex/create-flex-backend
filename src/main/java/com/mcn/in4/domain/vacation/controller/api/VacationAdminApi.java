@@ -2,6 +2,7 @@ package com.mcn.in4.domain.vacation.controller.api;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRejectRequestDTO;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
@@ -45,6 +46,22 @@ public interface VacationAdminApi {
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,
             @Parameter(hidden = true) Pageable pageable,
+            @Parameter(hidden = true) Authentication authentication
+    );
+
+    @Operation(
+            summary = "휴가 상세 조회",
+            description = "특정 휴가의 상세 정보를 조회합니다. 휴가 유형에 따라 추가 정보(경조사/병가/워케이션)가 포함됩니다.",
+            security = @SecurityRequirement(name = "JWT"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "404", description = "휴가를 찾을 수 없음"),
+                    @ApiResponse(responseCode = "403", description = "권한 없음 (관리자만 접근 가능)")
+            }
+    )
+    ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
+            @Parameter(description = "휴가 ID", example = "1")
+            @PathVariable Long vacationId,
             @Parameter(hidden = true) Authentication authentication
     );
 

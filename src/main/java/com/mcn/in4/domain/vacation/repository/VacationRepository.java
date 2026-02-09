@@ -122,4 +122,12 @@ public interface VacationRepository extends JpaRepository<Vacation, Long>, JpaSp
                         @Param("memberId") Long memberId,
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate);
+
+        /** 특정 회원의 승인 상태별 휴가 수 조회 */
+        @Query("SELECT COUNT(v) FROM Vacation v " +
+                        "WHERE v.member.memberId = :memberId " +
+                        "AND v.vacationApprove = :status")
+        long countByMemberIdAndApproveStatus(
+                        @Param("memberId") Long memberId,
+                        @Param("status") VacationApprove status);
 }
