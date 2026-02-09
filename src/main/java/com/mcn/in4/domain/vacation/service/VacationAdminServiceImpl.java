@@ -40,7 +40,10 @@ public class VacationAdminServiceImpl implements VacationAdminService {
             String name,
             VacationType type
     ) {
-        List<Vacation> vacations = vacationRepository.findAllWithFilters(startDate, endDate, status, name, type);
+        // 미승인(APPROVE_NEED)의 경우 신청일 오름차순(오래된 신청부터), 그 외는 내림차순
+        List<Vacation> vacations = (status == VacationApprove.APPROVE_NEED)
+                ? vacationRepository.findAllWithFiltersOrderByRequestAsc(startDate, endDate, status, name, type)
+                : vacationRepository.findAllWithFilters(startDate, endDate, status, name, type);
 
         return vacations.stream()
                 .map(vacation -> {
