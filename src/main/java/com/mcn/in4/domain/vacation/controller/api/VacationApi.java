@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.controller.api;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -132,6 +133,20 @@ public interface VacationApi {
             }
     )
     ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
+            @Parameter(hidden = true) Authentication authentication
+    );
+
+    @Operation(
+            summary = "내 휴가 통계 조회",
+            description = "로그인한 사용자의 휴가 통계를 조회합니다. 승인된 휴가 수(사용한 휴가)와 미승인 휴가 수(대기 중인 휴가)를 반환합니다.",
+            security = @SecurityRequirement(name = "JWT"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "403", description = "권한 없음 (크리에이터)")
+            }
+    )
+    ResponseEntity<MyVacationStatsResponseDTO> getMyVacationStats(
             @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(hidden = true) Authentication authentication
     );
