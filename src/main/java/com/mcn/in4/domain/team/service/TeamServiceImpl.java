@@ -197,8 +197,6 @@ public class TeamServiceImpl implements TeamService {
                     .map(tr -> {
                         var m = tr.getMember();
                         String deptName = (m.getDepartment() != null) ? m.getDepartment().getDepartmentName() : "무소속";
-
-                        // [추가] 프로필 이미지 조회
                         MemberProfile profile = memberProfileRepository.findByMember_MemberId(m.getMemberId()).orElse(null);
                         String profileImageUrl = (profile != null) ? profile.getProfileImage() : null;
                         String profileBannerUrl = (profile != null) ? profile.getProfileBanner() : null;
