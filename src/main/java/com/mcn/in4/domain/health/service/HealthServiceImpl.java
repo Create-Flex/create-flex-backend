@@ -61,8 +61,9 @@ public class HealthServiceImpl implements HealthService{
         LocalDate start = LocalDate.of(year, 1, 1);
         LocalDate end   = LocalDate.of(year, 12, 31);
         boolean memberHaveHealthCheck = healthRepository.existsByMember_MemberIdAndCheckupDateBetween(memberId, start, end);
+        String memberName = memberRepository.findByMemberId(memberId).getMemberName();
 
-        return new MypageHealthInfo(memberHealthInfo, memberHaveHealthCheck);
+        return new MypageHealthInfo(memberName, memberHealthInfo, memberHaveHealthCheck);
     }
 
     public CreatorHealthInfo generateCreatorHealthInfo(Long memberId) {

@@ -60,6 +60,7 @@ public class HealthResponseDto {
     @AllArgsConstructor
     @Builder
     public static class MypageHealthInfo{
+        private String memberName;
         private List<HealthInfo> healthInfoList;
         private boolean haveHealthChecked;
     }

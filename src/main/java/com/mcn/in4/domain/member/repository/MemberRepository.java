@@ -29,6 +29,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findByMemberNameContainingAndMemberIdIn(String memberName, List<Long> memberIds);
 
+    Member findByMemberId(Long memberId);
+
     // 매니저 목록 조회 (부서 정보 포함)
     @Query("SELECT m FROM Member m LEFT JOIN FETCH m.department " +
             "WHERE m.memberRole = :role AND m.memberStatus = :status")
