@@ -6,12 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 public class ContractResponseDTO {
 
-    // 계약 생성 응답 DTO
+    // 계약 생성 응답 DTO (Presigned URL 포함)
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
@@ -19,10 +20,14 @@ public class ContractResponseDTO {
     public static class Create {
         @JsonProperty("contract_id")
         private Long contractId;
+
+        @JsonProperty("presigned_url")
+        private String presignedUrl;
     }
 
     // 계약 조회 응답 DTO
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
@@ -46,10 +51,6 @@ public class ContractResponseDTO {
         private String contractFileUrl;
 
         public static Info from(CreatorContract contract) {
-            LocalDate today = LocalDate.now();
-            boolean isActive = !today.isBefore(contract.getContractStart())
-                    && !today.isAfter(contract.getContractEnd());
-
             return Info.builder()
                     .contractId(contract.getCreatorContractId())
                     .contractName(contract.getContractName())

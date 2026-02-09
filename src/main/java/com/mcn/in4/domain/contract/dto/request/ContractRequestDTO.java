@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -12,6 +14,7 @@ public class ContractRequestDTO {
 
     // 계약 등록 요청 DTO
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
@@ -30,5 +33,7 @@ public class ContractRequestDTO {
 
         @JsonProperty("contract_file_url")
         private String contractFileUrl;
+
+        private MultipartFile file;
     }
 }
