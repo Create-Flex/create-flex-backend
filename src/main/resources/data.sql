@@ -414,3 +414,7 @@ INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vac
 (1012, 1002, 'HALF', '2026-02-14', '2026-02-14', '2026-02-05', '은행 업무', 'APPROVE_NEED', NULL, 0.5),
 (1013, 1005, 'ANNUAL', '2026-04-01', '2026-04-05', '2026-02-06', '벚꽃 여행', 'APPROVE_NEED', NULL, 3.0),
 (1014, 1001, 'FAMILY', '2026-03-20', '2026-03-20', '2026-02-04', '가족 결혼식', 'APPROVED', NULL, 1.0);
+
+-- 추가 휴가 상세 데이터 (경조사)
+INSERT INTO vacation_family (family_id, vacation_id, family_relation, family_detail) VALUES
+(1002, 1014, '여동생', '결혼식');

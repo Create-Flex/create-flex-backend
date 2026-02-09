@@ -3,9 +3,16 @@ package com.mcn.in4.domain.vacation.service;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
+import com.mcn.in4.domain.vacation.entity.VacationFamily;
+import com.mcn.in4.domain.vacation.entity.VacationSick;
+import com.mcn.in4.domain.vacation.entity.VacationWorkation;
+import com.mcn.in4.domain.vacation.repository.VacationFamilyRepository;
+import com.mcn.in4.domain.vacation.repository.VacationSickRepository;
+import com.mcn.in4.domain.vacation.repository.VacationWorkationRepository;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
@@ -34,6 +41,9 @@ public class VacationAdminServiceImpl implements VacationAdminService {
 
     private final VacationRepository vacationRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+    private final VacationFamilyRepository vacationFamilyRepository;
+    private final VacationSickRepository vacationSickRepository;
+    private final VacationWorkationRepository vacationWorkationRepository;
 
     /** 전체 휴가 목록 조회 (기간, 상태, 이름, 휴가유형 필터 적용) - 페이징 적용 */
     @Override
@@ -45,9 +55,9 @@ public class VacationAdminServiceImpl implements VacationAdminService {
             VacationType type,
             Pageable pageable
     ) {
-        // 미승인(APPROVE_NEED)의 경우 신청일 오름차순(오래된 신청부터), 그 외는 시작일 내림차순
+        // 미승인(APPROVE_NEED)의 경우 신청일 내림차순(최근 신청부터), 그 외는 시작일 내림차순
         Sort sort = (status == VacationApprove.APPROVE_NEED)
-                ? Sort.by(Sort.Direction.ASC, "vacationRequest")
+                ? Sort.by(Sort.Direction.DESC, "vacationRequest")
                 : Sort.by(Sort.Direction.DESC, "vacationStart");
 
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
@@ -130,5 +140,38 @@ public class VacationAdminServiceImpl implements VacationAdminService {
                 monthlySickLeaveCount,
                 currentMonth.toString()
         );
+    }
+
+    /** 휴가 상세 조회 (관리자용, 유형별 상세 정보 포함) */
+    @Override
+    public VacationDetailResponseDTO getVacationDetail(Long vacationId) {
+        Vacation vacation = vacationRepository.findById(vacationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND, "휴가 ID " + vacationId + "를 찾을 수 없습니다."));
+
+        // 타입별 상세 정보 조회
+        return switch (vacation.getVacationType()) {
+            case FAMILY -> {
+                VacationFamily family = vacationFamilyRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield family != null
+                        ? VacationDetailResponseDTO.from(vacation, family)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            case SICK -> {
+                VacationSick sick = vacationSickRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield sick != null
+                        ? VacationDetailResponseDTO.from(vacation, sick)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            case WORKATION -> {
+                VacationWorkation workation = vacationWorkationRepository.findByVacationVacationId(vacationId)
+                        .orElse(null);
+                yield workation != null
+                        ? VacationDetailResponseDTO.from(vacation, workation)
+                        : VacationDetailResponseDTO.from(vacation);
+            }
+            default -> VacationDetailResponseDTO.from(vacation);
+        };
     }
 }

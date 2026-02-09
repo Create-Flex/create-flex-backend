@@ -5,6 +5,7 @@ import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -243,5 +244,14 @@ public class VacationServiceImpl implements VacationService {
         double totalVacation = 15.0;
 
         return VacationRemainderResponseDTO.from(employeeDetail, totalVacation);
+    }
+
+    /** 내 휴가 통계 조회 (승인된 휴가 수, 미승인 휴가 수) */
+    @Override
+    public MyVacationStatsResponseDTO getMyVacationStats(Long memberId) {
+        long approvedCount = vacationRepository.countByMemberIdAndApproveStatus(memberId, VacationApprove.APPROVED);
+        long pendingCount = vacationRepository.countByMemberIdAndApproveStatus(memberId, VacationApprove.APPROVE_NEED);
+
+        return MyVacationStatsResponseDTO.of(memberId, approvedCount, pendingCount);
     }
 }
