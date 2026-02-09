@@ -10,14 +10,18 @@ import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
+import com.mcn.in4.domain.vacation.repository.VacationSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 휴가 관리 서비스 구현체 (관리자용)
@@ -31,30 +35,34 @@ public class VacationAdminServiceImpl implements VacationAdminService {
     private final VacationRepository vacationRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
 
-    /** 전체 휴가 목록 조회 (기간, 상태, 이름, 휴가유형 필터 적용) */
+    /** 전체 휴가 목록 조회 (기간, 상태, 이름, 휴가유형 필터 적용) - 페이징 적용 */
     @Override
-    public List<AdminVacationListResponseDTO> getVacationList(
+    public Page<AdminVacationListResponseDTO> getVacationList(
             LocalDate startDate,
             LocalDate endDate,
             VacationApprove status,
             String name,
-            VacationType type
+            VacationType type,
+            Pageable pageable
     ) {
-        // 미승인(APPROVE_NEED)의 경우 신청일 오름차순(오래된 신청부터), 그 외는 내림차순
-        List<Vacation> vacations = (status == VacationApprove.APPROVE_NEED)
-                ? vacationRepository.findAllWithFiltersOrderByRequestAsc(startDate, endDate, status, name, type)
-                : vacationRepository.findAllWithFilters(startDate, endDate, status, name, type);
+        // 미승인(APPROVE_NEED)의 경우 신청일 오름차순(오래된 신청부터), 그 외는 시작일 내림차순
+        Sort sort = (status == VacationApprove.APPROVE_NEED)
+                ? Sort.by(Sort.Direction.ASC, "vacationRequest")
+                : Sort.by(Sort.Direction.DESC, "vacationStart");
 
-        return vacations.stream()
-                .map(vacation -> {
-                    // 잔여 연차 조회
-                    Double remainder = memberEmployeeDetailRepository
-                            .findByMemberMemberId(vacation.getMember().getMemberId())
-                            .map(MemberEmployeeDetail::getVacationRemainder)// 값이 있으면 : double(12.0), 없으면 : empty
-                            .orElse(0.0); //값이 있으면 12.0, 없으면 0.0
-                    return AdminVacationListResponseDTO.from(vacation, remainder);
-                })
-                .collect(Collectors.toList());
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        Specification<Vacation> spec = VacationSpecification.filterVacation(startDate, endDate, status, name, type);
+        Page<Vacation> vacationPage = vacationRepository.findAll(spec, sortedPageable);
+
+        return vacationPage.map(vacation -> {
+            // 잔여 연차 조회
+            Double remainder = memberEmployeeDetailRepository
+                    .findByMemberMemberId(vacation.getMember().getMemberId())
+                    .map(MemberEmployeeDetail::getVacationRemainder)
+                    .orElse(0.0);
+            return AdminVacationListResponseDTO.from(vacation, remainder);
+        });
     }
 
     /** 휴가 승인 처리 (승인 대기 상태만 가능) */

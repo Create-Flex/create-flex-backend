@@ -8,13 +8,16 @@ import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import com.mcn.in4.domain.vacation.service.VacationAdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * 휴가 관리 API 컨트롤러 (관리자용)
@@ -30,15 +33,16 @@ public class VacationAdminController implements VacationAdminApi {
 
     private final VacationAdminService vacationAdminService;
 
-    /** 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터) - 관리자 전용 */
+    /** 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터) - 관리자 전용, 페이징 적용 */
     @Override
     @GetMapping
-    public ResponseEntity<List<AdminVacationListResponseDTO>> getVacationList(
+    public ResponseEntity<Page<AdminVacationListResponseDTO>> getVacationList(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) VacationApprove status,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) VacationType type,
+            @PageableDefault(size = 10, sort = "vacationStart", direction = Sort.Direction.DESC) Pageable pageable,
             Authentication authentication
     ) {
         boolean isAdmin = authentication.getAuthorities().stream()
@@ -55,7 +59,7 @@ public class VacationAdminController implements VacationAdminApi {
             endDate = LocalDate.now();
         }
 
-        List<AdminVacationListResponseDTO> response = vacationAdminService.getVacationList(startDate, endDate, status, name, type);
+        Page<AdminVacationListResponseDTO> response = vacationAdminService.getVacationList(startDate, endDate, status, name, type, pageable);
         return ResponseEntity.ok(response);
     }
 
