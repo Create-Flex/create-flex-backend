@@ -58,4 +58,13 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>, J
         List<Attendance> findAllAttendance(
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate);
+
+
+        /*
+        특정 날짜 + 여러 회원의 근태 기록을 한 번에 조회 (IN 절 + Fetch Join)
+        * */
+    @Query("SELECT a FROM Attendance a JOIN FETCH a.member WHERE a.attendanceDate = :attendanceDate AND a.member.memberId IN :memberIds")
+    List<Attendance> findByAttendanceDateAndMemberMemberIdIn(
+            @Param("attendanceDate") LocalDate attendanceDate,
+            @Param("memberIds") List<Long> memberIds);
 }

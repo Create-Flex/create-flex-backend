@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Tag(name = "Employee 관리", description = "직원 등록, 상세 조회 및 퇴사 처리를 담당하는 API입니다.")
 public interface EmployeeApi {
 
-        @Operation(summary = "직원 리스트 및 통계 조회", description = "이름 검색 조건을 포함하여 직원 목록과 전체 통계를 조회합니다.")
-        ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
-                @Parameter(description = "검색할 직원 이름") String name);
+//        @Operation(summary = "직원 리스트 및 통계 조회", description = "이름 검색 조건을 포함하여 직원 목록과 전체 통계를 조회합니다.")
+//        ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
+//                @Parameter(description = "검색할 직원 이름") String name);
 
         @Operation(summary = "직원 상세 조회", description = "특정 직원의 ID를 통해 상세 정보를 조회합니다.")
         ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(

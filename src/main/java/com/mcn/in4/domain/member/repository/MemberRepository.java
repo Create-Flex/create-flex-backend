@@ -3,6 +3,8 @@ package com.mcn.in4.domain.member.repository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,4 +43,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m.memberRole FROM Member m WHERE m.memberId = :memberId")
     MemberRole findMemberRoleByMemberId(@Param("memberId") Long memberId);
+
+
+    // 페이징 시 멤버 전체 조회
+    Page<Member> findAll(Pageable pageable);
+
+    // 이름 검색 페이징 조회
+    Page<Member> findByMemberNameContaining(String memberName, Pageable pageable);
+
+
 }

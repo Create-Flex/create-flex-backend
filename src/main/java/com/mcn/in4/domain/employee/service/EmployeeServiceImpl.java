@@ -84,6 +84,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 List<MemberEmployeeDetail> details = detailRepository.findAll();
                 Map<Long, MemberEmployeeDetail> detailMap = details.stream()
                                 .collect(Collectors.toMap(d -> d.getMember().getMemberId(), d -> d));
+
                 // 오늘 날짜의 모든 근태 기록을 가져옴
                 List<Attendance> attendanceList = attendanceRepository.findAllByAttendanceDate(today);
                 Map<Long, Attendance> attendanceMap = attendanceList.stream()
