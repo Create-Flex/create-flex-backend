@@ -32,14 +32,28 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
                         @Param("endDate") LocalDate endDate,
                         @Param("type") VacationType type);
 
-        /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터 적용) */
+        /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터 적용) - 시작일 내림차순 */
         @Query("SELECT v FROM Vacation v " +
-                        "WHERE v.vacationRequest BETWEEN :startDate AND :endDate " +
+                        "WHERE v.vacationStart BETWEEN :startDate AND :endDate " +
                         "AND (:status IS NULL OR v.vacationApprove = :status) " +
                         "AND (:name IS NULL OR :name = '' OR v.member.memberName LIKE %:name%) " +
                         "AND (:type IS NULL OR v.vacationType = :type) " +
-                        "ORDER BY v.vacationRequest DESC")
+                        "ORDER BY v.vacationStart DESC")
         List<Vacation> findAllWithFilters(
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate,
+                        @Param("status") VacationApprove status,
+                        @Param("name") String name,
+                        @Param("type") VacationType type);
+
+        /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터 적용) - 신청일 오름차순 (미승인용) */
+        @Query("SELECT v FROM Vacation v " +
+                        "WHERE v.vacationStart BETWEEN :startDate AND :endDate " +
+                        "AND (:status IS NULL OR v.vacationApprove = :status) " +
+                        "AND (:name IS NULL OR :name = '' OR v.member.memberName LIKE %:name%) " +
+                        "AND (:type IS NULL OR v.vacationType = :type) " +
+                        "ORDER BY v.vacationRequest ASC")
+        List<Vacation> findAllWithFiltersOrderByRequestAsc(
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate,
                         @Param("status") VacationApprove status,
@@ -96,4 +110,15 @@ public interface VacationRepository extends JpaRepository<Vacation, Long> {
         java.util.Optional<Vacation> findApprovedVacationByMemberAndDate(
                         @Param("memberId") Long memberId,
                         @Param("date") LocalDate date);
+
+        /** 특정 회원의 휴가 날짜 중복 확인 (반려 제외, 승인대기/승인됨만 확인) */
+        @Query("SELECT v FROM Vacation v " +
+                        "WHERE v.member.memberId = :memberId " +
+                        "AND v.vacationApprove != 'REJECTED' " +
+                        "AND v.vacationStart <= :endDate " +
+                        "AND v.vacationEnd >= :startDate")
+        List<Vacation> findOverlappingVacations(
+                        @Param("memberId") Long memberId,
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate);
 }

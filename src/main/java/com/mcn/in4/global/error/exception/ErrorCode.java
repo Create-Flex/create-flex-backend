@@ -40,6 +40,7 @@ public enum ErrorCode {
     INVALID_VACATION_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 휴가 타입입니다."),
     VACATION_DETAIL_REQUIRED(HttpStatus.BAD_REQUEST, "휴가 타입별 필수 상세 정보가 누락되었습니다."),
     INVALID_VACATION_STATUS(HttpStatus.BAD_REQUEST, "현재 상태에서는 처리할 수 없는 요청입니다."),
+    VACATION_DATE_OVERLAP(HttpStatus.CONFLICT, "이미 신청한 휴가와 날짜가 겹칩니다."),
     // 7. 근태 (Attendance)
     ATTENDANCE_ALREADY_MARKED(HttpStatus.CONFLICT, "이미 오늘 출근 처리가 되었습니다."),
     ATTENDANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "출근 기록을 찾을 수 없습니다."),

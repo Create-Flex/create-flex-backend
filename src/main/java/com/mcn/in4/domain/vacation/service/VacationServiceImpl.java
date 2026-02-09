@@ -58,6 +58,21 @@ public class VacationServiceImpl implements VacationService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, "회원 ID " + memberId + "를 찾을 수 없습니다."));
 
+        // 반차인 경우 종료일을 시작일과 동일하게 설정
+        LocalDate vacationEnd = (vacationType == VacationType.HALF)
+                ? request.getVacationStart()
+                : request.getVacationEnd();
+
+        // 휴가 날짜 중복 확인 (반려 제외, 승인대기/승인됨만 확인)
+        List<Vacation> overlappingVacations = vacationRepository.findOverlappingVacations(
+                memberId, request.getVacationStart(), vacationEnd);
+
+        if (!overlappingVacations.isEmpty()) {
+            Vacation overlap = overlappingVacations.get(0);
+            throw new CustomException(ErrorCode.VACATION_DATE_OVERLAP,
+                    "기존 휴가(" + overlap.getVacationStart() + " ~ " + overlap.getVacationEnd() + ")와 날짜가 겹칩니다.");
+        }
+
         // 휴가 일수 계산
         double vacationDays = calculateVacationDays(vacationType, request);
 
@@ -74,11 +89,6 @@ public class VacationServiceImpl implements VacationService {
             // 잔여 연차 차감
             employeeDetail.decreaseVacationRemainder(vacationDays);
         }
-
-        // 반차인 경우 종료일을 시작일과 동일하게 설정
-        LocalDate vacationEnd = (vacationType == VacationType.HALF)
-                ? request.getVacationStart()
-                : request.getVacationEnd();
 
         // 휴가 엔티티 생성
         Vacation vacation = Vacation.builder()
