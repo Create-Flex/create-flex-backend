@@ -237,6 +237,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         int lateCount = 0;
         long totalOvertimeMinutes = 0;
+        long totalWorkMinutes = 0;
 
         for (Attendance attendance : attendances) {
             // 지각 카운트 (checkInStatus로 집계)
@@ -248,6 +249,10 @@ public class AttendanceServiceImpl implements AttendanceService {
             if (attendance.getAttendanceStart() != null && attendance.getAttendanceEnd() != null) {
                 Duration duration = Duration.between(attendance.getAttendanceStart(), attendance.getAttendanceEnd());
                 long workedMinutes = duration.toMinutes();
+
+                // 총 근무 시간 누적
+                totalWorkMinutes += workedMinutes;
+
                 long standardMinutes = 9 * 60; // 9시간 = 540분
 
                 if (workedMinutes > standardMinutes) {
@@ -259,6 +264,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return AttendanceDashboardDto.builder()
                 .lateCount(lateCount)
                 .totalOvertimeMinutes(totalOvertimeMinutes)
+                .totalWorkMinutes(totalWorkMinutes) // 총 근무 시간 추가
                 .build();
     }
 
