@@ -11,11 +11,15 @@ import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.domain.vacation.entity.Vacation;
+import com.mcn.in4.domain.attendance.repository.AttendanceSpecification;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import com.mcn.in4.domain.vacation.repository.VacationRepository;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,85 +44,25 @@ public class AttendanceServiceImpl implements AttendanceService {
     private final VacationRepository vacationRepository;
 
     @Override
-    public List<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
-            String status) {
-        // Repository 조회
-        List<Attendance> attendances = attendanceRepository.findAttendanceByMemberId(memberId, startDate, endDate);
+    public Page<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
+            String status, Pageable pageable) {
 
-        // 상태 필터링 (status가 있으면 필터링)
-        if (status != null && !status.isEmpty()) {
-            attendances = attendances.stream()
-                    .filter(a -> {
-                        // "정상" 필터: 출근=NORMAL AND 퇴근=NORMAL
-                        if ("NORMAL".equals(status)) {
-                            return a.getCheckInStatus() == CheckInStatus.NORMAL
-                                    && a.getCheckOutStatus() == CheckOutStatus.NORMAL;
-                        }
-                        // CheckInStatus 매칭
-                        if (a.getCheckInStatus() != null && a.getCheckInStatus().name().equals(status)) {
-                            return true;
-                        }
-                        // CheckOutStatus 매칭
-                        if (a.getCheckOutStatus() != null && a.getCheckOutStatus().name().equals(status)) {
-                            return true;
-                        }
-                        // 근무중 (퇴근 상태가 null인 경우)
-                        if ("WORKING".equals(status) && a.getCheckOutStatus() == null && a.getCheckInStatus() != null) {
-                            return true;
-                        }
-                        return false;
-                    })
-                    .collect(Collectors.toList());
-        }
+        Specification<Attendance> spec = AttendanceSpecification.filterAttendance(memberId, startDate, endDate, status,
+                null);
+        Page<Attendance> attendancePage = attendanceRepository.findAll(spec, pageable);
 
-        return attendances.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return attendancePage.map(this::toDto);
     }
 
     @Override
-    public List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate, String status,
-            String name) {
-        // Repository 조회 후 DTO 변환
-        List<Attendance> attendances = attendanceRepository.findAllAttendance(startDate, endDate);
+    public Page<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate, String status,
+            String name, Pageable pageable) {
 
-        // 이름 필터링 (name이 있으면 LIKE 검색)
-        if (name != null && !name.isEmpty()) {
-            String searchName = name.toLowerCase();
-            attendances = attendances.stream()
-                    .filter(a -> a.getMember().getMemberName().toLowerCase().contains(searchName))
-                    .collect(Collectors.toList());
-        }
+        Specification<Attendance> spec = AttendanceSpecification.filterAttendance(null, startDate, endDate, status,
+                name);
+        Page<Attendance> attendancePage = attendanceRepository.findAll(spec, pageable);
 
-        // 상태 필터링 (status가 있으면 checkInStatus 또는 checkOutStatus로 필터링)
-        if (status != null && !status.isEmpty()) {
-            attendances = attendances.stream()
-                    .filter(a -> {
-                        // "정상" 필터: 출근=NORMAL AND 퇴근=NORMAL
-                        if ("NORMAL".equals(status)) {
-                            return a.getCheckInStatus() == CheckInStatus.NORMAL
-                                    && a.getCheckOutStatus() == CheckOutStatus.NORMAL;
-                        }
-                        // CheckInStatus 매칭
-                        if (a.getCheckInStatus() != null && a.getCheckInStatus().name().equals(status)) {
-                            return true;
-                        }
-                        // CheckOutStatus 매칭
-                        if (a.getCheckOutStatus() != null && a.getCheckOutStatus().name().equals(status)) {
-                            return true;
-                        }
-                        // 근무중 (퇴근 상태가 null인 경우)
-                        if ("WORKING".equals(status) && a.getCheckOutStatus() == null && a.getCheckInStatus() != null) {
-                            return true;
-                        }
-                        return false;
-                    })
-                    .collect(Collectors.toList());
-        }
-
-        return attendances.stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+        return attendancePage.map(this::toDto);
     }
 
     @Override

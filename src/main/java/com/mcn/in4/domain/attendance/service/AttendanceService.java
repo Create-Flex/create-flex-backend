@@ -4,13 +4,10 @@ import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
 import com.mcn.in4.domain.attendance.dto.AttendanceDashboardDto;
 import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 
-/**
- * 근태 관리 서비스 인터페이스
- * 근태 조회 및 출퇴근 처리를 위한 비즈니스 로직을 정의합니다.
- */
 public interface AttendanceService {
         /**
          * 특정 직원의 근태 기록 조회
@@ -19,10 +16,11 @@ public interface AttendanceService {
          * @param startDate 조회 시작 날짜
          * @param endDate   조회 종료 날짜
          * @param status    근태 상태 필터
-         * @return 근태 기록 DTO 리스트
+         * @param pageable  페이징 정보
+         * @return 근태 기록 Page
          */
-        List<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
-                        String status);
+        Page<AttendanceResponseDto> getAttendance(Long memberId, LocalDate startDate, LocalDate endDate,
+                        String status, Pageable pageable);
 
         /**
          * 전체 직원의 근태 기록 조회
@@ -30,10 +28,12 @@ public interface AttendanceService {
          * @param startDate 조회 시작 날짜
          * @param endDate   조회 종료 날짜
          * @param status    근태 상태 필터
-         * @return 근태 기록 DTO 리스트
+         * @param name      이름 검색
+         * @param pageable  페이징 정보
+         * @return 근태 기록 Page
          */
-        List<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate,
-                        String status, String name);
+        Page<AttendanceResponseDto> getAllAttendance(LocalDate startDate, LocalDate endDate,
+                        String status, String name, Pageable pageable);
 
         /**
          * 출근 처리

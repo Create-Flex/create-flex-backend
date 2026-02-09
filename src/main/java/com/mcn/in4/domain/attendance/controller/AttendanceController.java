@@ -12,7 +12,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
-import java.util.List;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.time.LocalDate;
 
 @Slf4j
@@ -40,12 +44,13 @@ public class AttendanceController implements AttendanceApi {
      * @return 근태 기록 리스트
      */
     @GetMapping
-    public ResponseEntity<List<AttendanceResponseDto>> getAttendance(
+    public ResponseEntity<Page<AttendanceResponseDto>> getAttendance(
             @AuthenticationPrincipal String userId,
             Authentication authentication,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
-            @RequestParam(value = "status", required = false) String status) {
+            @RequestParam(value = "status", required = false) String status,
+            @PageableDefault(size = 10, sort = "attendanceDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
         boolean isCreator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
@@ -60,7 +65,7 @@ public class AttendanceController implements AttendanceApi {
                 : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
 
-        return ResponseEntity.ok(attendanceService.getAttendance(memberId, start, end, status));
+        return ResponseEntity.ok(attendanceService.getAttendance(memberId, start, end, status, pageable));
     }
 
     /**
@@ -121,13 +126,14 @@ public class AttendanceController implements AttendanceApi {
      * @return 전체 근태 기록 리스트
      */
     @GetMapping("/all")
-    public ResponseEntity<List<AttendanceResponseDto>> getAllAttendance(
+    public ResponseEntity<Page<AttendanceResponseDto>> getAllAttendance(
             @AuthenticationPrincipal String userId,
             Authentication authentication,
             @RequestParam(value = "startDate", required = false) String startDate,
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "status", required = false) String status,
-            @RequestParam(value = "name", required = false) String name) {
+            @RequestParam(value = "name", required = false) String name,
+            @PageableDefault(size = 10, sort = "attendanceDate", direction = Sort.Direction.DESC) Pageable pageable) {
 
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
@@ -140,7 +146,7 @@ public class AttendanceController implements AttendanceApi {
                 : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
 
-        return ResponseEntity.ok(attendanceService.getAllAttendance(start, end, status, name));
+        return ResponseEntity.ok(attendanceService.getAllAttendance(start, end, status, name, pageable));
     }
 
     /**

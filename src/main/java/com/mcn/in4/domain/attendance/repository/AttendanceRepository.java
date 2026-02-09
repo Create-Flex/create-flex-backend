@@ -1,9 +1,10 @@
 package com.mcn.in4.domain.attendance.repository;
 
 import com.mcn.in4.domain.attendance.entity.Attendance;
-import com.mcn.in4.domain.attendance.entity.attendanceEnum.CheckInStatus;
+
 import com.mcn.in4.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +18,7 @@ import java.util.Optional;
  * 근태 관리 리포지토리
  * 근태 데이터의 DB 조회 및 저장을 담당합니다.
  */
-public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
+public interface AttendanceRepository extends JpaRepository<Attendance, Long>, JpaSpecificationExecutor<Attendance> {
 
         // 직원 엔티티와 날짜로 조회
         @Query("SELECT a FROM Attendance a WHERE a.member = :member AND a.attendanceDate = :attendanceDate")
