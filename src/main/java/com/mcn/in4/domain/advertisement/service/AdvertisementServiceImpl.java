@@ -7,7 +7,9 @@ import com.mcn.in4.domain.advertisement.entity.CreatorPromotion;
 import com.mcn.in4.domain.creator.entity.creatorEnum.PromotionStatus;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
-// import com.mcn.in4.entity.schedule.ScheduleRepository; 일정 구현 후 적용
+import com.mcn.in4.domain.schedule.entity.Schedule;
+import com.mcn.in4.domain.schedule.entity.scheduleEnum.ScheduleType;
+import com.mcn.in4.domain.schedule.repository.SchedulRepository;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     private final AdvertisementRepository advertisementRepository;
     private final MemberRepository memberRepository;
-    // private final ScheduleRepository scheduleRepository; 일정 구현 후 적용
+    private final SchedulRepository schedulRepository;
 
     @Override
     @Transactional
@@ -103,8 +105,8 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         advertisementRepository.save(updatedPromotion);
 
-        // 크리에이터 일정에 자동 추가 => 일정 구현 후 적용
-        // createScheduleForPromotion(promotion);
+        // 크리에이터 일정에 자동 추가
+        createScheduleForPromotion(promotion);
     }
 
     @Override
@@ -139,16 +141,17 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 .orElseThrow(() -> new CustomException(ErrorCode.ADVERTISEMENT_NOT_FOUND));
     }
 
-    // 광고 수락 시 크리에이터 일정에 자동 추가 => 일정 구현 후 적용
-//    private void createScheduleForPromotion(CreatorPromotion promotion) {
-//        Schedule schedule = Schedule.builder()
-//                .member(promotion.getMemberCreator())
-//                .scheduleName(promotion.getPromotionClient() + " - " + promotion.getPromotionName())
-//                .scheduleDate(promotion.getPromotionTargerDate())
-//                .scheduleDetail(promotion.getPromotionDetail())
-//                .scheduleType(ScheduleType.PROMOTION)
-//                .build();
-//
-//        scheduleRepository.save(schedule);
-//    }
+    // 광고 수락 시 크리에이터 일정에 자동 추가
+    private void createScheduleForPromotion(CreatorPromotion promotion) {
+        Schedule schedule = Schedule.builder()
+                .member(promotion.getMemberCreator())  // 일정 작성자
+                .creator(promotion.getMemberCreator()) // 일정 대상 크리에이터
+                .scheduleName(promotion.getPromotionClient())
+                .scheduleDate(promotion.getPromotionTargerDate())
+                .scheduleDetail(promotion.getPromotionDetail())
+                .scheduleType(ScheduleType.PROMOTION)
+                .build();
+
+        schedulRepository.save(schedule);
+    }
 }
