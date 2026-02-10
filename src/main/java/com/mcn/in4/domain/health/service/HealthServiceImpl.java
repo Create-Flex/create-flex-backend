@@ -19,8 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.DeleteObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedDeleteObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -33,7 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly = false)
 public class HealthServiceImpl implements HealthService{
 
     private final HealthRepository healthRepository;
@@ -85,7 +88,7 @@ public class HealthServiceImpl implements HealthService{
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
         List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers(creatorIds);
         List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberId(member.getMemberId())
+                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
                         .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
@@ -98,7 +101,7 @@ public class HealthServiceImpl implements HealthService{
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
         List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers();
         List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberId(member.getMemberId())
+                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
                         .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
@@ -111,7 +114,7 @@ public class HealthServiceImpl implements HealthService{
         List<Member> creators = memberRepository.findByMemberIdIn(creatorId);
         List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers();
         List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberId(member.getMemberId())
+                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
                         .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorId);
@@ -124,7 +127,7 @@ public class HealthServiceImpl implements HealthService{
         List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
         List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                        healthRepository.findTopByMember_MemberId(member.getMemberId())
+                        healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                                 .stream()
                                 .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
@@ -196,14 +199,12 @@ public class HealthServiceImpl implements HealthService{
 
         String presignedUrl = presignedRequest.url().toString();
 
-        String viewUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
-
         Health health =Health.builder()
                 .member(member)
                 .checkupName(checkupName)
                 .checkupDate(date)
                 .checkupSummanary(checkupSummanary)
-                .checkupFileUrl(viewUrl)
+                .checkupFileUrl("https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key)
                 .build();
 
         Health savedHealth = healthRepository.save(health);
@@ -224,5 +225,32 @@ public class HealthServiceImpl implements HealthService{
                 .member(creator)
                 .build();
         creatorMentalHealthRepository.save(mentalHealth);
+    }
+
+    @Transactional
+    public HealthPresigned deleteByHealthId(Long healthID){
+        Health deletedHealth = healthRepository.findTopByHealthId(healthID).orElseThrow();
+
+        String s3key = deletedHealth.getCheckupFileUrl();
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3key)
+                .build();
+
+        PresignedDeleteObjectRequest presignedDeleteObjectRequest = s3Presigner.presignDeleteObject(
+                DeleteObjectPresignRequest.builder()
+                        .deleteObjectRequest(deleteObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(5))
+                        .build()
+        );
+
+        healthRepository.delete(deletedHealth);
+
+        String presignedUrl = presignedDeleteObjectRequest.url().toString();
+
+        return HealthPresigned.builder()
+                .presignedUrl(presignedUrl)
+                .build();
     }
 }

@@ -17,7 +17,7 @@ public class HealthResponseDto {
     @AllArgsConstructor
     @Builder
     public static class HealthInfo{
-        private Long healthIO;
+        private Long healthID;
         private String checkupName; //검진명
         private CheckupSummanary checkupSummanary; //검진요약
         private LocalDate checkupDate; //검진일
