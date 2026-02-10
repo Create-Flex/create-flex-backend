@@ -3,6 +3,7 @@ package com.mcn.in4.domain.vacation.controller;
 import com.mcn.in4.domain.vacation.controller.api.VacationAdminApi;
 import com.mcn.in4.domain.vacation.dto.request.VacationRejectRequestDTO;
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 /**
  * 휴가 관리 API 컨트롤러 (관리자용)
  * - GET /api/admin/vacations : 전체 휴가 목록 조회 (필터: 기간, 상태, 이름, 휴가유형)
+ * - GET /api/admin/vacations/{id} : 휴가 상세 조회 (유형별 상세 정보 포함)
  * - GET /api/admin/vacations/statistics : 휴가 통계 조회
  * - PATCH /api/admin/vacations/{id}/approve : 휴가 승인
  * - PATCH /api/admin/vacations/{id}/reject : 휴가 반려
@@ -51,15 +53,32 @@ public class VacationAdminController implements VacationAdminApi {
             return ResponseEntity.status(403).build();
         }
 
-        // 기본값: 오늘 기준 한 달
+        // 기본값: 오늘 기준 앞뒤로 3개월
         if (startDate == null) {
-            startDate = LocalDate.now().minusMonths(1);
+            startDate = LocalDate.now().minusMonths(3);
         }
         if (endDate == null) {
-            endDate = LocalDate.now();
+            endDate = LocalDate.now().plusMonths(3);
         }
 
         Page<AdminVacationListResponseDTO> response = vacationAdminService.getVacationList(startDate, endDate, status, name, type, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    /** 휴가 상세 조회 (유형별 상세 정보 포함) - 관리자 전용 */
+    @Override
+    @GetMapping("/{vacationId}")
+    public ResponseEntity<VacationDetailResponseDTO> getVacationDetail(
+            @PathVariable Long vacationId,
+            Authentication authentication
+    ) {
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATOR"));
+        if (!isAdmin) {
+            return ResponseEntity.status(403).build();
+        }
+
+        VacationDetailResponseDTO response = vacationAdminService.getVacationDetail(vacationId);
         return ResponseEntity.ok(response);
     }
 

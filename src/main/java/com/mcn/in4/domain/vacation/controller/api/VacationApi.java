@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.controller.api;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -96,9 +97,9 @@ public interface VacationApi {
     )
     ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
             @Parameter(hidden = true) @AuthenticationPrincipal String userId,
-            @Parameter(description = "조회 시작일 (기본: 오늘-1개월)", example = "2026-01-01")
+            @Parameter(description = "조회 시작일 (기본: 오늘-3개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
-            @Parameter(description = "조회 종료일 (기본: 오늘+1개월)", example = "2026-02-28")
+            @Parameter(description = "조회 종료일 (기본: 오늘+3개월)", example = "2026-02-28")
             @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,
@@ -132,6 +133,20 @@ public interface VacationApi {
             }
     )
     ResponseEntity<VacationRemainderResponseDTO> getMyVacationRemainder(
+            @Parameter(hidden = true) @AuthenticationPrincipal String userId,
+            @Parameter(hidden = true) Authentication authentication
+    );
+
+    @Operation(
+            summary = "내 휴가 통계 조회",
+            description = "로그인한 사용자의 휴가 통계를 조회합니다. 승인된 휴가 수(사용한 휴가)와 미승인 휴가 수(대기 중인 휴가)를 반환합니다.",
+            security = @SecurityRequirement(name = "JWT"),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @ApiResponse(responseCode = "403", description = "권한 없음 (크리에이터)")
+            }
+    )
+    ResponseEntity<MyVacationStatsResponseDTO> getMyVacationStats(
             @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(hidden = true) Authentication authentication
     );

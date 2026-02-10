@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.service;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
@@ -50,4 +51,11 @@ public interface VacationService {
      * @return 잔여 연차 정보
      */
     VacationRemainderResponseDTO getMyVacationRemainder(Long memberId);
+
+    /**
+     * 내 휴가 통계 조회 (승인된 휴가 수, 미승인 휴가 수)
+     * @param memberId 회원 ID
+     * @return 휴가 통계 정보
+     */
+    MyVacationStatsResponseDTO getMyVacationStats(Long memberId);
 }

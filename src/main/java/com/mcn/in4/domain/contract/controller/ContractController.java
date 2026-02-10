@@ -37,7 +37,8 @@ public class ContractController implements ContractApi {
     // 계약 목록 조회
     @Override
     @GetMapping
-    public ResponseEntity<List<ContractResponseDTO.Info>> getAllContracts() {
-        return ResponseEntity.ok(contractService.getAllContracts());
+    public ResponseEntity<List<ContractResponseDTO.Info>> getAllContracts(
+            @RequestParam(value = "name", required = false) String name) {
+        return ResponseEntity.ok(contractService.getAllContracts(name));
     }
 }

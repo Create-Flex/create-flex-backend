@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.service;
 
 import com.mcn.in4.domain.vacation.dto.response.AdminVacationListResponseDTO;
+import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationStatisticsResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
@@ -52,4 +53,11 @@ public interface VacationAdminService {
      * @return 이번달 휴가자 수, 미승인 대기자 수, 이번달 병가자 수
      */
     VacationStatisticsResponseDTO getVacationStatistics();
+
+    /**
+     * 휴가 상세 조회 (관리자용, 유형별 상세 정보 포함)
+     * @param vacationId 휴가 ID
+     * @return 휴가 상세 정보
+     */
+    VacationDetailResponseDTO getVacationDetail(Long vacationId);
 }

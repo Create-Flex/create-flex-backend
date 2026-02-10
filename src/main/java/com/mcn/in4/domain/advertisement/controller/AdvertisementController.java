@@ -23,7 +23,6 @@ public class AdvertisementController implements AdvertisementApi {
 
     private final AdvertisementService advertisementService;
 
-
     // 광고 캠페인 등록
     @Override
     @PostMapping
@@ -44,12 +43,13 @@ public class AdvertisementController implements AdvertisementApi {
     // GET /api/advertisements?filter=processed (처리내역)
     @Override
     @GetMapping
-    public ResponseEntity<List<AdvertisementResponseDTO.Info>> getMyAdvertisements(
+    public ResponseEntity<org.springframework.data.domain.Page<AdvertisementResponseDTO.Info>> getMyAdvertisements(
             @AuthenticationPrincipal String userId,
-            @RequestParam(required = false, defaultValue = "all") String filter) {
+            @RequestParam(required = false, defaultValue = "all") String filter,
+            @org.springframework.data.web.PageableDefault(size = 8) org.springframework.data.domain.Pageable pageable) {
 
         Long managerId = Long.parseLong(userId);
-        return ResponseEntity.ok(advertisementService.getMyAdvertisementsByFilter(managerId, filter));
+        return ResponseEntity.ok(advertisementService.getMyAdvertisementsByFilter(managerId, filter, pageable));
     }
 
     // 광고 캠페인 수락, 거절 (일정 자동 생성)
