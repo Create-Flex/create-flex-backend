@@ -35,9 +35,9 @@ public interface VacationAdminApi {
             }
     )
     ResponseEntity<Page<AdminVacationListResponseDTO>> getVacationList(
-            @Parameter(description = "조회 시작일 (기본: 오늘-1개월)", example = "2026-01-01")
+            @Parameter(description = "조회 시작일 (기본: 오늘-3개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
-            @Parameter(description = "조회 종료일 (기본: 오늘)", example = "2026-01-31")
+            @Parameter(description = "조회 종료일 (기본: 오늘+3개월)", example = "2026-01-31")
             @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "승인 상태 필터 (APPROVE_NEED, APPROVED, REJECTED)")
             @RequestParam(required = false) VacationApprove status,
