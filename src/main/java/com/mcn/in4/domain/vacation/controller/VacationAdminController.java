@@ -53,12 +53,12 @@ public class VacationAdminController implements VacationAdminApi {
             return ResponseEntity.status(403).build();
         }
 
-        // 기본값: 오늘 기준 한 달
+        // 기본값: 오늘 기준 앞뒤로 3개월
         if (startDate == null) {
-            startDate = LocalDate.now().minusMonths(1);
+            startDate = LocalDate.now().minusMonths(3);
         }
         if (endDate == null) {
-            endDate = LocalDate.now();
+            endDate = LocalDate.now().plusMonths(3);
         }
 
         Page<AdminVacationListResponseDTO> response = vacationAdminService.getVacationList(startDate, endDate, status, name, type, pageable);

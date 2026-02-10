@@ -71,12 +71,12 @@ public class VacationController implements VacationApi {
 
         Long memberId = Long.parseLong(userId);
 
-        // 기본값: 오늘 기준 앞뒤로 1개월
+        // 기본값: 오늘 기준 앞뒤로 3개월
         if (startDate == null) {
-            startDate = LocalDate.now().minusMonths(1);
+            startDate = LocalDate.now().minusMonths(3);
         }
         if (endDate == null) {
-            endDate = LocalDate.now().plusMonths(1);
+            endDate = LocalDate.now().plusMonths(3);
         }
 
         List<VacationListResponseDTO> response = vacationService.getMyVacations(memberId, startDate, endDate, type);
