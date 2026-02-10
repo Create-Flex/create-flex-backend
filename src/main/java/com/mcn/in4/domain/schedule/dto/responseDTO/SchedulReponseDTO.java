@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.schedule.dto.responseDTO;
 
+import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.schedule.entity.scheduleEnum.ScheduleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,7 @@ public class SchedulReponseDTO {
         private Long scheduleId;
         private Long memberId; //작성자 아이디
         private String memberName; // 작성자 이름
+        private MemberRole memberRole; // 작성자 권한
         private String scheduleName; // 제목
         private LocalDate scheduleDate; // 날짜
         private String scheduleDetail; // 상세

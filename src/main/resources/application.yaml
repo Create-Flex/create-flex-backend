@@ -22,6 +22,7 @@ spring:
     defer-datasource-initialization: true
     properties:
       hibernate:
+        default_batch_fetch_size: 100
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
   ai:

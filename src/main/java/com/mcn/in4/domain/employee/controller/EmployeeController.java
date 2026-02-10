@@ -5,6 +5,8 @@ import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import com.mcn.in4.domain.employee.service.EmployeeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +18,12 @@ public class EmployeeController implements EmployeeApi {
     private final EmployeeService employeeService;
 
     // 직원 관리 리스트 및 통계 조회
-    @Override
+//@Override
     @GetMapping("/")
     public ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
-            @RequestParam(value = "name", required = false) String name) {
-        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList(name);
+            @RequestParam(value = "name", required = false) String name,
+            @PageableDefault(size = 10) Pageable pageable) {
+        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList(name, pageable);
         return ResponseEntity.ok(response);
     }
 

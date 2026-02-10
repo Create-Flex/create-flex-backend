@@ -40,6 +40,7 @@ public class EmployeeResponseDTO {
     public static class EmployeeManagementResponseDto {
         private EmployeeSummaryDto summary;      // 요약 통계
         private List<EmployeeListDto> list;       // 직원 리스트
+        private PageInfo pageInfo; // 페이지
     }
     /* 상단 요약 통계 DTO */
     @Getter
@@ -67,5 +68,15 @@ public class EmployeeResponseDTO {
         private String personalCall;    // 개인 연락처
         private String hireDate;        // 입사일
         private String attendanceStatus;// 현재 상태 (근태)
+    }
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PageInfo {
+        private int currentPage;
+        private int totalPages;
+        private long totalElements;
+        private int size;
     }
 }
