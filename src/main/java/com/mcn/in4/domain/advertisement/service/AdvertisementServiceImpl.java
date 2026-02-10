@@ -54,30 +54,30 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public List<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(Long managerId, String filter) {
-        List<CreatorPromotion> promotions;
+    public org.springframework.data.domain.Page<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(
+            Long managerId, String filter, org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.domain.Page<CreatorPromotion> promotions;
 
         switch (filter.toLowerCase()) {
             case "waiting":
                 // 대기중인 제안 (WAITING 상태만)
-                promotions = advertisementRepository.findByManagerIdAndStatus(managerId, PromotionStatus.WAITING);
+                promotions = advertisementRepository.findByManagerIdAndStatus(managerId, PromotionStatus.WAITING,
+                        pageable);
                 break;
 
             case "processed":
                 // 처리내역 (ACCEPTED + REJECTED)
-                promotions = advertisementRepository.findByManagerIdAndProcessedStatus(managerId);
+                promotions = advertisementRepository.findByManagerIdAndProcessedStatus(managerId, pageable);
                 break;
 
             case "all":
             default:
                 // 전체보기
-                promotions = advertisementRepository.findByManagerId(managerId);
+                promotions = advertisementRepository.findByManagerId(managerId, pageable);
                 break;
         }
 
-        return promotions.stream()
-                .map(AdvertisementResponseDTO.Info::from)
-                .collect(Collectors.toList());
+        return promotions.map(AdvertisementResponseDTO.Info::from);
     }
 
     @Override

@@ -39,9 +39,10 @@ public interface AdvertisementApi {
                         @ApiResponse(responseCode = "200", description = "조회 성공"),
                         @ApiResponse(responseCode = "403", description = "권한 없음")
         })
-        ResponseEntity<List<AdvertisementResponseDTO.Info>> getMyAdvertisements(
+        ResponseEntity<org.springframework.data.domain.Page<AdvertisementResponseDTO.Info>> getMyAdvertisements(
                         @Parameter(hidden = true) String userId,
-                        @Parameter(description = "필터 조건: all(전체보기), waiting(대기중인 제안), processed(처리내역)", example = "all") @RequestParam(required = false, defaultValue = "all") String filter);
+                        @Parameter(description = "필터 조건: all(전체보기), waiting(대기중인 제안), processed(처리내역)", example = "all") @RequestParam(required = false, defaultValue = "all") String filter,
+                        @Parameter(hidden = true) @org.springframework.data.web.PageableDefault(size = 8) org.springframework.data.domain.Pageable pageable);
 
         @Operation(summary = "광고 캠페인 상태 변경", description = "광고 캠페인을 수락(ACCEPTED) 또는 거절(REJECTED)합니다. 수락 시 일정이 자동으로 추가됩니다.", security = @SecurityRequirement(name = "JWT"), responses = {
                         @ApiResponse(responseCode = "200", description = "상태 변경 성공"),

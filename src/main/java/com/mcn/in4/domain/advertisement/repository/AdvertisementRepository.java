@@ -19,7 +19,8 @@ public interface AdvertisementRepository extends JpaRepository<CreatorPromotion,
                         "JOIN MemberCreatorDetail mcd ON mcd.memberCreator = mc " +
                         "WHERE mcd.memberManager.memberId = :managerId " +
                         "ORDER BY cp.createdAt DESC")
-        List<CreatorPromotion> findByManagerId(@Param("managerId") Long managerId);
+        org.springframework.data.domain.Page<CreatorPromotion> findByManagerId(@Param("managerId") Long managerId,
+                        org.springframework.data.domain.Pageable pageable);
 
         // 매니저가 담당하는 크리에이터들의 광고 캠페인 중 특정 상태 조회
         @Query("SELECT DISTINCT cp FROM CreatorPromotion cp " +
@@ -28,9 +29,10 @@ public interface AdvertisementRepository extends JpaRepository<CreatorPromotion,
                         "WHERE mcd.memberManager.memberId = :managerId " +
                         "AND cp.promotionStatus = :status " +
                         "ORDER BY cp.createdAt DESC")
-        List<CreatorPromotion> findByManagerIdAndStatus(
+        org.springframework.data.domain.Page<CreatorPromotion> findByManagerIdAndStatus(
                         @Param("managerId") Long managerId,
-                        @Param("status") PromotionStatus status);
+                        @Param("status") PromotionStatus status,
+                        org.springframework.data.domain.Pageable pageable);
 
         // 매니저가 담당하는 크리에이터들의 광고 캠페인 중 처리내역 조회 (ACCEPTED + REJECTED)
         @Query("SELECT DISTINCT cp FROM CreatorPromotion cp " +
@@ -39,7 +41,8 @@ public interface AdvertisementRepository extends JpaRepository<CreatorPromotion,
                         "WHERE mcd.memberManager.memberId = :managerId " +
                         "AND cp.promotionStatus IN ('ACCEPTED', 'REJECTED') " +
                         "ORDER BY cp.createdAt DESC")
-        List<CreatorPromotion> findByManagerIdAndProcessedStatus(@Param("managerId") Long managerId);
+        org.springframework.data.domain.Page<CreatorPromotion> findByManagerIdAndProcessedStatus(
+                        @Param("managerId") Long managerId, org.springframework.data.domain.Pageable pageable);
 
         // 광고 캠페인 단건 조회 (크리에이터 정보 함께 조회)
         @Query("SELECT cp FROM CreatorPromotion cp " +
