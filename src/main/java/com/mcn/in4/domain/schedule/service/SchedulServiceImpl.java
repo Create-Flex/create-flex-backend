@@ -223,6 +223,7 @@ public class SchedulServiceImpl implements SchedulService {
                                         .scheduleId(s.getScheduleId())
                                         .memberId(s.getMember().getMemberId())
                                         .memberName(s.getMember().getMemberName())
+                                        .memberRole(s.getMember().getMemberRole())
                                         .scheduleName(s.getScheduleName())
                                         .scheduleDate(s.getScheduleDate())
                                         .scheduleDetail(s.getScheduleDetail())
