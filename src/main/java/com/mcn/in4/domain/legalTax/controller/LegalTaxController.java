@@ -8,6 +8,9 @@ import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.legalTax.service.LegalTaxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,7 +35,6 @@ public class LegalTaxController implements LegalTaxApi {
             @RequestBody LegalTaxRequestDTO.Create request) {
         Long legalTaxId = legalTaxService.createLegalTax(request);
 
-
         Map<String, Object> response = new HashMap<>();
         response.put("message", "상담 신청이 성공적으로 등록되었습니다.");
 
@@ -42,22 +44,24 @@ public class LegalTaxController implements LegalTaxApi {
     // 전체 상담 신청 목록 조회 (관리자용)
     @Override
     @GetMapping("/admin/all")
-    public ResponseEntity<List<LegalTaxResponseDTO.Info>> getAllLegalTax(
+    public ResponseEntity<Page<LegalTaxResponseDTO.Info>> getAllLegalTax(
             @RequestParam(required = false) LegalTaxType type,
-            @RequestParam(required = false) LegalTaxStatus status) {
-        return ResponseEntity.ok(legalTaxService.getAllLegalTax(type, status));
+            @RequestParam(required = false) String status,
+            @PageableDefault(size = 8) Pageable pageable) {
+        return ResponseEntity.ok(legalTaxService.getAllLegalTax(type, status, pageable));
     }
 
     // 내 담당 크리에이터의 상담 신청 목록 조회 (매니저용)
     @Override
     @GetMapping("/my")
-    public ResponseEntity<List<LegalTaxResponseDTO.Info>> getMyLegalTax(
+    public ResponseEntity<Page<LegalTaxResponseDTO.Info>> getMyLegalTax(
             @AuthenticationPrincipal String userId,
             @RequestParam(required = false) LegalTaxType type,
-            @RequestParam(required = false) LegalTaxStatus status) {
+            @RequestParam(required = false) String status,
+            @PageableDefault(size = 8) Pageable pageable) {
 
         Long managerId = Long.parseLong(userId);
-        return ResponseEntity.ok(legalTaxService.getMyLegalTax(managerId, type, status));
+        return ResponseEntity.ok(legalTaxService.getMyLegalTax(managerId, type, status, pageable));
     }
 
     // 상담 완료 처리(관리자)

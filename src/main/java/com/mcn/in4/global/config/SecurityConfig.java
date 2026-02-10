@@ -41,6 +41,7 @@ public class SecurityConfig {
 
                         // 인증없이 가능한 경우
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/reissue").permitAll()
                         // .requestMatchers(HttpMethod.POST,"/**").permitAll()
 
                         // 관리자 전용
