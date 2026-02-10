@@ -97,9 +97,9 @@ public interface VacationApi {
     )
     ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
             @Parameter(hidden = true) @AuthenticationPrincipal String userId,
-            @Parameter(description = "조회 시작일 (기본: 오늘-1개월)", example = "2026-01-01")
+            @Parameter(description = "조회 시작일 (기본: 오늘-3개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
-            @Parameter(description = "조회 종료일 (기본: 오늘+1개월)", example = "2026-02-28")
+            @Parameter(description = "조회 종료일 (기본: 오늘+3개월)", example = "2026-02-28")
             @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,

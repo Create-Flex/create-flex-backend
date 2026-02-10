@@ -307,7 +307,7 @@ INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vac
 (1005, 1012, 'WORKATION', '2026-02-10', '2026-02-17', '2026-01-20', '홍콩 거래처 미팅 및 원격 근무', 'APPROVE_NEED', NULL, 8.0),
 (1006, 1010, 'ANNUAL', '2026-02-02', '2026-02-06', '2026-01-15', '봄 휴가', 'APPROVED', NULL, 5.0),
 (1007, 1013, 'HALF', '2026-01-22', '2026-01-22', '2026-01-15', '오전 개인 사정', 'REJECTED', '업무 일정상 해당 날짜 반차 불가', 0.5),
-(1008, 2001, 'ANNUAL', '2026-02-20', '2026-02-22', '2026-02-05', '휴식', 'APPROVE_NEED', NULL, 3.0),
+(1008, 1004, 'ANNUAL', '2026-02-20', '2026-02-22', '2026-02-05', '가족 행사 참석', 'APPROVE_NEED', NULL, 3.0),
 (1009, 1003, 'WORKATION', '2026-02-15', '2026-02-19', '2026-01-25', '제주 오피스 근무 및 크리에이터 여행 브이로그 보조', 'APPROVED', NULL, 5.0);
 
 -- ==========================================
@@ -415,6 +415,9 @@ INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vac
 (1013, 1005, 'ANNUAL', '2026-04-01', '2026-04-05', '2026-02-06', '벚꽃 여행', 'APPROVE_NEED', NULL, 3.0),
 (1014, 1001, 'FAMILY', '2026-03-20', '2026-03-20', '2026-02-04', '가족 결혼식', 'APPROVED', NULL, 1.0);
 
--- 추가 휴가 상세 데이터 (경조사)
+-- 추가 휴가 상세 데이터 (경조사/병가)
 INSERT INTO vacation_family (family_id, vacation_id, family_relation, family_detail) VALUES
 (1002, 1014, '여동생', '결혼식');
+
+INSERT INTO vacation_sick (sick_id, vacation_id, sick_detail, sick_hospital) VALUES
+(1002, 1011, '급성 장염 증상으로 병원 진료 필요', '서울 아산병원');
