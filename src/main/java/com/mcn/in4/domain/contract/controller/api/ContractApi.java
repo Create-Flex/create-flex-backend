@@ -41,5 +41,6 @@ public interface ContractApi {
                         @ApiResponse(responseCode = "200", description = "조회 성공"),
                         @ApiResponse(responseCode = "403", description = "권한 없음 (관리자 전용)")
         })
-        ResponseEntity<List<ContractResponseDTO.Info>> getAllContracts();
+        ResponseEntity<List<ContractResponseDTO.Info>> getAllContracts(
+                        @org.springframework.web.bind.annotation.RequestParam(value = "name", required = false) String name);
 }

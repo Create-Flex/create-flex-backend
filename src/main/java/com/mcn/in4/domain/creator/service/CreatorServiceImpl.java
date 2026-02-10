@@ -16,6 +16,9 @@ import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +42,7 @@ public class CreatorServiceImpl implements CreatorService {
     public Long createCreator(CreatorRequestDTO.Create request) {
         validateDuplicateAccount(request.getMemberAccount());
 
-        Member manager = findManager(request.getMemberManagerId());
+        Member manager = request.getMemberManagerId() != null ? findManager(request.getMemberManagerId()) : null;
         Member creator = saveCreator(request);
         saveCreatorDetail(request, creator, manager);
         saveCreatorProfile(creator);
@@ -49,19 +52,20 @@ public class CreatorServiceImpl implements CreatorService {
 
     // 전체 크리에이터 조회
     @Override
-    public List<CreatorResponseDTO.Info> getAllCreators(String name) {
-        List<Member> creators;
+    public Page<CreatorResponseDTO.Info> getAllCreators(String name, Pageable pageable) {
+        Page<Member> creatorsPage;
 
         // 이름 검색어가 있으면 검색, 없으면 전체 조회
         if (name != null && !name.trim().isEmpty()) {
-            creators = creatorRepository.findCreatorsByNameWithDepartment(
-                    MemberRole.CREATOR, MemberStatus.WORKING, name.trim());
+            creatorsPage = creatorRepository.findCreatorsByNameWithDepartment(
+                    MemberRole.CREATOR, MemberStatus.WORKING, name.trim(), pageable);
         } else {
-            creators = creatorRepository.findAllCreatorsWithDepartment(
-                    MemberRole.CREATOR, MemberStatus.WORKING);
+            creatorsPage = creatorRepository.findAllCreatorsWithDepartment(
+                    MemberRole.CREATOR, MemberStatus.WORKING, pageable);
         }
 
-        return buildResponseList(creators);
+        List<CreatorResponseDTO.Info> content = buildResponseList(creatorsPage.getContent());
+        return new PageImpl<>(content, pageable, creatorsPage.getTotalElements());
     }
 
     // 크리에이터 상세 조회
@@ -106,11 +110,13 @@ public class CreatorServiceImpl implements CreatorService {
                 .build());
     }
 
-    // 매니저별 크리에이터 조회
+    // 매니저별 크리에이터 조회 (이건 현재 페이징 안함 - 필요시 추가 가능)
     @Override
     public List<CreatorResponseDTO.Info> getMyCreators(Long managerId) {
+        // managerId 조회는 보통 개수가 적으므로 일단 페이징 없이 유지하거나,
+        // 필요하다면 findAllCreatorsByManagerIdWithDepartment 에 Pageable 추가
         List<Member> creators = creatorRepository.findCreatorsByManagerIdWithDepartment(
-                managerId, MemberRole.CREATOR, MemberStatus.WORKING);
+                managerId, MemberRole.CREATOR, MemberStatus.WORKING, Pageable.unpaged()).getContent();
         return buildResponseList(creators);
     }
 
@@ -123,6 +129,8 @@ public class CreatorServiceImpl implements CreatorService {
 
     // 매니저 조회
     private Member findManager(Long managerId) {
+        if (managerId == null)
+            return null;
         return creatorRepository.findManagerById(managerId, MemberRole.MANAGER)
                 .orElseThrow(() -> new CustomException(ErrorCode.MANAGER_NOT_FOUND));
     }
@@ -178,10 +186,19 @@ public class CreatorServiceImpl implements CreatorService {
 
     // 담당 매니저 조회
     private Member getManager(MemberCreatorDetail detail, Long newManagerId) {
-        if (newManagerId != null && !newManagerId.equals(detail.getMemberManager().getMemberId())) {
-            return findManager(newManagerId);
+        // 기존 매니저가 있고 새로운 매니저 ID가 null이면 null 반환 (매니저 해제 가능성 고려)
+        // 또는 기존 매니저 유지 로직이라면 return (newManagerId == null) ? detail.getMemberManager()
+        // : findManager(newManagerId);
+        // 대부분의 MCN 시스템에서는 미배정 상태로 변경하는 경우도 있으므로 null 허용
+        if (newManagerId == null) {
+            return null;
         }
-        return detail.getMemberManager();
+
+        if (detail.getMemberManager() != null && newManagerId.equals(detail.getMemberManager().getMemberId())) {
+            return detail.getMemberManager();
+        }
+
+        return findManager(newManagerId);
     }
 
     // 크리에이터 회원 정보 업데이트
@@ -256,7 +273,8 @@ public class CreatorServiceImpl implements CreatorService {
         return profile != null ? CreatorResponseDTO.Info.fromWithProfile(creator, detail,
                 profile.getProfileImage(), profile.getProfileBanner()) : CreatorResponseDTO.Info.from(creator, detail);
     }
-        // 크리에이터 기본 프로필 저장
+
+    // 크리에이터 기본 프로필 저장
     private void saveCreatorProfile(Member creator) {
         memberProfileRepository.save(MemberProfile.builder()
                 .member(creator)

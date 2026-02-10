@@ -88,8 +88,8 @@ public class ContractServiceImpl implements ContractService {
         }
 
         @Override
-        public List<ContractResponseDTO.Info> getAllContracts() {
-                List<CreatorContract> contracts = contractRepository.findAllContractsWithCreator();
+        public List<ContractResponseDTO.Info> getAllContracts(String name) {
+                List<CreatorContract> contracts = contractRepository.findAllContractsWithCreator(name);
 
                 return contracts.stream()
                                 .map(ContractResponseDTO.Info::from)

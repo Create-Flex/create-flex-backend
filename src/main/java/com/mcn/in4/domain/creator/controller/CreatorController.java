@@ -6,6 +6,8 @@ import com.mcn.in4.domain.creator.dto.response.CreatorResponseDTO;
 import com.mcn.in4.domain.creator.service.CreatorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,13 +39,12 @@ public class CreatorController implements CreatorApi {
     }
 
     // 크리에이터 목록 조회
-    // GET /api/creators (전체 조회)
-    // GET /api/creators?name=감
     @Override
     @GetMapping
-    public ResponseEntity<List<CreatorResponseDTO.Info>> getAllCreators(
-            @RequestParam(required = false) String name) {
-        return ResponseEntity.ok(creatorService.getAllCreators(name));
+    public ResponseEntity<Page<CreatorResponseDTO.Info>> getAllCreators(
+            @RequestParam(required = false) String name,
+            Pageable pageable) {
+        return ResponseEntity.ok(creatorService.getAllCreators(name, pageable));
     }
 
     // 크리에이터 상세 조회
