@@ -5,5 +5,6 @@ import com.mcn.in4.domain.auth.dto.response.AuthResponseDTO;
 
 public interface AuthService {
     AuthResponseDTO login(AuthRequestDTO.loginRequestDto request);
-    void logout();
+    void logout(String memberId);
+    AuthResponseDTO reissue(String refreshToken);
 }
