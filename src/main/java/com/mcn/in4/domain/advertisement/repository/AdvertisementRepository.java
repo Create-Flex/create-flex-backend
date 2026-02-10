@@ -2,6 +2,8 @@ package com.mcn.in4.domain.advertisement.repository;
 
 import com.mcn.in4.domain.advertisement.entity.CreatorPromotion;
 import com.mcn.in4.domain.creator.entity.creatorEnum.PromotionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -41,8 +43,8 @@ public interface AdvertisementRepository extends JpaRepository<CreatorPromotion,
                         "WHERE mcd.memberManager.memberId = :managerId " +
                         "AND cp.promotionStatus IN ('ACCEPTED', 'REJECTED') " +
                         "ORDER BY cp.createdAt DESC")
-        org.springframework.data.domain.Page<CreatorPromotion> findByManagerIdAndProcessedStatus(
-                        @Param("managerId") Long managerId, org.springframework.data.domain.Pageable pageable);
+        Page<CreatorPromotion> findByManagerIdAndProcessedStatus(
+                        @Param("managerId") Long managerId, Pageable pageable);
 
         // 광고 캠페인 단건 조회 (크리에이터 정보 함께 조회)
         @Query("SELECT cp FROM CreatorPromotion cp " +
