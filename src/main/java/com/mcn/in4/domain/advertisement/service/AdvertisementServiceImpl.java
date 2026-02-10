@@ -13,6 +13,8 @@ import com.mcn.in4.domain.schedule.repository.SchedulRepository;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,9 +56,9 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     }
 
     @Override
-    public org.springframework.data.domain.Page<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(
-            Long managerId, String filter, org.springframework.data.domain.Pageable pageable) {
-        org.springframework.data.domain.Page<CreatorPromotion> promotions;
+    public Page<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(
+            Long managerId, String filter, Pageable pageable) {
+        Page<CreatorPromotion> promotions;
 
         switch (filter.toLowerCase()) {
             case "waiting":

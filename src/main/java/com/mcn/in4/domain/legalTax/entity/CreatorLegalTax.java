@@ -17,28 +17,28 @@ public class CreatorLegalTax {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "legal_tax_id")
     private Long legalTaxId;
-    //크리에이터 법률 키
+    // 크리에이터 법률 키
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_creator_id", nullable = false)
     private Member memberCreator;
-    //크리에이터의 사용자 키
+    // 크리에이터의 사용자 키
 
     @Enumerated(EnumType.STRING)
     @Column(name = "legal_tax_type", nullable = false)
     private LegalTaxType legalTaxType;
-    //법률 / 세무 분류
+    // 법률 / 세무 분류
 
     @Column(name = "legal_tax_name", nullable = false)
     private String legalTaxName;
-    //법률세무 제목
+    // 법률세무 제목
 
     @Column(name = "legal_tax_detail", nullable = false)
     private String legalTaxDetail;
-    //법률세무 상세
+    // 법률세무 상세
 
     @Enumerated(EnumType.STRING)
     @Column(name = "letal_tax_status", nullable = false)
     private LegalTaxStatus legalTaxStatus;
-    //법률세무 상태
+    // 법률세무 상태
 }
