@@ -19,4 +19,5 @@ public interface HealthService {
     AssembledHealthInfo findAll();
     AssembledHealthInfo generateManageHealthInfo();
     void saveMentalHealthTest(Long memberId, Long score);
+    HealthPresigned deleteByHealthId(Long healthID);
 }
