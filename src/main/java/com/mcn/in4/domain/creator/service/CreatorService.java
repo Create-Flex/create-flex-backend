@@ -2,7 +2,8 @@ package com.mcn.in4.domain.creator.service;
 
 import com.mcn.in4.domain.creator.dto.request.CreatorRequestDTO;
 import com.mcn.in4.domain.creator.dto.response.CreatorResponseDTO;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface CreatorService {
@@ -11,7 +12,7 @@ public interface CreatorService {
     Long createCreator(CreatorRequestDTO.Create request);
 
     // 전체 크리에이터 조회
-    List<CreatorResponseDTO.Info> getAllCreators(String name);
+    Page<CreatorResponseDTO.Info> getAllCreators(String name, Pageable pageable);
 
     // 크리에이터 상세 조회
     CreatorResponseDTO.Info getCreatorById(Long creatorId);

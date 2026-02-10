@@ -74,13 +74,13 @@ public class CreatorResponseDTO {
                     .creatorCategory(detail.getCreatorCategory())
                     .creatorStatus(detail.getCreatorStatus())
                     .creatorMainContact(detail.getCreatorMainContact())
-                    .managerId(detail.getMemberManager().getMemberId())
-                    .managerName(detail.getMemberManager().getMemberName())
+                    .managerId(detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .managerName(detail.getMemberManager() != null ? detail.getMemberManager().getMemberName() : "미배정")
                     .build();
         }
 
         public static Info fromWithProfile(Member creator, MemberCreatorDetail detail,
-                                           String profileImage, String profileBanner) {
+                String profileImage, String profileBanner) {
             return Info.builder()
                     .memberId(creator.getMemberId())
                     .memberName(creator.getMemberName())
@@ -90,8 +90,8 @@ public class CreatorResponseDTO {
                     .creatorCategory(detail.getCreatorCategory())
                     .creatorStatus(detail.getCreatorStatus())
                     .creatorMainContact(detail.getCreatorMainContact())
-                    .managerId(detail.getMemberManager().getMemberId())
-                    .managerName(detail.getMemberManager().getMemberName())
+                    .managerId(detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .managerName(detail.getMemberManager() != null ? detail.getMemberManager().getMemberName() : "미배정")
                     .profileImage(profileImage)
                     .profileBanner(profileBanner)
                     .build();

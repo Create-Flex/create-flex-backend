@@ -144,7 +144,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     // 광고 수락 시 크리에이터 일정에 자동 추가
     private void createScheduleForPromotion(CreatorPromotion promotion) {
         Schedule schedule = Schedule.builder()
-                .member(promotion.getMemberCreator())  // 일정 작성자
+                .member(promotion.getMemberCreator()) // 일정 작성자
                 .creator(promotion.getMemberCreator()) // 일정 대상 크리에이터
                 .scheduleName(promotion.getPromotionClient())
                 .scheduleDate(promotion.getPromotionTargerDate())

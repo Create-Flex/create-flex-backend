@@ -23,7 +23,6 @@ public class AdvertisementController implements AdvertisementApi {
 
     private final AdvertisementService advertisementService;
 
-
     // 광고 캠페인 등록
     @Override
     @PostMapping
