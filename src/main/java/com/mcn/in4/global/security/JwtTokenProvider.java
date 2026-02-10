@@ -14,25 +14,53 @@ import java.util.Optional;
 @Component
 public class JwtTokenProvider {
     private final SecretKey secretKey;
-    private final long expiration;
+    private final long accessExpiration;
+    private final long refreshExpiration;
 
     // 생성자에서 secret과 expiration 주입
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expiration) {
+            @Value("${jwt.access-expiration}") long accessExpiration,
+            @Value("${jwt.refresh-expiration}") long refreshExpiration) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-        this.expiration = expiration;
+        this.accessExpiration = accessExpiration;
+        this.refreshExpiration = refreshExpiration;
     }
 
-    // JWT 토큰 생성
+    /**
+     * Access Token 생성 (기존 generateToken)
+     */
     public String generateToken(String memberId, String role) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expiration);
+        return generateAccessToken(memberId, role);
+    }
 
-        // claim은 JWT 안에 들어가는 커스텀 데이터.
+    /**
+     * Access Token 생성
+     */
+    public String generateAccessToken(String memberId, String role) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + accessExpiration);
+
         return Jwts.builder()
                 .subject(memberId)
                 .claim("role", role)
+                .claim("type", "access")
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    /**
+     * Refresh Token 생성
+     */
+    public String generateRefreshToken(String memberId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshExpiration);
+
+        return Jwts.builder()
+                .subject(memberId)
+                .claim("type", "refresh")
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -53,6 +81,14 @@ public class JwtTokenProvider {
     public String getRoleFromToken(String token) {
         Claims claims = getClaims(token);
         return claims.get("role", String.class);
+    }
+
+    /**
+     * 토큰 타입 확인 (access / refresh)
+     */
+    public String getTokenType(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("type", String.class);
     }
 
     // 토큰에서 Claims 추출

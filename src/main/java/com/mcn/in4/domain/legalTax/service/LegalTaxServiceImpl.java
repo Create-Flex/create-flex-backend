@@ -12,6 +12,8 @@ import com.mcn.in4.domain.member.repository.MemberRepository;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,25 +54,50 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     }
 
     @Override
-    public List<LegalTaxResponseDTO.Info> getAllLegalTax(LegalTaxType type, LegalTaxStatus status) {
-        // 항상 필터 메서드 사용 (null이면 전체 조회)
-        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findAllWithFilters(type, status);
+    public Page<LegalTaxResponseDTO.Info> getAllLegalTax(LegalTaxType type, String statusStr, Pageable pageable) {
+        LegalTaxStatus status = null;
+        boolean excludeDone = false;
 
-        return legalTaxList.stream()
-                .map(LegalTaxResponseDTO.Info::from)
-                .collect(Collectors.toList());
+        if ("NOT_DONE".equals(statusStr)) {
+            excludeDone = true;
+        } else if (statusStr != null && !statusStr.isEmpty()) {
+            try {
+                status = LegalTaxStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // 유효하지 않은 status는 null로 처리
+                // 여기서는 무시하고 전체 조회
+            }
+        }
+
+        // 항상 필터 메서드 사용 (null이면 전체 조회)
+        Page<CreatorLegalTax> legalTaxPage = legalTaxRepository.findAllWithFilters(type, status, excludeDone, pageable);
+
+        return legalTaxPage.map(LegalTaxResponseDTO.Info::from);
     }
 
     @Override
-    public List<LegalTaxResponseDTO.Info> getMyLegalTax(Long managerId, LegalTaxType type, LegalTaxStatus status) {
+    public Page<LegalTaxResponseDTO.Info> getMyLegalTax(Long managerId, LegalTaxType type, String statusStr,
+            Pageable pageable) {
+        LegalTaxStatus status = null;
+        boolean excludeDone = false;
+
+        if ("NOT_DONE".equals(statusStr)) {
+            excludeDone = true;
+        } else if (statusStr != null && !statusStr.isEmpty()) {
+            try {
+                status = LegalTaxStatus.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid status
+            }
+        }
+
         // 항상 필터 메서드 사용 (null이면 전체 조회)
-        List<CreatorLegalTax> legalTaxList = legalTaxRepository.findByManagerIdWithFilters(managerId, type, status);
+        Page<CreatorLegalTax> legalTaxPage = legalTaxRepository.findByManagerIdWithFilters(managerId, type, status,
+                excludeDone,
+                pageable);
 
-        return legalTaxList.stream()
-                .map(LegalTaxResponseDTO.Info::from)
-                .collect(Collectors.toList());
+        return legalTaxPage.map(LegalTaxResponseDTO.Info::from);
     }
-
 
     @Override
     @Transactional

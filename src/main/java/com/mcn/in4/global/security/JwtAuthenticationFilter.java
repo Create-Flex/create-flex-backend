@@ -48,10 +48,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    // 토큰이 있지만 유효하지 않음 (만료 등) -> 401 반환
+                    logger.warn("토큰이 만료되었거나 유효하지 않습니다.");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"message\": \"토큰이 만료되었습니다.\", \"code\": \"TOKEN_EXPIRED\"}");
+                    return;
                 }
             }
         } catch (Exception e) {
             logger.error("JWT인증 에러", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\": \"인증 처리 중 오류가 발생했습니다.\", \"code\": \"AUTH_ERROR\"}");
+            return;
         }
 
         filterChain.doFilter(request, response);
