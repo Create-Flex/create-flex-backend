@@ -40,11 +40,13 @@ public interface HealthRepository extends JpaRepository<Health, Long> {
             "group by h.checkupSummanary")
     List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers();
 
-    Optional<Health> findTopByMember_MemberId(Long memberId);
+    Optional<Health> findTopByMember_MemberIdOrderByCheckupDateDesc(Long memberId);
 
     boolean existsByMember_MemberIdAndCheckupDateBetween(
             Long memberId,
             LocalDate start,
             LocalDate end
     );
+
+    Optional<Health> findTopByHealthId(Long healthID);
 }
