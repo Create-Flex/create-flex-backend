@@ -37,7 +37,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	//H2 DataBase
-	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'com.h2database:h2'
+
+    //mySQL
+    implementation 'mysql:mysql-connector-java:8.0.29'
 
 	//security
 	implementation 'org.springframework.boot:spring-boot-starter-security'

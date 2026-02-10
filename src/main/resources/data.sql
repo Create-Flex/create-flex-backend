@@ -6,7 +6,7 @@
 -- ==========================================
 
 -- 1. 초기화 (재실행 시 충돌 방지)
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE attendance;
 TRUNCATE TABLE vacation_workation;
 TRUNCATE TABLE vacation_sick;
@@ -27,7 +27,7 @@ TRUNCATE TABLE creator_metal_health;
 TRUNCATE TABLE health;
 TRUNCATE TABLE members;
 TRUNCATE TABLE department;
-SET REFERENTIAL_INTEGRITY TRUE;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ==========================================
 -- 2. Department (부서)

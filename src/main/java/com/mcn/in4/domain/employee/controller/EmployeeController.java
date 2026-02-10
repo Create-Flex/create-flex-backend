@@ -23,7 +23,7 @@ public class EmployeeController implements EmployeeApi {
     public ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
             @RequestParam(value = "name", required = false) String name,
             @PageableDefault(size = 10) Pageable pageable) {
-        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList(name);
+        EmployeeResponseDTO.EmployeeManagementResponseDto response = employeeService.getEmployeeManagementList(name, pageable);
         return ResponseEntity.ok(response);
     }
 

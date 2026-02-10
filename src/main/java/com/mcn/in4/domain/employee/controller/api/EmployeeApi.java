@@ -4,6 +4,7 @@ import com.mcn.in4.domain.employee.dto.requestDTO.EmployeeRequestDTO;
 import com.mcn.in4.domain.employee.dto.responseDTO.EmployeeResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,14 +13,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Employee 관리", description = "직원 등록, 상세 조회 및 퇴사 처리를 담당하는 API입니다.")
 public interface EmployeeApi {
 
-//        @Operation(summary = "직원 리스트 및 통계 조회", description = "이름 검색 조건을 포함하여 직원 목록과 전체 통계를 조회합니다.")
-//        ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
-//                @Parameter(description = "검색할 직원 이름") String name);
+        @Operation(summary = "직원 리스트 및 통계 조회", description = "이름 검색 조건을 포함하여 직원 목록과 전체 통계를 조회합니다.")
+        @Parameters({
+                @Parameter(name = "page", description = "페이지 번호 (0..N)", example = "0"),
+                @Parameter(name = "size", description = "페이지 크기 (기본 10)", example = "10"),
+
+        })
+        ResponseEntity<EmployeeResponseDTO.EmployeeManagementResponseDto> getEmployeeManagementList(
+                @Parameter(description = "검색할 직원 이름") String name,
+                @Parameter(hidden = true) Pageable pageable);
 
         @Operation(summary = "직원 상세 조회", description = "특정 직원의 ID를 통해 상세 정보를 조회합니다.")
         ResponseEntity<EmployeeResponseDTO.EmployeeDetailResponseDto> getEmployeeDetail(

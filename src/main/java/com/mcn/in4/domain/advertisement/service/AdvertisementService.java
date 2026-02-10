@@ -11,7 +11,8 @@ public interface AdvertisementService {
     Long createAdvertisement(AdvertisementRequestDTO.Create request);
 
     // 매니저가 담당하는 크리에이터들의 광고 캠페인 목록 조회 - 필터 추가
-    List<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(Long managerId, String filter);
+    org.springframework.data.domain.Page<AdvertisementResponseDTO.Info> getMyAdvertisementsByFilter(Long managerId,
+            String filter, org.springframework.data.domain.Pageable pageable);
 
     // 광고 캠페인 수락 (일정 자동 생성)
     void acceptAdvertisement(Long promotionId);

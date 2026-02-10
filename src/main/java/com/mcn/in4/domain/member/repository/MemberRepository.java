@@ -49,7 +49,19 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member> findAll(Pageable pageable);
 
     // 이름 검색 페이징 조회
-    Page<Member> findByMemberNameContaining(String memberName, Pageable pageable);
+    Page<Member> findByMemberNameContainingIgnoreCase(String memberName, Pageable pageable);
+
+    // 이름으로 검색, 권한(CREATOR)은 제외
+    Page<Member> findByMemberNameContainingIgnoreCaseAndMemberRoleNot(String name, MemberRole role, Pageable pageable);
+    // 전체 조회, 권한(CREATOR)은 제외
+    Page<Member> findByMemberRoleNot(MemberRole role, Pageable pageable);
+
+    @Query("SELECT m FROM Member m WHERE m.memberName LIKE %:keyword% AND m.memberRole <> :excludeRole")
+    Page<Member> searchByNameAndRoleNot(
+            @Param("keyword") String keyword,
+            @Param("excludeRole") MemberRole excludeRole,
+            Pageable pageable
+    );
 
 
 }
