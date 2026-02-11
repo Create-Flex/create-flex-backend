@@ -36,9 +36,10 @@ public class AuthServiceImpl implements AuthService {
 
         String memberId = String.valueOf(member.getMemberId());
         String role = member.getMemberRole().name();
+        String Name = member.getMemberName();
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role);
+        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role,Name);
 
         // Refresh Token 생성 및 Redis 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
@@ -84,9 +85,10 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, "회원을 찾을 수 없습니다."));
 
         String role = member.getMemberRole().name();
+        String Name = member.getMemberName();
 
         // 5. 새 Access Token 생성
-        String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role, Name);
 
         // 6. 새 Refresh Token 생성 및 Redis 갱신 (Rotation)
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(memberId);
