@@ -8,7 +8,9 @@ import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxStatus;
 import com.mcn.in4.domain.legalTax.entity.creatorEnum.LegalTaxType;
 import com.mcn.in4.domain.legalTax.repository.LegalTaxRepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.MemberCreatorDetail;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.domain.notification.service.NotificationService;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +27,7 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     private final LegalTaxRepository legalTaxRepository;
     private final MemberRepository memberRepository;
     private final CreatorDetailRepository creatorDetailRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -45,10 +45,34 @@ public class LegalTaxServiceImpl implements LegalTaxService {
                 .legalTaxType(legalTaxType)
                 .legalTaxName(request.getLegalTaxName())
                 .legalTaxDetail(request.getLegalTaxDetail())
-                .legalTaxStatus(LegalTaxStatus.NOT_RECEIVED) // 초기 상태: 접수 대기
+                .legalTaxStatus(LegalTaxStatus.NOT_RECEIVED)
                 .build();
 
         CreatorLegalTax savedLegalTax = legalTaxRepository.save(legalTax);
+
+        // 알림 전송: 관리자에게 법률/세무 등록 알림
+        try {
+            // 크리에이터 상세 정보에서 담당 매니저 조회
+            MemberCreatorDetail creatorDetail = creatorDetailRepository
+                    .findByCreatorIdWithManager(creator.getMemberId())
+                    .orElse(null);
+
+            String managerName = "크리에이터";
+            if (creatorDetail != null && creatorDetail.getMemberManager() != null) {
+                managerName = creatorDetail.getMemberManager().getMemberName();
+            }
+
+            // 법률인지 세무인지 한글로 변환
+            String typeKorean = (legalTaxType == LegalTaxType.LEGAL) ? "법률" : "세무";
+
+            // 알림 전송
+            notificationService.sendLegalTaxRegistrationNotification(
+                    managerName,
+                    typeKorean,
+                    LegalTaxResponseDTO.Info.from(savedLegalTax));
+        } catch (Exception e) {
+            // 알림 전송 실패해도 등록은 정상 처리
+        }
 
         return savedLegalTax.getLegalTaxId();
     }
@@ -65,11 +89,9 @@ public class LegalTaxServiceImpl implements LegalTaxService {
                 status = LegalTaxStatus.valueOf(statusStr);
             } catch (IllegalArgumentException e) {
                 // 유효하지 않은 status는 null로 처리
-                // 여기서는 무시하고 전체 조회
             }
         }
 
-        // 항상 필터 메서드 사용 (null이면 전체 조회)
         Page<CreatorLegalTax> legalTaxPage = legalTaxRepository.findAllWithFilters(type, status, excludeDone, pageable);
 
         return legalTaxPage.map(LegalTaxResponseDTO.Info::from);
@@ -91,7 +113,6 @@ public class LegalTaxServiceImpl implements LegalTaxService {
             }
         }
 
-        // 항상 필터 메서드 사용 (null이면 전체 조회)
         Page<CreatorLegalTax> legalTaxPage = legalTaxRepository.findByManagerIdWithFilters(managerId, type, status,
                 excludeDone,
                 pageable);
@@ -104,7 +125,6 @@ public class LegalTaxServiceImpl implements LegalTaxService {
     public void completeLegalTax(Long legalTaxId) {
         CreatorLegalTax legalTax = findLegalTax(legalTaxId);
 
-        // 상태를 DONE으로 변경
         CreatorLegalTax updatedLegalTax = CreatorLegalTax.builder()
                 .legalTaxId(legalTax.getLegalTaxId())
                 .memberCreator(legalTax.getMemberCreator())
@@ -115,9 +135,31 @@ public class LegalTaxServiceImpl implements LegalTaxService {
                 .build();
 
         legalTaxRepository.save(updatedLegalTax);
+
+        // 알림 전송: 담당 매니저에게 완료 알림
+        try {
+            Member creator = legalTax.getMemberCreator();
+
+            // 크리에이터 상세 정보에서 담당 매니저 조회
+            MemberCreatorDetail creatorDetail = creatorDetailRepository
+                    .findByCreatorIdWithManager(creator.getMemberId())
+                    .orElse(null);
+
+            if (creatorDetail != null && creatorDetail.getMemberManager() != null) {
+                Member manager = creatorDetail.getMemberManager();
+                String typeKorean = (legalTax.getLegalTaxType() == LegalTaxType.LEGAL) ? "법률" : "세무";
+
+                notificationService.sendLegalTaxApprovalNotification(
+                        manager,
+                        creator.getMemberName(),
+                        typeKorean,
+                        LegalTaxResponseDTO.Info.from(updatedLegalTax));
+            }
+        } catch (Exception e) {
+            // 알림 전송 실패해도 수정은 정상 처리
+        }
     }
 
-    // 상담신청 유효성 검사
     private LegalTaxType parseLegalTaxType(String type) {
         try {
             return LegalTaxType.valueOf(type.toUpperCase());
