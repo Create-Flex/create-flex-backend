@@ -19,12 +19,27 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+/**
+ * Spring Security 설정 클래스
+ * - JWT 기반 인증을 위한 Stateless 세션 정책 설정
+ * - CSRF 비활성화 (REST API는 토큰 기반 인증이므로 CSRF 공격에 안전)
+ * - CORS 설정 (프론트엔드 localhost:3000 허용)
+ * - URL별 권한 설정 (permitAll, hasRole, hasAnyRole)
+ * - JwtAuthenticationFilter를 필터 체인에 추가하여 모든 요청에서 JWT 검증
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Security Filter Chain 설정
+     * - 모든 HTTP 요청에 대한 보안 규칙 정의
+     * - JWT 필터를 UsernamePasswordAuthenticationFilter 전에 추가
+     * @param http HttpSecurity 객체
+     * @return 구성된 SecurityFilterChain
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -76,6 +91,13 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * CORS 설정
+     * - 허용 Origin: http://localhost:3000 (프론트엔드)
+     * - 허용 메서드: GET, POST, PUT, DELETE, OPTIONS, PATCH
+     * - 인증정보(Authorization 헤더) 포함 요청 허용
+     * - Preflight 요청 캐시: 1시간
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -90,6 +112,11 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * 비밀번호 암호화 인코더 설정
+     * - BCrypt 해시 알고리즘 사용 (단방향 암호화)
+     * - 로그인 시 비밀번호 검증에 사용
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
