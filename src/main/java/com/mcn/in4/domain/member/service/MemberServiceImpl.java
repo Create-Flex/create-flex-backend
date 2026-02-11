@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.DeleteObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedDeleteObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional(readOnly = false)
 public class MemberServiceImpl implements MemberService {
 
         private final MemberRepository memberRepository;
@@ -59,7 +62,7 @@ public class MemberServiceImpl implements MemberService {
                                 .memberName(member.getMemberName())
                                 .memberAccount(member.getMemberAccount())
                                 .memberRole(member.getMemberRole())
-                                .profileImage(profile.getProfileImage())
+                                .profileImage("https://" + bucket + ".s3." + region + ".amazonaws.com/" + profile.getProfileImage())
                                 .profileBanner(profile.getProfileBanner());
 
                 // 4. 직원인 경우 상세 정보 조회 및 추가
@@ -108,7 +111,7 @@ public class MemberServiceImpl implements MemberService {
 
         String viewUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
 
-        memberProfileRepository.updateProfileImage(memberId, viewUrl);
+        memberProfileRepository.updateProfileImage(memberId, s3key);
 
         return MemberProfileResponseDto.builder()
                 .presignedURL(presignedUrl)
@@ -124,5 +127,30 @@ public class MemberServiceImpl implements MemberService {
         return managers.stream()
                 .map(ManagerResponseDto.ManagerInfo::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public MemberProfileResponseDto deleteMemberProfile(Long memberId){
+        MemberProfile deletedProfile = memberProfileRepository.findTopByMember_MemberId(memberId).orElseThrow();
+
+        String s3key = deletedProfile.getProfileImage();
+
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key(s3key)
+                .build();
+
+        PresignedDeleteObjectRequest presignedDeleteObjectRequest = s3Presigner.presignDeleteObject(
+                DeleteObjectPresignRequest.builder()
+                        .deleteObjectRequest(deleteObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(5))
+                        .build()
+        );
+
+        String presignedUrl = presignedDeleteObjectRequest.url().toString();
+
+        return MemberProfileResponseDto.builder()
+                .presignedURL(presignedUrl)
+                .build();
     }
 }

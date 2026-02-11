@@ -12,4 +12,6 @@ public interface MemberService {
 
     // 매니저 목록 조회
     List<ManagerResponseDto.ManagerInfo> getAllManagers();
+
+    MemberProfileResponseDto deleteMemberProfile(Long memberId);
 }

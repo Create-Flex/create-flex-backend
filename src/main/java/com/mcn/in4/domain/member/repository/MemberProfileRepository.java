@@ -26,4 +26,6 @@ public interface MemberProfileRepository extends JpaRepository<MemberProfile, Lo
     @Query("update MemberProfile mp set mp.profileImage = :profileImage where mp.member.memberId = :memberId ")
     int updateProfileImage(@Param("memberId") Long memberId,
                            @Param("profileImage") String profileImage);
+
+    Optional<MemberProfile> findTopByMember_MemberId(Long memberId);
 }
