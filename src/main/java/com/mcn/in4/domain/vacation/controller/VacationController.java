@@ -2,17 +2,19 @@ package com.mcn.in4.domain.vacation.controller;
 
 import com.mcn.in4.domain.vacation.controller.api.VacationApi;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationPageResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
-import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationRemainderResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationResponseDTO;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
 import com.mcn.in4.domain.vacation.service.VacationService;
 
 import java.time.LocalDate;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -53,14 +55,16 @@ public class VacationController implements VacationApi {
         return ResponseEntity.ok(response);
     }
 
-    /** 내 휴가 사용 내역 목록 조회 (기간, 휴가유형 필터) */
+    /** 내 휴가 사용 내역 목록 조회 - 페이징 적용 (기간, 휴가유형 필터) */
     @Override
     @GetMapping("/my")
-    public ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
+    public ResponseEntity<MyVacationPageResponseDTO> getMyVacationsPaged(
             @AuthenticationPrincipal String userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) VacationType type,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
             Authentication authentication
     ) {
         boolean isCreator = authentication.getAuthorities().stream()
@@ -79,7 +83,9 @@ public class VacationController implements VacationApi {
             endDate = LocalDate.now().plusMonths(3);
         }
 
-        List<VacationListResponseDTO> response = vacationService.getMyVacations(memberId, startDate, endDate, type);
+        // 페이지는 0부터 시작하므로 -1 처리, 정렬은 신청일 기준 내림차순
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "vacationRequest"));
+        MyVacationPageResponseDTO response = vacationService.getMyVacationsPaged(memberId, startDate, endDate, type, pageable);
         return ResponseEntity.ok(response);
     }
 

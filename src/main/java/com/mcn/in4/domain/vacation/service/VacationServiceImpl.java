@@ -5,6 +5,7 @@ import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationPageResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
@@ -23,6 +24,8 @@ import com.mcn.in4.domain.vacation.repository.VacationWorkationRepository;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -194,6 +197,16 @@ public class VacationServiceImpl implements VacationService {
         return vacations.stream()
                 .map(VacationListResponseDTO::from)
                 .collect(Collectors.toList());
+    }
+
+    /** 내 휴가 목록 조회 - 페이징 적용 (기간, 유형 필터 적용) */
+    @Override
+    public MyVacationPageResponseDTO getMyVacationsPaged(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type, Pageable pageable) {
+        Page<Vacation> vacationPage = vacationRepository.findMyVacationsWithFiltersPaged(memberId, startDate, endDate, type, pageable);
+
+        Page<VacationListResponseDTO> dtoPage = vacationPage.map(VacationListResponseDTO::from);
+
+        return MyVacationPageResponseDTO.from(dtoPage);
     }
 
     /** 휴가 상세 조회 (타입별 상세 정보 포함, 본인 휴가 또는 관리자만 조회 가능) */

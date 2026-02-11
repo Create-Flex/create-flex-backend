@@ -3,6 +3,8 @@ package com.mcn.in4.domain.vacation.repository;
 import com.mcn.in4.domain.vacation.entity.Vacation;
 import com.mcn.in4.domain.vacation.entity.enums.VacationApprove;
 import com.mcn.in4.domain.vacation.entity.enums.VacationType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -32,6 +34,18 @@ public interface VacationRepository extends JpaRepository<Vacation, Long>, JpaSp
                         @Param("startDate") LocalDate startDate,
                         @Param("endDate") LocalDate endDate,
                         @Param("type") VacationType type);
+
+        /** 내 휴가 목록 조회 - 페이징 적용 (기간, 유형 필터 적용) */
+        @Query("SELECT v FROM Vacation v " +
+                        "WHERE v.member.memberId = :memberId " +
+                        "AND v.vacationRequest BETWEEN :startDate AND :endDate " +
+                        "AND (:type IS NULL OR v.vacationType = :type)")
+        Page<Vacation> findMyVacationsWithFiltersPaged(
+                        @Param("memberId") Long memberId,
+                        @Param("startDate") LocalDate startDate,
+                        @Param("endDate") LocalDate endDate,
+                        @Param("type") VacationType type,
+                        Pageable pageable);
 
         /** 관리자용 전체 휴가 목록 조회 (기간, 승인상태, 이름, 휴가유형 필터 적용) - 시작일 내림차순 */
         @Query("SELECT v FROM Vacation v " +
