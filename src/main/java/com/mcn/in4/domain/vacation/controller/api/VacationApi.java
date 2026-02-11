@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.vacation.controller.api;
 
 import com.mcn.in4.domain.vacation.dto.request.VacationRequestDTO;
+import com.mcn.in4.domain.vacation.dto.response.MyVacationPageResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.MyVacationStatsResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationDetailResponseDTO;
 import com.mcn.in4.domain.vacation.dto.response.VacationListResponseDTO;
@@ -87,15 +88,15 @@ public interface VacationApi {
     );
 
     @Operation(
-            summary = "내 휴가 목록 조회",
-            description = "로그인한 사용자의 휴가 사용 내역을 조회합니다. 기간 및 유형 필터 적용 가능합니다.",
+            summary = "내 휴가 목록 조회 (페이징)",
+            description = "로그인한 사용자의 휴가 사용 내역을 페이징하여 조회합니다. 기간 및 유형 필터 적용 가능합니다.",
             security = @SecurityRequirement(name = "JWT"),
             responses = {
                     @ApiResponse(responseCode = "200", description = "조회 성공"),
                     @ApiResponse(responseCode = "403", description = "권한 없음 (크리에이터)")
             }
     )
-    ResponseEntity<List<VacationListResponseDTO>> getMyVacations(
+    ResponseEntity<MyVacationPageResponseDTO> getMyVacationsPaged(
             @Parameter(hidden = true) @AuthenticationPrincipal String userId,
             @Parameter(description = "조회 시작일 (기본: 오늘-3개월)", example = "2026-01-01")
             @RequestParam(required = false) LocalDate startDate,
@@ -103,6 +104,10 @@ public interface VacationApi {
             @RequestParam(required = false) LocalDate endDate,
             @Parameter(description = "휴가 유형 필터 (ANNUAL, HALF, FAMILY, SICK, WORKATION)")
             @RequestParam(required = false) VacationType type,
+            @Parameter(description = "페이지 번호 (1부터 시작)", example = "1")
+            @RequestParam(defaultValue = "1") int page,
+            @Parameter(description = "페이지 크기", example = "10")
+            @RequestParam(defaultValue = "10") int size,
             @Parameter(hidden = true) Authentication authentication
     );
 
