@@ -18,15 +18,26 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 
+/**
+ * JWT 인증 필터
+ * - 모든 HTTP 요청에서 JWT 토큰을 검증하는 필터
+ * - OncePerRequestFilter를 상속하여 요청당 한 번만 실행
+ * - 유효한 토큰이면 SecurityContext에 인증 정보 저장
+ * - 만료/무효한 토큰이면 401 응답 반환
+ */
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * 필터 로직 구현
+     * - Authorization 헤더에서 Bearer 토큰 추출
+     * - 토큰 유효성 검증 후 SecurityContext에 인증 정보 설정
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // 요청정보를 가지고 인증후, 인증이 완료되면 정보를 security에 저장
 
         try {
             // 1. 요청정보에서 토큰 추출
@@ -69,8 +80,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
+    /**
+     * HTTP 요청에서 JWT 토큰 추출
+     * - Authorization 헤더에서 "Bearer " 접두사 제거 후 토큰 반환
+     * @param request HTTP 요청 객체
+     * @return JWT 토큰 문자열 (없으면 null)
+     */
     private String getJwtFormRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
+        // "Bearer " (7글자) 이후의 토큰 부분만 추출
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
