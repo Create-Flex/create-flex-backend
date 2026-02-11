@@ -45,4 +45,13 @@ public class MemberController {
         return ResponseEntity.ok(managers);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<MemberProfileResponseDto> deleteProfile(
+            @AuthenticationPrincipal String userId
+    ){
+        Long memberId = Long.parseLong(userId);
+        MemberProfileResponseDto deleteProfile = memberService.deleteMemberProfile(memberId);
+        return ResponseEntity.ok(deleteProfile);
+    }
+
 }
