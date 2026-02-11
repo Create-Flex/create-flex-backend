@@ -92,7 +92,7 @@ public class MemberServiceImpl implements MemberService {
 
     public MemberProfileResponseDto generatePresignedUrl(Long memberId, MultipartFile file){
         String fileName = file.getOriginalFilename();
-        String s3key = "public/" + UUID.randomUUID().toString() + "/" + fileName;
+        String s3key = "public/profile/" + UUID.randomUUID().toString() + "/" + fileName;
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)

@@ -179,7 +179,7 @@ public class HealthServiceImpl implements HealthService{
 
     public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file){
         String fileName = file.getOriginalFilename();
-        String s3key ="public/" + UUID.randomUUID().toString() + "/" + fileName;
+        String s3key ="public/health/" + UUID.randomUUID().toString() + "/" + fileName;
         Member member = Member.builder()
                 .memberId(memberId)
                 .build();
