@@ -28,10 +28,13 @@ spring:
   ai:
     ollama:
       base-url: http://localhost:11434
+      init:
+        timeout: 120s # 초기화 타임 아웃 설정(프론트와 동일한 120초 설정)
       chat:
-        model: gemma3:4b
+        model: llama3.2:3b
         options:
-          temperature: 0.7
+          temperature: 0.3
+          keep-alive: 60m # 메모리를 1시간 동안 유지(만약 1시간 동안 대답이 없으면 메모리 해제)
 
 server:
   port: 8888
