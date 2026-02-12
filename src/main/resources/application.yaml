@@ -35,6 +35,11 @@ spring:
         options:
           temperature: 0.3
           keep-alive: 60m # 메모리를 1시간 동안 유지(만약 1시간 동안 대답이 없으면 메모리 해제)
+    openai:
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.3
 
 server:
   port: 8888
