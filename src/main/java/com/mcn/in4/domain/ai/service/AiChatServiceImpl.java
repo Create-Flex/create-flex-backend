@@ -1,25 +1,47 @@
 package com.mcn.in4.domain.ai.service;
 
+import com.mcn.in4.domain.ai.tools.AttendanceTools;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.net.ConnectException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * AI 챗봇 서비스 구현체
- * Spring AI의 ChatClient를 사용하여 Ollama와 통신합니다.
+ * Spring AI의 ChatClient를 사용하여 OpenAI와 통신합니다.
+ * 사용자 역할에 따라 사용 가능한 도구를 동적으로 등록합니다.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiChatServiceImpl implements AiChatService {
 
+  public static final String MSG_NO_PERMISSION = "해당 기능에 대한 접근 권한이 없습니다.";
+
   private final ChatClient chatClient;
+
+  /**
+   * 역할별 사용 가능한 도구 매핑 (중앙 관리)
+   * - 새 도구 추가 시: 해당 역할의 List에 도구 이름 추가
+   * - 새 역할 추가 시: Map에 새 항목 추가
+   * - CREATOR 등 맵에 없는 역할은 도구 없음 (빈 리스트 적용)
+   */
+  private static final Map<String, List<String>> ROLE_TOOLS = Map.of(
+      "ADMINISTRATOR", List.of("getMyAttendanceSummary", "getAllAttendanceSummary"),
+      "MANAGER", List.of("getMyAttendanceSummary"),
+      "EMPLOYEE", List.of("getMyAttendanceSummary")
+  // CREATOR → 맵에 없음 = 도구 없음
+  );
 
   @Override
   @Transactional
@@ -27,47 +49,68 @@ public class AiChatServiceImpl implements AiChatService {
     log.info("AI Chat 요청: {}", message);
 
     try {
+      // JWT 토큰에서 사용자 역할 추출
+      Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+      String userRole = extractRole(auth);
+
+      // 역할별 허용 도구 목록 조회
+      List<String> allowedTools = ROLE_TOOLS.getOrDefault(userRole, List.of());
+      log.info("AI Chat - 사용자 역할: {}, 허용 도구: {}", userRole, allowedTools);
+
+      // 도구가 없는 역할(CREATOR 등)은 LLM 호출 없이 즉시 거부
+      if (allowedTools.isEmpty()) {
+        log.info("AI Chat - 도구 없음, 즉시 거부 반환");
+        return MSG_NO_PERMISSION;
+      }
+
+      // 역할별 권한 지침
+      String roleGuideline = allowedTools.contains("getAllAttendanceSummary")
+          ? "- 특정 이름이 언급되면 반드시 'getAllAttendanceSummary'를 사용하세요 (getMyAttendanceSummary 사용 금지)."
+          : "- 타인의 근태 조회 권한이 없습니다. 타인 이름이 언급되면 도구를 호출하지 말고 정확히 '" + MSG_NO_PERMISSION + "'이라고만 답하세요.";
+
       String systemMessage = """
           Current Date: %s
 
           당신은 주식회사 'CreatorFlex'의 인사 관리(HR) AI 비서입니다.
-          사용자의 질문에 한국어로 친절하고 전문적으로 답변해야 합니다.
+          한국어로 친절하고 전문적으로 답변하세요.
 
-          [중요: 날짜 변환 규칙 - 반드시 준수]
-          - 오늘은 위 'Current Date'에 명시된 날짜입니다.
-          - 사용자가 연도를 명시하지 않으면 무조건 2026년을 기준으로 합니다.
-          - 한국어 월(月)을 숫자로 정확히 변환하세요:
-            1월=01, 2월=02, 3월=03, 4월=04, 5월=05, 6월=06,
-            7월=07, 8월=08, 9월=09, 10월=10, 11월=11, 12월=12
-          - 예시 (매우 중요):
-            "1월 1일부터 1월 10일" → startDate="2026-01-01", endDate="2026-01-10"
-            "2월 근태" → startDate="2026-02-01", endDate="2026-02-28"
-            "3월 5일" → startDate="2026-03-05", endDate="2026-03-05"
-          - 절대 사용자가 말한 월(月)을 다른 월로 변환하지 마세요.
-            "1월"이라고 하면 반드시 01월(January)입니다. 현재 월과 혼동하지 마세요.
+          [날짜 규칙]
+          - 연도 미명시 시 2026년 기준
+          - 구체적 날짜(N월 N일)는 startDate/endDate에 YYYY-MM-DD로 변환
+          - 상대적 표현(이번주, 저번달 등)은 dateInfo 필드 사용
 
-          [사용 가능한 도구]
-          1. 'getMyAttendanceSummary' - 본인의 근태 기록 조회
-             - "내 근태", "내 출퇴근", "오늘 출근했나?" 등 주어가 '나(Me)'일 때 사용
+          [권한]
+          %s
 
-          2. 'getAllAttendanceSummary' - 전체 또는 특정 직원 근태 조회 (관리자 전용)
-             - "전체 직원 근태", "회사 근태 현황" -> targetName=null
-             - "**홍길동** 근태 보여줘", "**김철수** 출퇴근", "**이채용**의 2월 근태" -> targetName="홍길동", "김철수", "이채용"
-             - 특정 이름이 언급되면 무조건 이 도구를 사용하고, targetName에 이름을 넣으세요.
+          [응답 규칙]
+          - 도구 결과를 마크다운 표로 정리
+          - 도구 호출 없이 근태 데이터를 추측하거나 만들어내지 마세요
+          - 권한 없음, 오류 등 거부 응답은 한 문장으로 간결하게 (대안 제시나 절차 설명 금지)
+          """.formatted(LocalDate.now(), roleGuideline);
 
-          [지침]
-          1. 날짜 포맷: 'YYYY-MM-DD' (예: 2026-01-15)
-          2. '저번주', '이번달', '어제' 등 상대적 표현은 직접 계산하지 말고 도구의 'dateInfo' 필드를 사용하세요.
-          3. 'N월 N일' 같은 구체적 날짜는 반드시 startDate/endDate에 YYYY-MM-DD로 변환하여 입력하세요.
-          4. **중요**: 질문에 특정 이름("홍길동", "이채용" 등)이 있으면 절대 'getMyAttendanceSummary'를 쓰지 말고, 'getAllAttendanceSummary'를 쓰세요.
-          5. 도구 결과를 마크다운 표(table)로 깔끔하게 정리하세요.
-          """.formatted(LocalDate.now());
-
-      String reply = chatClient.prompt()
+      // 역할별 도구 동적 등록 후 LLM 호출
+      ChatClient.ChatClientRequestSpec prompt = chatClient.prompt()
           .system(systemMessage)
-          .user(message)
-          .call()
-          .content();
+          .user(message);
+
+      if (!allowedTools.isEmpty()) {
+        prompt.functions(allowedTools.toArray(String[]::new));
+      }
+
+      String reply;
+      try {
+        reply = prompt.call().content();
+      } finally {
+        // ThreadLocal 정리 (메모리 누수 방지)
+        String deniedMessage = AttendanceTools.DENIED_MESSAGE.get();
+        AttendanceTools.DENIED_MESSAGE.remove();
+
+        // 도구에서 권한 거부 플래그가 설정되었으면 LLM 응답을 무시하고 거부 메시지 직접 반환
+        if (deniedMessage != null) {
+          log.info("AI Chat - 도구 권한 거부 감지, LLM 응답 무시. 거부 메시지: {}", deniedMessage);
+          return deniedMessage;
+        }
+      }
 
       log.info("AI Chat 응답: {}", reply);
       return reply;
@@ -77,13 +120,28 @@ public class AiChatServiceImpl implements AiChatService {
       // 연결 오류 판별
       if (isConnectionError(e)) {
         throw new CustomException(ErrorCode.AI_CONNECTION_FAILED,
-            "Ollama 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요. (" + e.getMessage() + ")");
+            "AI 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요. (" + e.getMessage() + ")");
       }
 
       // 기타 AI 오류
       throw new CustomException(ErrorCode.AI_SERVICE_ERROR,
           "AI 응답 생성 실패: " + e.getMessage());
     }
+  }
+
+  /**
+   * Authentication에서 사용자 역할을 추출합니다.
+   */
+  private String extractRole(Authentication auth) {
+    if (auth == null || auth.getPrincipal().equals("anonymousUser")) {
+      return "UNKNOWN";
+    }
+    return auth.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .filter(a -> a.startsWith("ROLE_"))
+        .map(a -> a.substring(5))
+        .findFirst()
+        .orElse("UNKNOWN");
   }
 
   private boolean isConnectionError(Exception e) {
