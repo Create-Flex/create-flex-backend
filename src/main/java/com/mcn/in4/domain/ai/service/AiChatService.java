@@ -2,7 +2,7 @@ package com.mcn.in4.domain.ai.service;
 
 /**
  * AI 챗봇 서비스 인터페이스
- * Ollama를 통한 AI 채팅 기능을 제공합니다.
+ * OpenAI를 통한 AI 채팅 기능을 제공합니다.
  */
 public interface AiChatService {
 
