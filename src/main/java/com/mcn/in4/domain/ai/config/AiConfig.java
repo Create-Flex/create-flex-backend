@@ -3,6 +3,7 @@ package com.mcn.in4.domain.ai.config;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.mcn.in4.domain.ai.tools.AttendanceTools;
 
 /**
  * AI 관련 설정
@@ -12,9 +13,11 @@ import org.springframework.context.annotation.Configuration;
 public class AiConfig {
 
     @Bean
-    public ChatClient chatClient(ChatClient.Builder builder) {
+    public ChatClient chatClient(ChatClient.Builder builder,
+            AttendanceTools tools) {
         return builder
-                .defaultSystem("당신은 CreatorFlex 서비스의 AI 어시스턴트입니다. 한국어로 친절하게 답변해주세요.")
+                // .defaultSystem(...) - AiChatServiceImpl에서 동적으로 설정함
+                .defaultFunctions("getMyAttendanceSummary", "getAllAttendanceSummary") // 함수 등록
                 .build();
     }
 }
