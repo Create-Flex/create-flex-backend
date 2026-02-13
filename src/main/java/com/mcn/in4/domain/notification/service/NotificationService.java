@@ -21,7 +21,7 @@ public class NotificationService {
     private final SseEmitters sseEmitters;
     private final MemberRepository memberRepository;
 
-    // 법률/세무 등록 알림을 관리자에게 전송합니다.
+    // 법률/세무 등록 알림을 관리자에게 전송
     public void sendLegalTaxRegistrationNotification(String managerName, String type, Object data) {
         // ADMINISTRATOR 권한을 가진 모든 사용자 조회
         List<Member> admins = memberRepository.findAllByMemberRole(MemberRole.ADMINISTRATOR);
@@ -33,7 +33,7 @@ public class NotificationService {
         // 알림 생성
         NotificationDto notification = NotificationDto.builder()
                 .type("LEGAL_TAX_REGISTERED")
-                .title("새로운 " + type + " 등록")
+                .title(type + " 등록")
                 .message(managerName + "님이 " + type + "을(를) 등록했습니다.")
                 .data(data)
                 .timestamp(LocalDateTime.now())
@@ -48,7 +48,7 @@ public class NotificationService {
         sseEmitters.sendToMembers(adminIds, "notification", notification);
     }
 
-    // 법률/세무 승인(완료) 알림을 담당 매니저에게 전송합니다.
+    // 법률/세무 승인(완료) 알림을 담당 매니저에게 전송
     public void sendLegalTaxApprovalNotification(Member manager, String creatorName, String type, Object data) {
         if (manager == null) {
             return;
@@ -76,5 +76,63 @@ public class NotificationService {
     // 여러 사용자에게 알림을 전송합니다.
     public void sendNotificationToMembers(List<Long> memberIds, NotificationDto notification) {
         sseEmitters.sendToMembers(memberIds, "notification", notification);
+    }
+
+    // 건강 검진 결과 제출 알림을 관리자에게 전송
+    public void sendHealthSubmissionNotification(String memberName, String checkupName) {
+        // ADMINISTRATOR 권한을 가진 모든 사용자 조회
+        List<Member> admins = memberRepository.findAllByMemberRole(MemberRole.ADMINISTRATOR);
+
+        if (admins.isEmpty()) {
+            return;
+        }
+
+        // 알림 생성
+        NotificationDto notification = NotificationDto.builder()
+                .type("HEALTH_SUBMITTED")
+                .title("건강 검진 결과 제출")
+                .message(memberName + "님이 " + checkupName + " 건강검진 결과를 제출했습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        // 관리자에게 알림 전송
+        List<Long> adminIds = admins.stream()
+                .map(Member::getMemberId)
+                .collect(Collectors.toList());
+
+        sseEmitters.sendToMembers(adminIds, "notification", notification);
+    }
+
+    // 크리에이터 건강 관리 알림을 관리자, 담당 매니저에게 전송.
+    public void sendCreatorHealthSubmissionNotification(String creatorName, String checkupName, Long managerId) {
+        // ADMINISTRATOR 권한을 가진 모든 사용자 조회
+        List<Member> admins = memberRepository.findAllByMemberRole(MemberRole.ADMINISTRATOR);
+
+        // 알림 대상 ID 리스트
+        List<Long> targetIds = admins.stream()
+                .map(Member::getMemberId)
+                .collect(Collectors.toList());
+
+        // 담당 매니저가 있으면 추가 (중복 방지)
+        if (managerId != null && !targetIds.contains(managerId)) {
+            targetIds.add(managerId);
+        }
+
+        if (targetIds.isEmpty()) {
+            return;
+        }
+
+        // 알림 생성
+        NotificationDto notification = NotificationDto.builder()
+                .type("CREATOR_HEALTH_SUBMITTED")
+                .title("크리에이터 건강 정보 제출")
+                .message(creatorName + "님이 " + checkupName + "를 제출했습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        // 관리자, 담당 매니저에게 알림 전송
+        sseEmitters.sendToMembers(targetIds, "notification", notification);
     }
 }
