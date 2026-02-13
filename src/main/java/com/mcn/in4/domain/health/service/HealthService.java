@@ -11,13 +11,22 @@ import java.util.List;
 
 public interface HealthService {
     MypageHealthInfo generateMypageHealthInfo(Long memberId, LocalDate startDate, LocalDate endDate);
+
     HealthResponseDto.CreatorHealthInfo generateCreatorHealthInfo(Long memberId);
+
     HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file);
+
     AssembledHealthInfo findByNameAndPeriod(String name, LocalDate startDate, LocalDate endDate);
+
     AssembledHealthInfo findByName(String name);
+
     AssembledHealthInfo findByPeriod(LocalDate startDate, LocalDate endDate);
+
     AssembledHealthInfo findAll();
+
     AssembledHealthInfo generateManageHealthInfo();
+
     void saveMentalHealthTest(Long memberId, Long score);
+
     HealthPresigned deleteByHealthId(Long healthID);
 }
