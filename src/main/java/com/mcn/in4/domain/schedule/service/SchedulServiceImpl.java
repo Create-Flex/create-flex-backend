@@ -12,6 +12,7 @@ import com.mcn.in4.domain.schedule.repository.SchedulRepository;
 import com.mcn.in4.domain.schedule.repository.ScheduleVisitorRepository;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
+import com.mcn.in4.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class SchedulServiceImpl implements SchedulService {
         private final MemberRepository memberRepository;
         private final CreatorDetailRepository creatorDetailRepository;
         private final ScheduleVisitorRepository scheduleVisitorRepository;
+        private final NotificationService notificationService;
 
         @Override
         @Transactional
@@ -77,6 +79,35 @@ public class SchedulServiceImpl implements SchedulService {
                                         .toList();
 
                         scheduleVisitorRepository.saveAll(visitors);
+                }
+
+                // 알림 전송 로직
+                try {
+                        if (targetCreator != null && !targetCreator.getMemberId().equals(memberId)) {
+                                // 매니저가 크리에이터의 일정을 등록한 경우 -> 크리에이터에게 알림
+                                notificationService.sendScheduleRegistrationNotification(
+                                                member.getMemberName(),
+                                                savedSchedule.getScheduleName(),
+                                                targetCreator.getMemberId());
+                        } else {
+                                // 본인이 등록한 경우 -> 담당 매니저에게 알림
+                                // 작성자의 담당 매니저 찾기
+                                Long managerId = creatorDetailRepository
+                                                .findByCreatorIdWithManager(member.getMemberId())
+                                                .map(detail -> detail.getMemberManager() != null
+                                                                ? detail.getMemberManager().getMemberId()
+                                                                : null)
+                                                .orElse(null);
+
+                                if (managerId != null) {
+                                        notificationService.sendScheduleRegistrationNotification(
+                                                        member.getMemberName(),
+                                                        savedSchedule.getScheduleName(),
+                                                        managerId);
+                                }
+                        }
+                } catch (Exception e) {
+                        log.error("일정 등록 알림 전송 실패", e);
                 }
         }
 

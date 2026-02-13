@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Map;
 
 @Tag(name = "광고 캠페인 관리", description = "크리에이터 광고 캠페인 등록, 조회 및 승인/거절을 담당하는 API입니다.")
@@ -25,6 +24,7 @@ public interface AdvertisementApi {
                         @ApiResponse(responseCode = "404", description = "크리에이터를 찾을 수 없음")
         })
         ResponseEntity<Map<String, Object>> createAdvertisement(
+                        @Parameter(hidden = true) String userId,
                         @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "광고 캠페인 등록 정보", content = @Content(examples = @ExampleObject(value = "{\n"
                                         +
                                         "  \"creator_id\": 2001,\n" +
@@ -50,6 +50,7 @@ public interface AdvertisementApi {
                         @ApiResponse(responseCode = "404", description = "광고 캠페인을 찾을 수 없음")
         })
         ResponseEntity<Map<String, Object>> updateAdvertisementStatus(
+                        @Parameter(hidden = true) String userId,
                         @Parameter(description = "광고 캠페인 ID", example = "2001") @PathVariable Long id,
                         @Parameter(description = "변경할 상태 (ACCEPTED: 수락, REJECTED: 거절)", example = "ACCEPTED") @RequestParam String status);
 }

@@ -30,10 +30,12 @@ public class AdvertisementServiceImpl implements AdvertisementService {
     private final AdvertisementRepository advertisementRepository;
     private final MemberRepository memberRepository;
     private final SchedulRepository schedulRepository;
+    private final com.mcn.in4.domain.notification.service.NotificationService notificationService;
+    private final com.mcn.in4.domain.creator.repository.CreatorDetailRepository creatorDetailRepository;
 
     @Override
     @Transactional
-    public Long createAdvertisement(AdvertisementRequestDTO.Create request) {
+    public Long createAdvertisement(AdvertisementRequestDTO.Create request, Long currentUserId) {
         // 크리에이터 존재 확인
         Member creator = memberRepository.findById(request.getCreatorId())
                 .orElseThrow(() -> new CustomException(ErrorCode.CREATOR_NOT_FOUND));
@@ -51,6 +53,23 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 .build();
 
         CreatorPromotion savedPromotion = advertisementRepository.save(promotion);
+
+        // 크리에이터와 담당 매니저에게 알림 전송
+        try {
+            Long managerId = creatorDetailRepository
+                    .findByCreatorIdWithManager(creator.getMemberId())
+                    .map(detail -> detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .orElse(null);
+
+            notificationService.sendAdvertisementRegistrationNotification(
+                    creator.getMemberName(),
+                    request.getPromotionName(),
+                    creator.getMemberId(),
+                    managerId,
+                    currentUserId);
+        } catch (Exception e) {
+            // 알림 전송 실패해도 등록은 정상 처리
+        }
 
         return savedPromotion.getPromotionId();
     }
@@ -84,7 +103,7 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
     @Override
     @Transactional
-    public void acceptAdvertisement(Long promotionId) {
+    public void acceptAdvertisement(Long promotionId, Long currentUserId) {
         CreatorPromotion promotion = findPromotion(promotionId);
 
         // 대기중 상태만 수락 가능
@@ -109,11 +128,28 @@ public class AdvertisementServiceImpl implements AdvertisementService {
 
         // 크리에이터 일정에 자동 추가
         createScheduleForPromotion(promotion);
+
+        // 크리에이터와 담당 매니저에게 알림 전송
+        try {
+            Long managerId = creatorDetailRepository
+                    .findByCreatorIdWithManager(promotion.getMemberCreator().getMemberId())
+                    .map(detail -> detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .orElse(null);
+
+            notificationService.sendAdvertisementAcceptanceNotification(
+                    promotion.getMemberCreator().getMemberName(),
+                    promotion.getPromotionName(),
+                    promotion.getMemberCreator().getMemberId(),
+                    managerId,
+                    currentUserId);
+        } catch (Exception e) {
+            // 알림 전송 실패해도 수락은 정상 처리
+        }
     }
 
     @Override
     @Transactional
-    public void rejectAdvertisement(Long promotionId) {
+    public void rejectAdvertisement(Long promotionId, Long currentUserId) {
         CreatorPromotion promotion = findPromotion(promotionId);
 
         // 대기중 상태만 거절 가능
@@ -135,6 +171,23 @@ public class AdvertisementServiceImpl implements AdvertisementService {
                 .build();
 
         advertisementRepository.save(updatedPromotion);
+
+        // 크리에이터와 담당 매니저에게 알림 전송
+        try {
+            Long managerId = creatorDetailRepository
+                    .findByCreatorIdWithManager(promotion.getMemberCreator().getMemberId())
+                    .map(detail -> detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .orElse(null);
+
+            notificationService.sendAdvertisementRejectionNotification(
+                    promotion.getMemberCreator().getMemberName(),
+                    promotion.getPromotionName(),
+                    promotion.getMemberCreator().getMemberId(),
+                    managerId,
+                    currentUserId);
+        } catch (Exception e) {
+            // 알림 전송 실패해도 거절은 정상 처리
+        }
     }
 
     // 광고 유효성 검사

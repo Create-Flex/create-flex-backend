@@ -13,6 +13,7 @@ import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,7 @@ public class HealthServiceImpl implements HealthService{
     private final CreatorDetailRepository creatorDetailRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
     private final CreatorMentalHealthRepository creatorMentalHealthRepository;
+    private final NotificationService notificationService;
     private final S3Presigner s3Presigner;
 
     @Value("${aws.region}")
@@ -210,6 +212,34 @@ public class HealthServiceImpl implements HealthService{
 
         Health savedHealth = healthRepository.save(health);
 
+        // 알림 전송 (크리에이터인 경우 관리자 + 담당 매니저에게, 일반 직원인 경우 관리자에게만)
+        try {
+            Member submitter = memberRepository.findByMemberId(memberId);
+            MemberRole role = submitter.getMemberRole();
+
+            if (role == MemberRole.CREATOR) {
+                // 크리에이터의 담당 매니저 조회
+                Long managerId = creatorDetailRepository
+                        .findByCreatorIdWithManager(memberId)
+                        .map(detail -> detail.getMemberManager() != null ? detail.getMemberManager().getMemberId()
+                                : null)
+                        .orElse(null);
+
+                // 크리에이터 건강 알림 전송 (관리자 + 담당 매니저)
+                notificationService.sendCreatorHealthSubmissionNotification(
+                        submitter.getMemberName(),
+                        checkupName + " 건강검진 결과",
+                        managerId);
+            } else {
+                // 일반 직원 건강 알림 전송 (관리자만)
+                notificationService.sendHealthSubmissionNotification(
+                        submitter.getMemberName(),
+                        checkupName);
+            }
+        } catch (Exception e) {
+            // 알림 전송 실패해도 저장은 정상 처리
+        }
+
         return HealthPresigned.builder()
                 .presignedUrl(presignedUrl)
                 .build();
@@ -226,6 +256,25 @@ public class HealthServiceImpl implements HealthService{
                 .member(creator)
                 .build();
         creatorMentalHealthRepository.save(mentalHealth);
+
+        // 크리에이터 정신 건강 테스트 완료 알림 전송
+        try {
+            Member submitter = memberRepository.findByMemberId(memberId);
+
+            // 크리에이터의 담당 매니저 조회
+            Long managerId = creatorDetailRepository
+                    .findByCreatorIdWithManager(memberId)
+                    .map(detail -> detail.getMemberManager() != null ? detail.getMemberManager().getMemberId() : null)
+                    .orElse(null);
+
+            // 크리에이터 건강 알림 전송 (관리자 + 담당 매니저)
+            notificationService.sendCreatorHealthSubmissionNotification(
+                    submitter.getMemberName(),
+                    "정신 건강 검사 (PHQ-9)",
+                    managerId);
+        } catch (Exception e) {
+            // 알림 전송 실패해도 저장은 정상 처리
+        }
     }
 
     @Transactional

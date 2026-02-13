@@ -6,9 +6,19 @@ package com.mcn.in4.domain.vacation.entity.enums;
  * - FAMILY, SICK, WORKATION: 잔여 연차 차감 없음
  */
 public enum VacationType {
-    ANNUAL,    // 연차
-    HALF,      // 반차
-    WORKATION, // 워케이션
-    FAMILY,    // 경조사
-    SICK       // 병가
+    ANNUAL("연차"),
+    HALF("반차"),
+    WORKATION("워케이션"),
+    FAMILY("경조사"),
+    SICK("병가");
+
+    private final String description;
+
+    VacationType(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
