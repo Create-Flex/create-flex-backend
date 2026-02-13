@@ -36,9 +36,10 @@ public class AuthServiceImpl implements AuthService {
 
         String memberId = String.valueOf(member.getMemberId());
         String role = member.getMemberRole().name();
+        String Name = member.getMemberName();
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role);
+        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role,Name);
 
         // Refresh Token 생성 및 Redis 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
@@ -63,32 +64,33 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO reissue(String refreshToken) {
         log.info("========== 토큰 갱신 요청 시작 ==========");
 
-        // Refresh Token 유효성 검증
+        // 1. Refresh Token 유효성 검증
         if (jwtTokenProvider.validateToken(refreshToken).isEmpty()) {
             log.warn("유효하지 않은 Refresh Token");
             throw new CustomException(ErrorCode.TOKEN_INVALID, "유효하지 않은 Refresh Token입니다.");
         }
 
-        // 토큰에서 memberId 추출
+        // 2. 토큰에서 memberId 추출
         String memberId = jwtTokenProvider.getUserIdFromToken(refreshToken);
         log.info("토큰 갱신 요청 - memberId: {}", memberId);
 
-        // Redis에 저장된 Refresh Token과 비교
+        // 3. Redis에 저장된 Refresh Token과 비교
         if (!refreshTokenService.validateRefreshToken(memberId, refreshToken)) {
             log.warn("Redis의 Refresh Token과 불일치 - memberId: {}", memberId);
             throw new CustomException(ErrorCode.TOKEN_INVALID, "Refresh Token이 일치하지 않습니다.");
         }
 
-        // Member 조회하여 role 가져오기
+        // 4. Member 조회하여 role 가져오기
         Member member = memberRepository.findById(Long.parseLong(memberId))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, "회원을 찾을 수 없습니다."));
 
         String role = member.getMemberRole().name();
+        String Name = member.getMemberName();
 
-        // 새 Access Token 생성
-        String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role);
+        // 5. 새 Access Token 생성
+        String newAccessToken = jwtTokenProvider.generateAccessToken(memberId, role, Name);
 
-        // 새 Refresh Token 생성 및 Redis 갱신 (Rotation)
+        // 6. 새 Refresh Token 생성 및 Redis 갱신 (Rotation)
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(memberId);
         refreshTokenService.saveRefreshToken(memberId, newRefreshToken);
 

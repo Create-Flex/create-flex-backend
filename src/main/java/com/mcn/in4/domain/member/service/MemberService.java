@@ -2,6 +2,7 @@ package com.mcn.in4.domain.member.service;
 
 import com.mcn.in4.domain.member.dto.ManagerResponseDto;
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
+import com.mcn.in4.domain.member.dto.MemberSummaryDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface MemberService {
     List<ManagerResponseDto.ManagerInfo> getAllManagers();
 
     MemberProfileResponseDto deleteMemberProfile(Long memberId);
+
+    List<MemberSummaryDto> getAllMembers();
 }

@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html")
                         .permitAll()
-
+                        .requestMatchers("/ws-stomp/**").permitAll()
                         // 인증없이 가능한 경우
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/reissue").permitAll()

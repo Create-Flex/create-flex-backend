@@ -175,7 +175,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                             .newHireCount(newHireCount)
                             .build())
                     .list(list)
-                    .pageInfo(EmployeeResponseDTO.PageInfo.builder() // [추가] 프론트엔드용 페이징 정보
+                    .pageInfo(EmployeeResponseDTO.PageInfo.builder() // 프론트엔드용 페이징 정보
                             .currentPage(memberPage.getNumber() + 1) // 1페이지부터 시작
                             .totalPages(memberPage.getTotalPages())
                             .totalElements(memberPage.getTotalElements())
@@ -317,7 +317,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 detail.getEmploymentType() // 기존 값 유지
                 );
 
-                // 4. 업데이트된 정보 반환
+                //업데이트된 정보 반환
                 return getEmployeeDetail(memberId);
         }
 

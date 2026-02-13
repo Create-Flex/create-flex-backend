@@ -17,47 +17,46 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long memberId;
-    //사용자 키
-
+    // 사용자 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id", nullable = true)
     private Department department;
-    //사용자 소속 부서 키 (상위 엔티티 삭제시 NULL화)
-
+    // 사용자 소속 부서 키 (상위 엔티티 삭제시 NULL화)
 
     @Column(name = "member_account", nullable = false)
     private String memberAccount;
-    //사번 (아이디)
+    // 사번 (아이디)
 
     @Column(name = "member_password", nullable = false)
     private String memberPassword;
-    //사용자 비밀번호
+    // 사용자 비밀번호
 
     @Column(name = "task", nullable = true)
     private String task;
-    //직무
+    // 직무
 
     @Column(name = "member_name", nullable = false)
     private String memberName;
-    //사용자 이름
+    // 사용자 이름
 
     @Enumerated(EnumType.STRING)
     @Column(name = "member_role", nullable = false)
     private MemberRole memberRole;
-    //사용자 권한
+    // 사용자 권한
 
     @Enumerated(EnumType.STRING)
     @Column(name = "member_status", nullable = false)
     private MemberStatus memberStatus;
-    //사용자 상태
+    // 사용자 상태
 
-    //퇴사 상태 변경
+    // 퇴사 상태 변경
     public void updateStatus(MemberStatus newStatus) {
         this.memberStatus = newStatus;
     }
 
-    public void updateInfo(String memberName, MemberRole memberRole, MemberStatus memberStatus, String task, Department department) {
+    public void updateInfo(String memberName, MemberRole memberRole, MemberStatus memberStatus, String task,
+            Department department) {
         this.memberName = memberName;
         this.memberRole = memberRole;
         this.memberStatus = memberStatus;
@@ -65,7 +64,7 @@ public class Member {
         this.department = department;
     }
 
-    //비밀번호 변경 메서드
+    // 비밀번호 변경 메서드
     public void updatePassword(String password) {
         this.memberPassword = password;
     }

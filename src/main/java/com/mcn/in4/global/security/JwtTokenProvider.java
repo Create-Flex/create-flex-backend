@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import javax.naming.Name;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
@@ -30,14 +31,14 @@ public class JwtTokenProvider {
     /**
      * Access Token 생성 (기존 generateToken)
      */
-    public String generateToken(String memberId, String role) {
-        return generateAccessToken(memberId, role);
+    public String generateToken(String memberId, String role, String name) {
+        return generateAccessToken(memberId, role, name);
     }
 
     /**
      * Access Token 생성
      */
-    public String generateAccessToken(String memberId, String role) {
+    public String generateAccessToken(String memberId, String role, String name) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessExpiration);
 
@@ -45,6 +46,7 @@ public class JwtTokenProvider {
                 .subject(memberId)
                 .claim("role", role)
                 .claim("type", "access")
+                .claim("name", name)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -66,7 +68,14 @@ public class JwtTokenProvider {
                 .signWith(secretKey)
                 .compact();
     }
-
+    /*
+    토큰에서 이름 추출
+     */
+    public String getMemberNameFromToken(String token) {
+        Claims claims = getClaims(token);
+        return claims.get("name", String.class);
+    }
+    
     /**
      * 토큰에서 사용자 ID 추출
      */
