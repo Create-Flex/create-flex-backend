@@ -237,4 +237,45 @@ public class NotificationService {
 
         sseEmitters.send(receiverId, "notification", notification);
     }
+
+    // 휴가 신청 알림 (직원 -> 관리자)
+    public void sendVacationRequestNotification(String employeeName, String vacationType) {
+        // ADMINISTRATOR 권한을 가진 모든 사용자 조회
+        List<Member> admins = memberRepository.findAllByMemberRole(MemberRole.ADMINISTRATOR);
+
+        if (admins.isEmpty()) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("VACATION_REQUESTED")
+                .title("휴가 신청")
+                .message(employeeName + "님이 " + vacationType + " 휴가를 신청했습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        List<Long> adminIds = admins.stream()
+                .map(Member::getMemberId)
+                .collect(Collectors.toList());
+
+        sseEmitters.sendToMembers(adminIds, "notification", notification);
+    }
+
+    // 휴가 처리 결과 알림 (관리자 -> 직원)
+    public void sendVacationResultNotification(Long employeeId, String vacationType, String result) {
+        if (employeeId == null) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("VACATION_RESULT")
+                .title("휴가 " + result)
+                .message(vacationType + " 휴가 신청이 " + result + "되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        sseEmitters.send(employeeId, "notification", notification);
+    }
 }
