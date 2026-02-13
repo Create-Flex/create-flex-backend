@@ -1,6 +1,7 @@
 package com.mcn.in4.global.config;
 
 import com.mcn.in4.global.security.JwtAuthenticationFilter;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ public class SecurityConfig {
      * Security Filter Chain 설정
      * - 모든 HTTP 요청에 대한 보안 규칙 정의
      * - JWT 필터를 UsernamePasswordAuthenticationFilter 전에 추가
+     * 
      * @param http HttpSecurity 객체
      * @return 구성된 SecurityFilterChain
      */
@@ -47,6 +49,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .shouldFilterAllDispatcherTypes(false)
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+                        .requestMatchers("/error").permitAll()
                         // Swagger 권한
                         .requestMatchers(
                                 "/swagger-ui/**",
