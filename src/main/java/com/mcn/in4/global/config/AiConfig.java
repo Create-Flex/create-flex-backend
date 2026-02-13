@@ -1,4 +1,4 @@
-package com.mcn.in4.domain.ai.config;
+package com.mcn.in4.global.config;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;
@@ -6,8 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import com.mcn.in4.domain.ai.tools.AttendanceTools;
 
 /**
- * AI 관련 설정
+ * AI 공통 설정
  * ChatClient Bean을 생성합니다.
+ * AI 챗봇(ai 도메인)과 이미지 분석(image 도메인) 공통으로 사용됩니다.
  */
 @Configuration
 public class AiConfig {
@@ -16,8 +17,7 @@ public class AiConfig {
     public ChatClient chatClient(ChatClient.Builder builder,
             AttendanceTools tools) {
         return builder
-                // .defaultSystem(...) - AiChatServiceImpl에서 동적으로 설정함
-                .defaultFunctions("getMyAttendanceSummary", "getAllAttendanceSummary") // 함수 등록
+                // 도구는 AiChatServiceImpl에서 역할별로 동적 등록
                 .build();
     }
 }

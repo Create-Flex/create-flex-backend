@@ -1,5 +1,7 @@
 package com.mcn.in4.domain.ai.tools;
 
+import com.mcn.in4.domain.ai.service.AiChatServiceImpl;
+
 import com.mcn.in4.domain.ai.dto.attendance.AttendanceQuery;
 import com.mcn.in4.domain.ai.dto.attendance.AttendanceSummary;
 import com.mcn.in4.domain.attendance.dto.AttendanceResponseDto;
@@ -18,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,16 @@ import java.util.stream.Collectors;
 public class AttendanceTools {
 
     private final AttendanceService attendanceService;
+
+    /** 자기 지칭 단어 목록 — targetName에 들어오면 null로 처리 */
+    private static final Set<String> SELF_REFERENCES = Set.of(
+            "나", "내", "본인", "저", "나의", "내꺼", "제", "자신");
+
+    /**
+     * 도구에서 권한 거부 시, LLM 응답을 무시하고 이 메시지를 직접 반환하기 위한 플래그.
+     * AiChatServiceImpl에서 LLM 호출 후 이 값을 확인합니다.
+     */
+    public static final ThreadLocal<String> DENIED_MESSAGE = new ThreadLocal<>();
 
     // ===== 날짜 범위 계산 공통 메서드 =====
     private LocalDate[] resolveDateRange(AttendanceQuery query) {
@@ -99,10 +112,24 @@ public class AttendanceTools {
 
     // ===== 내 근태 조회 도구 =====
     @Bean
-    @Description("자신의 근태 기록(출퇴근 시간, 상태)을 조회합니다. 구체적 날짜('1월 5일~1월 10일')는 startDate/endDate에 YYYY-MM-DD로 변환하세요. 상대적 표현('이번주','저번달')만 dateInfo를 사용하세요. 주의: '1월'은 반드시 01월입니다.")
+    @Description("본인의 근태 기록(출퇴근 시간, 상태)을 조회합니다. 주어가 '나'일 때만 사용.")
     public Function<AttendanceQuery, AttendanceSummary> getMyAttendanceSummary() {
         return query -> {
             Authentication auth = getAuthOrThrow();
+
+            // 자기 지칭("나", "본인" 등)은 targetName에서 무시
+            String targetName = query.targetName();
+            if (targetName != null && SELF_REFERENCES.contains(targetName.trim())) {
+                log.info("자기 지칭 targetName='{}' 무시 처리", targetName);
+                targetName = null;
+            }
+
+            // 타 직원 조회 시도 차단: targetName이 있으면 즉시 거부 (DB 쿼리 안 함)
+            if (targetName != null && !targetName.isBlank()) {
+                log.warn("getMyAttendanceSummary에 targetName='{}' 전달됨 - 권한 없음으로 차단", targetName);
+                DENIED_MESSAGE.set(AiChatServiceImpl.MSG_NO_PERMISSION);
+                return new AttendanceSummary(auth.getName(), AiChatServiceImpl.MSG_NO_PERMISSION, List.of());
+            }
 
             Long currentMemberId;
             try {
@@ -145,7 +172,7 @@ public class AttendanceTools {
 
     // ===== 전체 직원 근태 조회 도구 (관리자 전용) =====
     @Bean
-    @Description("전체 직원의 근태 기록을 조회합니다. 관리자(ADMINISTRATOR)만 사용할 수 있습니다. '전체 근태', '모든 직원 근태', '회사 근태' 등의 요청 시 사용하세요. 날짜 변환 규칙은 getMyAttendanceSummary와 동일합니다.")
+    @Description("전체 또는 특정 직원의 근태를 조회합니다. 관리자 전용. 특정 이름 언급 시 targetName에 이름을 넣어 호출.")
     public Function<AttendanceQuery, AttendanceSummary> getAllAttendanceSummary() {
         return query -> {
             Authentication auth = getAuthOrThrow();
@@ -154,7 +181,7 @@ public class AttendanceTools {
             if (!hasRole(auth, "ADMINISTRATOR")) {
                 log.warn("Non-admin user {} attempted to access all attendance", auth.getName());
                 return new AttendanceSummary(auth.getName(),
-                        "권한이 없습니다. 전체 직원 근태 조회는 관리자(ADMINISTRATOR)만 가능합니다.", List.of());
+                        AiChatServiceImpl.MSG_NO_PERMISSION, List.of());
             }
 
             LocalDate[] range = resolveDateRange(query);
