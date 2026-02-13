@@ -45,7 +45,7 @@ public class SseEmitters {
                     emitter.send(SseEmitter.event()
                             .name(eventName)
                             .data(data));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     deadEmitters.add(emitter);
                 }
             });

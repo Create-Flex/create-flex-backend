@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -26,6 +28,7 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(errorCode, e.getDetailedMessage());
         return new ResponseEntity<>(response, errorCode.getStatus());
     }
+
     /**
      * 인증 관련 예외 처리 (Security)
      */
@@ -36,18 +39,29 @@ public class GlobalExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(errorCode);
         return new ResponseEntity<>(response, errorCode.getStatus());
     }
+
     /**
      * Bean Validation 예외 처리
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    protected ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e) {
         log.error("handleMethodArgumentNotValidException", e);
         Map<String, String> errors = new HashMap<>();
-        e.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
+        e.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
+
+    /**
+     * SSE 타임아웃 예외 처리
+     */
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    protected ResponseEntity<String> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException e) {
+        // 타임아웃은 에러가 아니므로 로그 레벨을 낮추거나 무시
+        log.warn("SSE Timeout occurred", e);
+        return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+    }
+
     /**
      * 그 외 모든 예외 처리
      */

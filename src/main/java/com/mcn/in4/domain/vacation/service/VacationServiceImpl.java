@@ -23,6 +23,7 @@ import com.mcn.in4.domain.vacation.repository.VacationSickRepository;
 import com.mcn.in4.domain.vacation.repository.VacationWorkationRepository;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ public class VacationServiceImpl implements VacationService {
     private final VacationWorkationRepository vacationWorkationRepository;
     private final MemberRepository memberRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+    private final NotificationService notificationService;
 
     /** 휴가 신청 (연차/반차는 잔여일수 차감 후 저장) */
     @Override
@@ -60,7 +62,8 @@ public class VacationServiceImpl implements VacationService {
 
         // 회원 조회 (토큰에서 추출한 memberId 사용)
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, "회원 ID " + memberId + "를 찾을 수 없습니다."));
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND, "회원 ID " + memberId + "를 찾을 수 없습니다."));
 
         // 반차인 경우 종료일을 시작일과 동일하게 설정
         LocalDate vacationEnd = (vacationType == VacationType.HALF)
@@ -82,8 +85,10 @@ public class VacationServiceImpl implements VacationService {
 
         // 연차/반차인 경우 잔여일수 확인 및 차감
         if (vacationType == VacationType.ANNUAL || vacationType == VacationType.HALF) {
-            MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(member.getMemberId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND, "회원 ID " + member.getMemberId() + "의 직원 상세 정보가 존재하지 않습니다."));
+            MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository
+                    .findByMemberMemberId(member.getMemberId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND,
+                            "회원 ID " + member.getMemberId() + "의 직원 상세 정보가 존재하지 않습니다."));
 
             if (employeeDetail.getVacationRemainder() < vacationDays) {
                 throw new CustomException(ErrorCode.INSUFFICIENT_VACATION_REMAINDER,
@@ -108,12 +113,22 @@ public class VacationServiceImpl implements VacationService {
 
         Vacation savedVacation = vacationRepository.save(vacation);
 
-        //타입별 상세 엔티티 저장
+        // 타입별 상세 엔티티 저장
         switch (vacationType) {
             case FAMILY -> saveVacationFamily(savedVacation, request);
             case SICK -> saveVacationSick(savedVacation, request);
             case WORKATION -> saveVacationWorkation(savedVacation, request);
-            default -> {} // ANNUAL, HALF는 상세 정보 없음
+            default -> {
+            } // ANNUAL, HALF는 상세 정보 없음
+        }
+
+        // 관리자에게 알림 전송
+        try {
+            notificationService.sendVacationRequestNotification(
+                    member.getMemberName(),
+                    vacationType.getDescription());
+        } catch (Exception e) {
+            // 알림 전송 실패해도 휴가 신청은 정상 처리
         }
 
         return VacationResponseDTO.from(savedVacation);
@@ -191,7 +206,8 @@ public class VacationServiceImpl implements VacationService {
 
     /** 내 휴가 목록 조회 (기간, 유형 필터 적용) */
     @Override
-    public List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type) {
+    public List<VacationListResponseDTO> getMyVacations(Long memberId, LocalDate startDate, LocalDate endDate,
+            VacationType type) {
         List<Vacation> vacations = vacationRepository.findMyVacationsWithFilters(memberId, startDate, endDate, type);
 
         return vacations.stream()
@@ -201,8 +217,10 @@ public class VacationServiceImpl implements VacationService {
 
     /** 내 휴가 목록 조회 - 페이징 적용 (기간, 유형 필터 적용) */
     @Override
-    public MyVacationPageResponseDTO getMyVacationsPaged(Long memberId, LocalDate startDate, LocalDate endDate, VacationType type, Pageable pageable) {
-        Page<Vacation> vacationPage = vacationRepository.findMyVacationsWithFiltersPaged(memberId, startDate, endDate, type, pageable);
+    public MyVacationPageResponseDTO getMyVacationsPaged(Long memberId, LocalDate startDate, LocalDate endDate,
+            VacationType type, Pageable pageable) {
+        Page<Vacation> vacationPage = vacationRepository.findMyVacationsWithFiltersPaged(memberId, startDate, endDate,
+                type, pageable);
 
         Page<VacationListResponseDTO> dtoPage = vacationPage.map(VacationListResponseDTO::from);
 
@@ -213,7 +231,8 @@ public class VacationServiceImpl implements VacationService {
     @Override
     public VacationDetailResponseDTO getVacationDetail(Long vacationId, Long memberId, boolean isAdmin) {
         Vacation vacation = vacationRepository.findById(vacationId)
-                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND, "휴가 ID " + vacationId + "를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.VACATION_NOT_FOUND,
+                        "휴가 ID " + vacationId + "를 찾을 수 없습니다."));
 
         // 관리자가 아니면 본인 휴가인지 확인
         if (!isAdmin && !vacation.getMember().getMemberId().equals(memberId)) {
@@ -251,7 +270,8 @@ public class VacationServiceImpl implements VacationService {
     @Override
     public VacationRemainderResponseDTO getMyVacationRemainder(Long memberId) {
         MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND, "회원 ID " + memberId + "의 직원 상세 정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_DETAIL_NOT_FOUND,
+                        "회원 ID " + memberId + "의 직원 상세 정보가 존재하지 않습니다."));
 
         // 총 연차 15일 (기본값)
         double totalVacation = 15.0;
