@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,7 +91,7 @@ public class NotificationService {
         // 알림 생성
         NotificationDto notification = NotificationDto.builder()
                 .type("HEALTH_SUBMITTED")
-                .title("건강 검진 결과 제출")
+                .title("건강검진 결과 제출")
                 .message(memberName + "님이 " + checkupName + " 건강검진 결과를 제출했습니다.")
                 .timestamp(LocalDateTime.now())
                 .isRead(false)
@@ -104,7 +105,7 @@ public class NotificationService {
         sseEmitters.sendToMembers(adminIds, "notification", notification);
     }
 
-    // 크리에이터 건강 관리 알림을 관리자, 담당 매니저에게 전송.
+    // 크리에이터 건강 관리 알림을 관리자, 담당 매니저에게 전송
     public void sendCreatorHealthSubmissionNotification(String creatorName, String checkupName, Long managerId) {
         // ADMINISTRATOR 권한을 가진 모든 사용자 조회
         List<Member> admins = memberRepository.findAllByMemberRole(MemberRole.ADMINISTRATOR);
@@ -133,6 +134,90 @@ public class NotificationService {
                 .build();
 
         // 관리자, 담당 매니저에게 알림 전송
+        sseEmitters.sendToMembers(targetIds, "notification", notification);
+    }
+
+    // 광고 캠페인 등록 알림을 크리에이터, 담당 매니저에게 전송
+    public void sendAdvertisementRegistrationNotification(String creatorName, String campaignName, Long creatorId,
+            Long managerId, Long currentUserId) {
+        List<Long> targetIds = new ArrayList<>(List.of(creatorId));
+
+        // 담당 매니저가 있고 크리에이터와 다른 경우 추가
+        if (managerId != null && !managerId.equals(creatorId)) {
+            targetIds.add(managerId);
+        }
+
+        // 현재 사용자(등록한 사람)는 알림 대상에서 제외
+        targetIds.removeIf(id -> id.equals(currentUserId));
+
+        if (targetIds.isEmpty()) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("ADVERTISEMENT_REGISTERED")
+                .title("광고 캠페인 등록")
+                .message(creatorName + "님의 광고 캠페인 \"" + campaignName + "\"이(가) 등록되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        sseEmitters.sendToMembers(targetIds, "notification", notification);
+    }
+
+    // 광고 캠페인 수락 알림을 크리에이터, 담당 매니저에게 전송
+    public void sendAdvertisementAcceptanceNotification(String creatorName, String campaignName, Long creatorId,
+            Long managerId, Long currentUserId) {
+        List<Long> targetIds = new ArrayList<>(List.of(creatorId));
+
+        // 담당 매니저가 있고 크리에이터와 다른 경우 추가
+        if (managerId != null && !managerId.equals(creatorId)) {
+            targetIds.add(managerId);
+        }
+
+        // 현재 사용자(수락한 사람)는 알림 대상에서 제외
+        targetIds.removeIf(id -> id.equals(currentUserId));
+
+        if (targetIds.isEmpty()) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("ADVERTISEMENT_ACCEPTED")
+                .title("광고 캠페인 수락")
+                .message(creatorName + "님의 광고 캠페인 \"" + campaignName + "\"이(가) 수락되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        sseEmitters.sendToMembers(targetIds, "notification", notification);
+    }
+
+    // 광고 캠페인 거절 알림을 크리에이터, 담당 매니저에게 전송
+    public void sendAdvertisementRejectionNotification(String creatorName, String campaignName, Long creatorId,
+            Long managerId, Long currentUserId) {
+        List<Long> targetIds = new ArrayList<>(List.of(creatorId));
+
+        // 담당 매니저가 있고 크리에이터와 다른 경우 추가
+        if (managerId != null && !managerId.equals(creatorId)) {
+            targetIds.add(managerId);
+        }
+
+        // 현재 사용자(거절한 사람)는 알림 대상에서 제외
+        targetIds.removeIf(id -> id.equals(currentUserId));
+
+        if (targetIds.isEmpty()) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("ADVERTISEMENT_REJECTED")
+                .title("광고 캠페인 거절")
+                .message(creatorName + "님의 광고 캠페인 \"" + campaignName + "\"이(가) 거절되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
         sseEmitters.sendToMembers(targetIds, "notification", notification);
     }
 }

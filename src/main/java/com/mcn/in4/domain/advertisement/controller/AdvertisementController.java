@@ -27,9 +27,11 @@ public class AdvertisementController implements AdvertisementApi {
     @Override
     @PostMapping
     public ResponseEntity<Map<String, Object>> createAdvertisement(
+            @AuthenticationPrincipal String userId,
             @RequestBody AdvertisementRequestDTO.Create request) {
 
-        Long promotionId = advertisementService.createAdvertisement(request);
+        Long currentUserId = Long.parseLong(userId);
+        Long promotionId = advertisementService.createAdvertisement(request, currentUserId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "광고 캠페인이 성공적으로 등록되었습니다.");
@@ -38,9 +40,6 @@ public class AdvertisementController implements AdvertisementApi {
     }
 
     // 내 담당 크리에이터의 광고 캠페인 목록 조회 (매니저용)
-    // GET /api/advertisements?filter=all (전체보기 - 기본값)
-    // GET /api/advertisements?filter=waiting (대기중인 제안)
-    // GET /api/advertisements?filter=processed (처리내역)
     @Override
     @GetMapping
     public ResponseEntity<org.springframework.data.domain.Page<AdvertisementResponseDTO.Info>> getMyAdvertisements(
@@ -52,22 +51,22 @@ public class AdvertisementController implements AdvertisementApi {
         return ResponseEntity.ok(advertisementService.getMyAdvertisementsByFilter(managerId, filter, pageable));
     }
 
-    // 광고 캠페인 수락, 거절 (일정 자동 생성)
-    // PATCH /api/advertisements/{id}?status=ACCEPTED (수락)
-    // PATCH /api/advertisements/{id}?status=REJECTED (거절)
+    // 광고 캠페인 수락, 거절(일정 자동 생성)
     @Override
     @PatchMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateAdvertisementStatus(
+            @AuthenticationPrincipal String userId,
             @PathVariable Long id,
             @RequestParam String status) {
 
+        Long currentUserId = Long.parseLong(userId);
         Map<String, Object> response = new HashMap<>();
 
         if ("ACCEPTED".equalsIgnoreCase(status)) {
-            advertisementService.acceptAdvertisement(id);
-            response.put("message", "광고 캠페인이 수락되었으며, 일정이 자동으로 추가되었습니다.");
+            advertisementService.acceptAdvertisement(id, currentUserId);
+            response.put("message", "광고 캠페인이 수락되었습니다.");
         } else if ("REJECTED".equalsIgnoreCase(status)) {
-            advertisementService.rejectAdvertisement(id);
+            advertisementService.rejectAdvertisement(id, currentUserId);
             response.put("message", "광고 캠페인이 거절되었습니다.");
         } else {
             throw new IllegalArgumentException("유효하지 않은 상태입니다. ACCEPTED 또는 REJECTED만 가능합니다.");
