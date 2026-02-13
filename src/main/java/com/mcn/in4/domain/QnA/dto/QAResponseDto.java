@@ -15,6 +15,7 @@ public class QAResponseDto {
     @Builder
     public static class QATitle{
         private Long qaId;
+        private String departmentName;
         private String questionTitle;
         private LocalDateTime questionTime;
         private String questionMemberName;
@@ -30,6 +31,7 @@ public class QAResponseDto {
         private String questionTitle;
         private LocalDateTime questionTime;
         private String questionMemberName;
+        private String departmentName;
         private String questionDetail;
         private boolean answered;
 

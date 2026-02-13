@@ -33,15 +33,27 @@ public class QAController {
         return ResponseEntity.ok(qaDetail);
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/question")
     @ResponseBody
-    public ResponseEntity<Void> uploadQA(
+    public ResponseEntity<Void> uploadQuestion(
             @AuthenticationPrincipal String userId,
             QuestionDto request){
         Long memberId = Long.parseLong(userId);
         String questionTitle = request.getQuestionTitle();
         String questionDetail = request.getQuestionDetail();
-        qaService.uploadQA(memberId, questionTitle, questionDetail);
+        qaService.uploadQuestion(memberId, questionTitle, questionDetail);
+        return  ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/answer")
+    @ResponseBody
+    public ResponseEntity<Void> uploadAnswer(
+            @AuthenticationPrincipal String userId,
+            AnswerDto request){
+        Long memberId = Long.parseLong(userId);
+        Long qaId = request.getQaId();
+        String answerDetail = request.getAnswerDetail();
+        qaService.uploadAnswer(memberId, qaId, answerDetail);
         return  ResponseEntity.ok().build();
     }
 }
