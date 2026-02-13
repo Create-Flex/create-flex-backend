@@ -220,4 +220,21 @@ public class NotificationService {
 
         sseEmitters.sendToMembers(targetIds, "notification", notification);
     }
+
+    // 일정 등록 알림 전송 (매니저 <-> 크리에이터)
+    public void sendScheduleRegistrationNotification(String senderName, String scheduleName, Long receiverId) {
+        if (receiverId == null) {
+            return;
+        }
+
+        NotificationDto notification = NotificationDto.builder()
+                .type("SCHEDULE_REGISTERED")
+                .title("일정 등록")
+                .message(senderName + "님이 일정 \"" + scheduleName + "\"을(를) 등록했습니다.")
+                .timestamp(LocalDateTime.now())
+                .isRead(false)
+                .build();
+
+        sseEmitters.send(receiverId, "notification", notification);
+    }
 }
