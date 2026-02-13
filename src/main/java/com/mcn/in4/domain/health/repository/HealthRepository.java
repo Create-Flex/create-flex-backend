@@ -3,6 +3,7 @@ package com.mcn.in4.domain.health.repository;
 import com.mcn.in4.domain.health.dto.HealthResponseDto;
 import com.mcn.in4.domain.health.dto.HealthSummanaryCountDto;
 import com.mcn.in4.domain.health.entity.Health;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,6 +41,12 @@ public interface HealthRepository extends JpaRepository<Health, Long> {
             "group by h.checkupSummanary")
     List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers();
 
+    @Query("""
+        SELECT h
+        FROM Health h
+        WHERE h.member.memberId = :memberId
+        ORDER BY h.checkupDate DESC
+    """)
     Optional<Health> findTopByMember_MemberIdOrderByCheckupDateDesc(Long memberId);
 
     boolean existsByMember_MemberIdAndCheckupDateBetween(

@@ -15,6 +15,7 @@ import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,7 +180,7 @@ public class HealthServiceImpl implements HealthService{
 
     public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file){
         String fileName = file.getOriginalFilename();
-        String s3key ="public/" + UUID.randomUUID().toString() + "/" + fileName;
+        String s3key ="public/health/" + UUID.randomUUID().toString() + "/" + fileName;
         Member member = Member.builder()
                 .memberId(memberId)
                 .build();
