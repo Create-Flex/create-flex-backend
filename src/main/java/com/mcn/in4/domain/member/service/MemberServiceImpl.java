@@ -2,6 +2,7 @@ package com.mcn.in4.domain.member.service;
 
 import com.mcn.in4.domain.member.dto.ManagerResponseDto;
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
+import com.mcn.in4.domain.member.dto.MemberSummaryDto;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.entity.MemberProfile;
@@ -44,8 +45,7 @@ public class MemberServiceImpl implements MemberService {
         @Value("${aws.s3.bucket}")
         private String bucket;
 
-
-    @Override
+        @Override
         public MemberProfileResponseDto getMemberProfile(Long memberId) {
                 // 1. 회원 조회
                 Member member = memberRepository.findById(memberId)
@@ -62,7 +62,8 @@ public class MemberServiceImpl implements MemberService {
                                 .memberName(member.getMemberName())
                                 .memberAccount(member.getMemberAccount())
                                 .memberRole(member.getMemberRole())
-                                .profileImage("https://" + bucket + ".s3." + region + ".amazonaws.com/" + profile.getProfileImage())
+                                .profileImage("https://" + bucket + ".s3." + region + ".amazonaws.com/"
+                                                + profile.getProfileImage())
                                 .profileBanner(profile.getProfileBanner());
 
                 // 4. 직원인 경우 상세 정보 조회 및 추가
@@ -90,67 +91,73 @@ public class MemberServiceImpl implements MemberService {
                 return builder.build();
         }
 
-    public MemberProfileResponseDto generatePresignedUrl(Long memberId, MultipartFile file){
-        String fileName = file.getOriginalFilename();
-        String s3key = "public/profile/" + UUID.randomUUID().toString() + "/" + fileName;
+        // 멤버 +부서 간단 정보 가저오는
+        @Override
+        public List<MemberSummaryDto> getAllMembers() {
+                return memberRepository.findAllWithDepartment().stream()
+                                .map(MemberSummaryDto::from)
+                                .collect(Collectors.toList());
+        }
 
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(s3key)
-                .contentType(file.getContentType())
-                .build();
+        public MemberProfileResponseDto generatePresignedUrl(Long memberId, MultipartFile file) {
+                String fileName = file.getOriginalFilename();
+                String s3key = "public/profile/" + UUID.randomUUID().toString() + "/" + fileName;
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(
-                PutObjectPresignRequest.builder()
-                        .putObjectRequest(putObjectRequest)
-                        .signatureDuration(Duration.ofHours(1)) //유효시간 1시간
-                        .build()
-        );
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                                .bucket(bucket)
+                                .key(s3key)
+                                .contentType(file.getContentType())
+                                .build();
 
-        String presignedUrl = presignedRequest.url().toString();
+                PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(
+                                PutObjectPresignRequest.builder()
+                                                .putObjectRequest(putObjectRequest)
+                                                .signatureDuration(Duration.ofHours(1)) // 유효시간 1시간
+                                                .build());
 
-        String viewUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
+                String presignedUrl = presignedRequest.url().toString();
 
-        memberProfileRepository.updateProfileImage(memberId, s3key);
+                String viewUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
 
-        return MemberProfileResponseDto.builder()
-                .presignedURL(presignedUrl)
-                .build();
-    }
-    @Override
-    public List<ManagerResponseDto.ManagerInfo> getAllManagers() {
-        List<Member> managers = memberRepository.findAllManagersWithDepartment(
-                MemberRole.MANAGER,
-                MemberStatus.WORKING
-        );
+                memberProfileRepository.updateProfileImage(memberId, s3key);
 
-        return managers.stream()
-                .map(ManagerResponseDto.ManagerInfo::from)
-                .collect(Collectors.toList());
-    }
+                return MemberProfileResponseDto.builder()
+                                .presignedURL(presignedUrl)
+                                .build();
+        }
 
-    @Override
-    public MemberProfileResponseDto deleteMemberProfile(Long memberId){
-        MemberProfile deletedProfile = memberProfileRepository.findTopByMember_MemberId(memberId).orElseThrow();
+        @Override
+        public List<ManagerResponseDto.ManagerInfo> getAllManagers() {
+                List<Member> managers = memberRepository.findAllManagersWithDepartment(
+                                MemberRole.MANAGER,
+                                MemberStatus.WORKING);
 
-        String s3key = deletedProfile.getProfileImage();
+                return managers.stream()
+                                .map(ManagerResponseDto.ManagerInfo::from)
+                                .collect(Collectors.toList());
+        }
 
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                .bucket(bucket)
-                .key(s3key)
-                .build();
+        @Override
+        public MemberProfileResponseDto deleteMemberProfile(Long memberId) {
+                MemberProfile deletedProfile = memberProfileRepository.findTopByMember_MemberId(memberId).orElseThrow();
 
-        PresignedDeleteObjectRequest presignedDeleteObjectRequest = s3Presigner.presignDeleteObject(
-                DeleteObjectPresignRequest.builder()
-                        .deleteObjectRequest(deleteObjectRequest)
-                        .signatureDuration(Duration.ofMinutes(5))
-                        .build()
-        );
+                String s3key = deletedProfile.getProfileImage();
 
-        String presignedUrl = presignedDeleteObjectRequest.url().toString();
+                DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                                .bucket(bucket)
+                                .key(s3key)
+                                .build();
 
-        return MemberProfileResponseDto.builder()
-                .presignedURL(presignedUrl)
-                .build();
-    }
+                PresignedDeleteObjectRequest presignedDeleteObjectRequest = s3Presigner.presignDeleteObject(
+                                DeleteObjectPresignRequest.builder()
+                                                .deleteObjectRequest(deleteObjectRequest)
+                                                .signatureDuration(Duration.ofMinutes(5))
+                                                .build());
+
+                String presignedUrl = presignedDeleteObjectRequest.url().toString();
+
+                return MemberProfileResponseDto.builder()
+                                .presignedURL(presignedUrl)
+                                .build();
+        }
 }

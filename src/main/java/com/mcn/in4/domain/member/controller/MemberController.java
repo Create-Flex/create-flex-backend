@@ -2,6 +2,7 @@ package com.mcn.in4.domain.member.controller;
 
 import com.mcn.in4.domain.member.dto.ManagerResponseDto;
 import com.mcn.in4.domain.member.dto.MemberProfileResponseDto;
+import com.mcn.in4.domain.member.dto.MemberSummaryDto;
 import com.mcn.in4.domain.member.service.MemberService;
 import com.mcn.in4.domain.member.dto.MemberProfileRequestDto.ProfileUpload;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,11 @@ public class MemberController {
         Long memberId = Long.parseLong(userId);
         MemberProfileResponseDto deleteProfile = memberService.deleteMemberProfile(memberId);
         return ResponseEntity.ok(deleteProfile);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<MemberSummaryDto>> getAllMembers(){
+        List<MemberSummaryDto> members = memberService.getAllMembers();
+        return ResponseEntity.ok(members);
     }
 
 }
