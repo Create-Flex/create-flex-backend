@@ -37,9 +37,10 @@ public class AiChatServiceImpl implements AiChatService {
    * - CREATOR 등 맵에 없는 역할은 도구 없음 (빈 리스트 적용)
    */
   private static final Map<String, List<String>> ROLE_TOOLS = Map.of(
-      "ADMINISTRATOR", List.of("getMyAttendanceSummary", "getAllAttendanceSummary"),
-      "MANAGER", List.of("getMyAttendanceSummary"),
-      "EMPLOYEE", List.of("getMyAttendanceSummary")
+      "ADMINISTRATOR", List.of("getMyAttendanceSummary", "getAllAttendanceSummary",
+          "getMyVacationSummary", "getAllVacationSummary", "searchMember"),
+      "MANAGER", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember"),
+      "EMPLOYEE", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember")
   // CREATOR → 맵에 없음 = 도구 없음
   );
 
@@ -77,14 +78,21 @@ public class AiChatServiceImpl implements AiChatService {
           [날짜 규칙]
           - 연도 미명시 시 2026년 기준
           - 구체적 날짜(N월 N일)는 startDate/endDate에 YYYY-MM-DD로 변환
+          - 구체적 날짜(N월 N일)는 startDate/endDate에 YYYY-MM-DD로 변환
           - 상대적 표현(이번주, 저번달 등)은 dateInfo 필드 사용
+          - 잔여 연차나 연간 내역 질문 시 dateInfo='THIS_YEAR' 사용
 
           [권한]
           %s
 
+          [도구 사용 규칙]
+          - 근태 조회: '나'의 근태는 getMyAttendanceSummary, 타인은 getAllAttendanceSummary 사용
+          - 휴가 조회: '나'의 휴가/잔여 연차는 getMyVacationSummary, 타인은 getAllVacationSummary 사용
+          - 직원 검색: 이름이나 부서로 직원 정보를 찾을 때 searchMember 사용
+
           [응답 규칙]
-          - 도구 결과를 마크다운 표로 정리
-          - 도구 호출 없이 근태 데이터를 추측하거나 만들어내지 마세요
+          - 도구 결과를 마크다운 표로 정리 (표 앞에는 반드시 빈 줄 추가)
+          - 도구 호출 없이 근태/휴가 데이터를 추측하거나 만들어내지 마세요
           - 권한 없음, 오류 등 거부 응답은 한 문장으로 간결하게 (대안 제시나 절차 설명 금지)
           """.formatted(LocalDate.now(), roleGuideline);
 
@@ -124,8 +132,9 @@ public class AiChatServiceImpl implements AiChatService {
       }
 
       // 기타 AI 오류
+      // 사용자에게는 친절한 메시지 반환, 상세 로그는 서버에 기록됨
       throw new CustomException(ErrorCode.AI_SERVICE_ERROR,
-          "AI 응답 생성 실패: " + e.getMessage());
+          "AI 서비스 처리 중 일시적인 오류가 발생했습니다. 관리자에게 문의하거나 잠시 후 다시 시도해주세요.");
     }
   }
 
