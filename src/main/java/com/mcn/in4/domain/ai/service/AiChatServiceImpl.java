@@ -38,11 +38,11 @@ public class AiChatServiceImpl implements AiChatService {
    */
   private static final Map<String, List<String>> ROLE_TOOLS = Map.of(
       "ADMINISTRATOR", List.of("getMyAttendanceSummary", "getAllAttendanceSummary",
-          "getMyVacationSummary", "getAllVacationSummary", "searchMember"),
-      "MANAGER", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember"),
-      "EMPLOYEE", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember")
-  // CREATOR → 맵에 없음 = 도구 없음
-  );
+          "getMyVacationSummary", "getAllVacationSummary", "searchMember", "getMySchedule"),
+      "MANAGER", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember",
+          "getMySchedule", "getCreatorSchedule"),
+      "EMPLOYEE", List.of("getMyAttendanceSummary", "getMyVacationSummary", "searchMember", "getMySchedule"),
+      "CREATOR", List.of("getCreatorSchedule"));
 
   @Override
   @Transactional
@@ -78,7 +78,6 @@ public class AiChatServiceImpl implements AiChatService {
           [날짜 규칙]
           - 연도 미명시 시 2026년 기준
           - 구체적 날짜(N월 N일)는 startDate/endDate에 YYYY-MM-DD로 변환
-          - 구체적 날짜(N월 N일)는 startDate/endDate에 YYYY-MM-DD로 변환
           - 상대적 표현(이번주, 저번달 등)은 dateInfo 필드 사용
           - 잔여 연차나 연간 내역 질문 시 dateInfo='THIS_YEAR' 사용
 
@@ -89,10 +88,13 @@ public class AiChatServiceImpl implements AiChatService {
           - 근태 조회: '나'의 근태는 getMyAttendanceSummary, 타인은 getAllAttendanceSummary 사용
           - 휴가 조회: '나'의 휴가/잔여 연차는 getMyVacationSummary, 타인은 getAllVacationSummary 사용
           - 직원 검색: 이름이나 부서로 직원 정보를 찾을 때 searchMember 사용
+          - 일정 조회:
+            1. '나'의 일정(개인/회사)은 getMySchedule 사용 (크리에이터 사용 불가)
+            2. '크리에이터' 또는 '담당 크리에이터'의 일정(방송/콘텐츠)은 getCreatorSchedule 사용
 
           [응답 규칙]
           - 도구 결과를 마크다운 표로 정리 (표 앞에는 반드시 빈 줄 추가)
-          - 도구 호출 없이 근태/휴가 데이터를 추측하거나 만들어내지 마세요
+          - 도구 호출 없이 근태/휴가/일정 데이터를 추측하거나 만들어내지 마세요
           - 권한 없음, 오류 등 거부 응답은 한 문장으로 간결하게 (대안 제시나 절차 설명 금지)
           """.formatted(LocalDate.now(), roleGuideline);
 
