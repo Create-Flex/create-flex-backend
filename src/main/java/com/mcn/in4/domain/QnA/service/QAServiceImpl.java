@@ -51,7 +51,7 @@ public class QAServiceImpl implements QAService{
                 .questionTitle(qaBoard.getQuestionTitle())
                 .questionTime(qaBoard.getQuestionTime())
                 .questionMemberName(qaBoard.getQuestionMember().getMemberName())
-                .departmentName(qaBoard.getQuestionMember().getDepartment() != null
+                .questionDepartmentName(qaBoard.getQuestionMember().getDepartment() != null
                         ? qaBoard.getQuestionMember().getDepartment().getDepartmentName()
                         : "부서없음")
                 .questionDetail(qaBoard.getQuestionDetail())
@@ -60,6 +60,9 @@ public class QAServiceImpl implements QAService{
                 .answerMemberName(qaBoard.getAnswerMember() != null
                         ? qaBoard.getAnswerMember().getMemberName()
                         : null)
+                .answerDepartmentName(qaBoard.getAnswerMember() != null
+                        ? qaBoard.getAnswerMember().getDepartment().getDepartmentName()
+                        :null)
                 .answerDetail(qaBoard.getAnswerDetail())
                 .build();
     }

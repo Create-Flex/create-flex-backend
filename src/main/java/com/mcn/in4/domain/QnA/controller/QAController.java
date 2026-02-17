@@ -37,7 +37,7 @@ public class QAController {
     @ResponseBody
     public ResponseEntity<Void> uploadQuestion(
             @AuthenticationPrincipal String userId,
-            QuestionDto request){
+            @RequestBody QuestionDto request){
         Long memberId = Long.parseLong(userId);
         String questionTitle = request.getQuestionTitle();
         String questionDetail = request.getQuestionDetail();
@@ -49,7 +49,7 @@ public class QAController {
     @ResponseBody
     public ResponseEntity<Void> uploadAnswer(
             @AuthenticationPrincipal String userId,
-            AnswerDto request){
+            @RequestBody AnswerDto request){
         Long memberId = Long.parseLong(userId);
         Long qaId = request.getQaId();
         String answerDetail = request.getAnswerDetail();
