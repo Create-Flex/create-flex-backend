@@ -15,8 +15,9 @@ public class MemberSummaryDto {
     private String task;
     private MemberRole memberRole;
     private MemberStatus memberStatus;
+    private String profileImage;
 
-    public static MemberSummaryDto from(Member member) {
+    public static MemberSummaryDto from(Member member, String profileImage) {
         return MemberSummaryDto.builder()
                 .memberId(member.getMemberId())
                 .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : "크리에이터")
@@ -24,6 +25,7 @@ public class MemberSummaryDto {
                 .task(member.getTask())
                 .memberRole(member.getMemberRole())
                 .memberStatus(member.getMemberStatus())
+                .profileImage(profileImage)
                 .build();
     }
 
