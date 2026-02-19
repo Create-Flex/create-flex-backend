@@ -26,6 +26,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -94,9 +95,28 @@ public class MemberServiceImpl implements MemberService {
         // 멤버 +부서 간단 정보 가저오는
         @Override
         public List<MemberSummaryDto> getAllMembers() {
-                return memberRepository.findAllWithDepartment().stream()
-                                .map(MemberSummaryDto::from)
-                                .collect(Collectors.toList());
+
+                List<Member> members = memberRepository.findAllWithDepartment();
+
+                List<MemberProfile> profiles = memberProfileRepository.findAll();
+
+                Map<Long,String> profileMap = profiles.stream()
+                        .collect(Collectors.toMap(
+                                p->p.getMember().getMemberId(),
+//                                p-> "https://" + bucket + ".s3." + region
+//                                + ".amazonaws.com/" + p.getProfileImage() //S3에 이미지 파일이 올라갔을때 사용하는게 좋을것같음. 지금은 호스팅 된 웹 링크로 대체
+                                p-> p.getProfileImage()
+                        ));
+
+
+
+                return members.stream()
+                        .map(member -> MemberSummaryDto
+                                .from(
+                                member,
+                                profileMap.getOrDefault(member.getMemberId(), null) // 프로필 없으면 null
+                        ))
+                        .collect(Collectors.toList());
         }
 
         public MemberProfileResponseDto generatePresignedUrl(Long memberId, MultipartFile file) {

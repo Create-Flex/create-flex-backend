@@ -70,7 +70,7 @@ public class ChatServiceImpl implements ChatService {
 
         for (Member member : members) {
             ChatRoomMember roomMember = ChatRoomMember.create(chatRoom, member);
-            chatRoom.addMember(roomMember); // CascadeType.ALL 덕분에 chatRoom 저장 시 함께 저장됨
+            chatRoom.addMember(roomMember);
         }
         // 저장
         chatRoomRepository.save(chatRoom);
