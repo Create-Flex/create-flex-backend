@@ -28,11 +28,15 @@ public class ChatRoomMember {
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
 
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
     // 생성 메서드
     public static ChatRoomMember create(ChatRoom chatRoom, Member member) {
         return ChatRoomMember.builder()
                 .chatRoom(chatRoom)
                 .member(member)
+                .lastReadMessageId(0L)
                 .build();
     }
 }
