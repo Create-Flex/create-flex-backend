@@ -18,7 +18,6 @@ public interface MemberEmployeeDetailRepository extends JpaRepository<MemberEmpl
     @Query("SELECT e.member.memberId FROM MemberEmployeeDetail e")
     List<Long> findEmployeeIds();
 
-
     //여러 회원의 상세 정보를 한 번에 조회 (IN 절)
     List<MemberEmployeeDetail> findByMemberMemberIdIn(List<Long> memberIds);
 }
