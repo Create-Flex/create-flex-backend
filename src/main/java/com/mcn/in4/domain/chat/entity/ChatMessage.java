@@ -22,8 +22,12 @@ public class ChatMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private ChatRoom chatRoom;
-    // 보낸 사람 (회원 ID 또는 이름)
+    // 보낸 사람 (이름)
     private String sender;
+
+    @Column(name = "sender_id")
+    private Long senderId;
+
     // 메시지 내용
     @Column(columnDefinition = "TEXT")
     private String message;

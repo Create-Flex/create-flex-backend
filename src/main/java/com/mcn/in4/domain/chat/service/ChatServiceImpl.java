@@ -6,12 +6,16 @@ import com.mcn.in4.domain.chat.entity.ChatMessage;
 import com.mcn.in4.domain.chat.entity.ChatRoom;
 import com.mcn.in4.domain.chat.entity.ChatRoomMember;
 import com.mcn.in4.domain.chat.repository.ChatMessageRepository;
+import com.mcn.in4.domain.chat.repository.ChatRoomMemberRepository;
 import com.mcn.in4.domain.chat.repository.ChatRoomRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.user.SimpSubscription;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +30,8 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MemberRepository memberRepository;
+    private final SimpUserRegistry simpUserRegistry; //채팅방을 구독하는 사람들의 id를 가져오기 위함
+    private final ChatRoomMemberRepository chatRoomMemberRepository;
 
     @PostConstruct
     private void init() {
@@ -85,14 +91,61 @@ public class ChatServiceImpl implements ChatService {
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .chatRoom(chatRoom)
-                .sender(messageDto.getSender())
+                .sender(messageDto.getSender()) //이름
+                .senderId(messageDto.getSenderId()) //id(pk값)
                 .message(messageDto.getMessage())
                 // DTO의 Enum을 Entity의 Enum으로 변환
                 .type(ChatMessage.MessageType.valueOf(messageDto.getType().name()))
                 .build();
         // 저장
-        return chatMessageRepository.save(chatMessage);
+        ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
+
+
+        String roomId = messageDto.getRoomId();
+        Long newMessageId = savedMessage.getId();
+
+        List<Long> connectedMemberIds = findConnectedUsers(roomId);
+
+        //접속 멤버들 lastRead 업데이트
+        if (!connectedMemberIds.isEmpty()) {
+            chatRoomMemberRepository.updateLastReadMessageId(roomId, connectedMemberIds, newMessageId);
+        }
+
+        //unreadCount 계산
+        long totalMembers = chatRoomMemberRepository.countByRoomId(roomId);
+        long readMembers = chatRoomMemberRepository.countReadMembers(roomId, newMessageId);
+
+        long unreadCount = totalMembers - readMembers;
+        if (unreadCount < 0) unreadCount = 0;
+
+        messageDto.setUnreadCount(unreadCount);
+
+        return savedMessage;
+
     }
+
+    //특정 채팅방에 현재 접속해 있는(구독 중인) 사용자들의 ID 목록을 반환
+    private List<Long> findConnectedUsers(String roomId) {
+        String destination = "/sub/chat/room/" + roomId;
+
+        return simpUserRegistry.getUsers().stream()
+                .filter(user -> user.getSessions().stream()
+                        .flatMap(session -> session.getSubscriptions().stream())
+                        .anyMatch(sub -> destination.equals(sub.getDestination())))
+                .map(SimpUser::getName)
+                .map(this::parseLongSafe)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+    //String 값을 Long으로 변환. 변환 실패 시 null을 반환
+    private Long parseLongSafe(String value) {
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
 
     @Override
     public List<ChatMessageDto> findMessages(String roomId) {

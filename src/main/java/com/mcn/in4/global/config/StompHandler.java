@@ -35,11 +35,12 @@ public class StompHandler implements ChannelInterceptor {
                 //  토큰에서 memberName 추출
                 String memberName = jwtTokenProvider.getMemberNameFromToken(jwtToken);
                 String role = jwtTokenProvider.getRoleFromToken(jwtToken);
+                String memberId = jwtTokenProvider.getUserIdFromToken(jwtToken);
 
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
                 //  인증 객체 생성 (Principal 이름을 memberName으로 설정)
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(memberName, null, Collections.singletonList(authority));
+                        new UsernamePasswordAuthenticationToken(memberId, null, Collections.singletonList(authority));
 
                 // WebSocket 세션에 인증 정보 저장 -> ChatController에서 사용
                 accessor.setUser(authentication);

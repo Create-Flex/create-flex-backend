@@ -10,6 +10,7 @@ import com.mcn.in4.domain.chat.service.ChatService;
 import com.mcn.in4.global.error.exception.CustomException;
 import com.mcn.in4.global.error.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ChatController {
@@ -27,10 +28,16 @@ public class ChatController {
 
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, Principal principal) {
-        //
-        // if (principal != null) {
-        // message.setSender(principal.getName());
-        // }
+
+         if (principal != null) {
+
+             try{
+                 message.setSenderId(Long.parseLong(principal.getName()));
+             }catch (NumberFormatException e) {
+                 log.error("principal 에서 이름을 찾지못함", e);
+             }
+         }
+
         // 입장 메시지 처리
         if (ChatMessageDto.MessageType.ENTER.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
