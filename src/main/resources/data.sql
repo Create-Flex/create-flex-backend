@@ -77,9 +77,9 @@ INSERT INTO members (member_id, department_id, member_account, member_password, 
 -- 4. Employee Detail (직원 상세) - task, department_id 제거됨
 -- ==========================================
 INSERT INTO employee_detail (employee_detail_id, employee_id, nickname, eng_name, personal_email, corpor_email, personal_call, hire_date, emp_date, address, employment_type, leaving_reason, vacation_remainder) VALUES
-(1001, 1001, '인사왕', 'Kim Insa', 'kim.insa@gmail.com', 'kim.insa@mcn.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
+(1001, 1001, '인사왕', 'Kim Insa', 'rockhavesoul@gmail.com', 'kim.insa@mcn.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
 (1002, 1002, '채용마스터', 'Lee Chaeyong', 'lee.chaeyong@naver.com', 'lee.chaeyong@mcn.com', '010-2222-2222', '2021-06-15', NULL, '서울시 서초구 서초대로 456', 'NEWBIE', NULL, 15.0),
-(1003, 1003, '매니저박', 'Park Manager', 'park.mg@gmail.com', 'park.manager@mcn.com', '010-3333-3333', '2019-01-10', NULL, '서울시 마포구 월드컵로 789', 'EXPERIENCED', NULL, 15.0),
+(1003, 1003, '매니저박', 'Park Manager', 'kuroiwadeath@gmail.com', 'park.manager@mcn.com', '010-3333-3333', '2019-01-10', NULL, '서울시 마포구 월드컵로 789', 'EXPERIENCED', NULL, 15.0),
 (1004, 1004, '최담당님', 'Choi Damdang', 'choi.dd@kakao.com', 'choi.damdang@mcn.com', '010-4444-4444', '2022-09-01', NULL, '경기도 성남시 분당구 판교역로 111', 'NEWBIE', NULL, 15.0),
 (1005, 1005, '정매니저', 'Jung Gwanli', 'jung.gl@gmail.com', 'jung.gwanli@mcn.com', '010-5555-5555', '2020-11-20', NULL, '인천시 연수구 송도과학로 222', 'EXPERIENCED', NULL, 15.0),
 (1006, 1006, '강마케터', 'Kang Marketing', 'kang.mk@naver.com', 'kang.marketing@mcn.com', '010-6666-6666', '2021-03-15', NULL, '서울시 영등포구 여의대로 333', 'NEWBIE', NULL, 15.0),
