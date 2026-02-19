@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NotificationDto {
 
+    // 알림 ID
+    private Long notificationId;
+
     // 알림 유형
     // - LEGAL_TAX_REGISTERED: 법률/세무 등록 알림
     private String type;
