@@ -78,7 +78,12 @@ public class ChatController {
     /// 특정 채팅방의 지난 대화 내용 조회
     @GetMapping("/chat/room/{roomId}/messages")
     @ResponseBody
-    public List<ChatMessageDto> getMessages(@PathVariable String roomId) {
-        return chatService.findMessages(roomId);
+    public List<ChatMessageDto> getMessages(@PathVariable String roomId, @AuthenticationPrincipal String memberIdStr) {
+
+        Long memberId = Long.parseLong(memberIdStr);
+
+
+        return chatService.findMessages(roomId, memberId);
+
     }
 }
