@@ -31,12 +31,13 @@ public class QAResponseDto {
         private String questionTitle;
         private LocalDateTime questionTime;
         private String questionMemberName;
-        private String departmentName;
+        private String questionDepartmentName;
         private String questionDetail;
         private boolean answered;
 
         private LocalDateTime answerTime;
         private String answerMemberName;
+        private String answerDepartmentName;
         private String answerDetail;
     }
 }

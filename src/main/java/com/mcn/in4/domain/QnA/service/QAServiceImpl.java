@@ -3,8 +3,11 @@ package com.mcn.in4.domain.QnA.service;
 import com.mcn.in4.domain.QnA.entity.QABoard;
 import com.mcn.in4.domain.QnA.repository.QARepository;
 import com.mcn.in4.domain.member.entity.Member;
+import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
+import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.mcn.in4.domain.QnA.dto.QAResponseDto.*;
@@ -20,6 +23,8 @@ import java.util.Optional;
 public class QAServiceImpl implements QAService{
     private final QARepository qaRepository;
     private final MemberRepository memberRepository;
+    private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+    private final MailService mailService;
 
     @Override
     public List<QATitle> generateQATitleList(Long memberId){
@@ -51,7 +56,7 @@ public class QAServiceImpl implements QAService{
                 .questionTitle(qaBoard.getQuestionTitle())
                 .questionTime(qaBoard.getQuestionTime())
                 .questionMemberName(qaBoard.getQuestionMember().getMemberName())
-                .departmentName(qaBoard.getQuestionMember().getDepartment() != null
+                .questionDepartmentName(qaBoard.getQuestionMember().getDepartment() != null
                         ? qaBoard.getQuestionMember().getDepartment().getDepartmentName()
                         : "부서없음")
                 .questionDetail(qaBoard.getQuestionDetail())
@@ -60,6 +65,9 @@ public class QAServiceImpl implements QAService{
                 .answerMemberName(qaBoard.getAnswerMember() != null
                         ? qaBoard.getAnswerMember().getMemberName()
                         : null)
+                .answerDepartmentName(qaBoard.getAnswerMember() != null
+                        ? qaBoard.getAnswerMember().getDepartment().getDepartmentName()
+                        :null)
                 .answerDetail(qaBoard.getAnswerDetail())
                 .build();
     }
@@ -75,6 +83,7 @@ public class QAServiceImpl implements QAService{
                 .questionTime(LocalDateTime.now())
                 .build();
 
+        mailService.sendUpQuest(questionTitle, questionMember.getMemberName(), questionMember.getDepartment().getDepartmentName(), questionDetail);
         qaRepository.save(qaBoard);
     }
 
@@ -82,6 +91,11 @@ public class QAServiceImpl implements QAService{
     public void uploadAnswer(Long memberId, Long qaId, String answerDetail){
         Member answerMember = memberRepository.findById(memberId).orElseThrow();
         QABoard qaBoard = qaRepository.findByQAId(qaId).orElseThrow();
+        MemberEmployeeDetail questionMemberDetail = memberEmployeeDetailRepository.findByMemberMemberId(qaBoard.getQuestionMember().getMemberId()).orElseThrow();
+
+        mailService.sendUpAnswer(questionMemberDetail.getPersonalEmail(), qaBoard.getQuestionTitle(),
+                                answerMember.getMemberName(), answerMember.getDepartment().getDepartmentName(),
+                                qaBoard.getQuestionTitle(), answerDetail);
 
         qaBoard.setAnswerMember(answerMember);
         qaBoard.setAnswerDetail(answerDetail);
