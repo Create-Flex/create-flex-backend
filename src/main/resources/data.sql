@@ -27,6 +27,7 @@ TRUNCATE TABLE creator_metal_health;
 TRUNCATE TABLE health;
 TRUNCATE TABLE members;
 TRUNCATE TABLE department;
+TRUNCATE TABLE notifications;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ==========================================
