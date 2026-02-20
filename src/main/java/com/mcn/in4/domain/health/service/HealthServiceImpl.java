@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = false)
-public class HealthServiceImpl implements HealthService{
+public class HealthServiceImpl implements HealthService {
 
     private final HealthRepository healthRepository;
     private final MemberRepository memberRepository;
@@ -65,8 +65,9 @@ public class HealthServiceImpl implements HealthService{
 
         int year = LocalDate.now().getYear();
         LocalDate start = LocalDate.of(year, 1, 1);
-        LocalDate end   = LocalDate.of(year, 12, 31);
-        boolean memberHaveHealthCheck = healthRepository.existsByMember_MemberIdAndCheckupDateBetween(memberId, start, end);
+        LocalDate end = LocalDate.of(year, 12, 31);
+        boolean memberHaveHealthCheck = healthRepository.existsByMember_MemberIdAndCheckupDateBetween(memberId, start,
+                end);
         String memberName = memberRepository.findByMemberId(memberId).getMemberName();
 
         return new MypageHealthInfo(memberName, memberHealthInfo, memberHaveHealthCheck);
@@ -75,114 +76,147 @@ public class HealthServiceImpl implements HealthService{
     public CreatorHealthInfo generateCreatorHealthInfo(Long memberId) {
         CreatorHealthInfo creatorHealthInfo = new CreatorHealthInfo();
         MemberRole role = memberRepository.findMemberRoleByMemberId(memberId);
-        if (role==MemberRole.ADMINISTRATOR){
+        if (role == MemberRole.ADMINISTRATOR) {
             creatorHealthInfo = generateCreatorForAdmin();
-        } else if(role==MemberRole.CREATOR) {
+        } else if (role == MemberRole.CREATOR) {
             creatorHealthInfo = generateCreatorForCreator(memberId);
-        }else{
+        } else {
             creatorHealthInfo = generateCreatorForManager(memberId);
         }
 
         return creatorHealthInfo;
     }
 
-    public CreatorHealthInfo generateCreatorForManager(Long memberId){
+    public CreatorHealthInfo generateCreatorForManager(Long memberId) {
         List<Long> creatorIds = creatorDetailRepository.findCreatorIdsByManagerId(memberId);
+        if (creatorIds.isEmpty()) {
+            return new CreatorHealthInfo(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                    Collections.emptyList());
+        }
+
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
-        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers(creatorIds);
-        List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
+        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(creatorIds);
+        List<HealthInfo> creatorHealthInfoB = creators.stream()
+                .flatMap(member -> healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
-        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
-        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
+        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIds(creatorIds);
+        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
         return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
     }
 
-    public CreatorHealthInfo generateCreatorForAdmin(){
+    public CreatorHealthInfo generateCreatorForAdmin() {
         List<Long> creatorIds = creatorDetailRepository.findCreatorIds();
+        if (creatorIds.isEmpty()) {
+            return new CreatorHealthInfo(Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                    Collections.emptyList());
+        }
+
         List<Member> creators = memberRepository.findByMemberIdIn(creatorIds);
         List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers();
-        List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
+        List<HealthInfo> creatorHealthInfoB = creators.stream()
+                .flatMap(member -> healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
-        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorIds);
-        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
+        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIds(creatorIds);
+        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIdsWhoesDanger(creatorIds);
         return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
     }
 
-    public CreatorHealthInfo generateCreatorForCreator(Long memberId){
+    public CreatorHealthInfo generateCreatorForCreator(Long memberId) {
         List<Long> creatorId = Collections.singletonList(memberId);
         List<Member> creators = memberRepository.findByMemberIdIn(creatorId);
-        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository.countGroupedByCheckupSummanaryForMembers();
-        List<HealthInfo> creatorHealthInfoB = creators.stream().flatMap(member ->
-                healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
+        List<HealthSummanaryCountDto> creatorHealthInfoA = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(creatorId);
+        List<HealthInfo> creatorHealthInfoB = creators.stream()
+                .flatMap(member -> healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
                         .stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
-        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository.findLatestMentalHealthByMemberIds(creatorId);
-        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository.findLatestMentalHealthByMemberIdsWhoesDanger(creatorId);
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
+        List<MentalHealthDto> creatorHealthInfoC = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIds(creatorId);
+        List<MentalHealthDto> creatorHealthInfoD = creatorMentalHealthRepository
+                .findLatestMentalHealthByMemberIdsWhoesDanger(creatorId);
         return new CreatorHealthInfo(creatorHealthInfoA, creatorHealthInfoB, creatorHealthInfoC, creatorHealthInfoD);
     }
 
     public AssembledHealthInfo generateManageHealthInfo() {
         List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
-        List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
+        List<HealthSummanaryCountDto> employeeCount = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
-        List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                        healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
-                                .stream()
-                                .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+        List<HealthInfo> employeeInfo = employees.stream()
+                .flatMap(member -> healthRepository.findTopByMember_MemberIdOrderByCheckupDateDesc(member.getMemberId())
+                        .stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
     }
 
     public AssembledHealthInfo findByNameAndPeriod(String name, LocalDate startDate, LocalDate endDate) {
         List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
-        List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
+        List<HealthSummanaryCountDto> employeeCount = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberNameContainingAndMemberIdIn(name, employeeIds);
-        List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                    healthRepository.findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
-                            .stream()
-                            .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+        List<HealthInfo> employeeInfo = employees.stream()
+                .flatMap(member -> healthRepository
+                        .findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
+                        .stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
     }
 
-    public AssembledHealthInfo findByName(String name){
+    public AssembledHealthInfo findByName(String name) {
         List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
-        List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
+        List<HealthSummanaryCountDto> employeeCount = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberNameContainingAndMemberIdIn(name, employeeIds);
-        List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                healthRepository.findByMember_MemberId(member.getMemberId()).stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+        List<HealthInfo> employeeInfo = employees.stream()
+                .flatMap(member -> healthRepository.findByMember_MemberId(member.getMemberId()).stream()
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
     }
 
     public AssembledHealthInfo findByPeriod(LocalDate startDate, LocalDate endDate) {
         List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
-        List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
+        List<HealthSummanaryCountDto> employeeCount = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
-        List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                healthRepository.findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
+        List<HealthInfo> employeeInfo = employees.stream()
+                .flatMap(member -> healthRepository
+                        .findByMember_MemberIdAndCheckupDateBetween(member.getMemberId(), startDate, endDate)
                         .stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
     }
 
-    public AssembledHealthInfo findAll(){
+    public AssembledHealthInfo findAll() {
         List<Long> employeeIds = memberEmployeeDetailRepository.findEmployeeIds();
-        List<HealthSummanaryCountDto> employeeCount = healthRepository.countGroupedByCheckupSummanaryForMembers(employeeIds);
+        List<HealthSummanaryCountDto> employeeCount = healthRepository
+                .countGroupedByCheckupSummanaryForMembers(employeeIds);
         List<Member> employees = memberRepository.findByMemberIdIn(employeeIds);
-        List<HealthInfo> employeeInfo = employees.stream().flatMap(member ->
-                healthRepository.findByMember_MemberId(member.getMemberId())
+        List<HealthInfo> employeeInfo = employees.stream()
+                .flatMap(member -> healthRepository.findByMember_MemberId(member.getMemberId())
                         .stream()
-                        .map(health -> HealthInfo.from(health, member.getMemberName()))).toList();
+                        .map(health -> HealthInfo.from(health, member.getMemberName())))
+                .toList();
         return new AssembledHealthInfo(employeeInfo, employeeCount);
     }
 
-
-    public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date, CheckupSummanary checkupSummanary, MultipartFile file){
+    public HealthPresigned generatePresignedUrl(Long memberId, String checkupName, LocalDate date,
+            CheckupSummanary checkupSummanary, MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        String s3key ="public/health/" + UUID.randomUUID().toString() + "/" + fileName;
+        String s3key = "public/health/" + UUID.randomUUID().toString() + "/" + fileName;
         Member member = Member.builder()
                 .memberId(memberId)
                 .build();
@@ -194,15 +228,14 @@ public class HealthServiceImpl implements HealthService{
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(
-            PutObjectPresignRequest.builder()
-                    .putObjectRequest(putObjectRequest)
-                    .signatureDuration(Duration.ofHours(1))
-                    .build()
-        );
+                PutObjectPresignRequest.builder()
+                        .putObjectRequest(putObjectRequest)
+                        .signatureDuration(Duration.ofHours(1))
+                        .build());
 
         String presignedUrl = presignedRequest.url().toString();
 
-        Health health =Health.builder()
+        Health health = Health.builder()
                 .member(member)
                 .checkupName(checkupName)
                 .checkupDate(date)
@@ -245,7 +278,7 @@ public class HealthServiceImpl implements HealthService{
                 .build();
     }
 
-    public void saveMentalHealthTest(Long memberId, Long score){
+    public void saveMentalHealthTest(Long memberId, Long score) {
         LocalDate today = LocalDate.now();
         Member creator = Member.builder()
                 .memberId(memberId)
@@ -278,7 +311,7 @@ public class HealthServiceImpl implements HealthService{
     }
 
     @Transactional
-    public HealthPresigned deleteByHealthId(Long healthID){
+    public HealthPresigned deleteByHealthId(Long healthID) {
         Health deletedHealth = healthRepository.findTopByHealthId(healthID).orElseThrow();
 
         String s3key = deletedHealth.getCheckupFileUrl();
@@ -292,8 +325,7 @@ public class HealthServiceImpl implements HealthService{
                 DeleteObjectPresignRequest.builder()
                         .deleteObjectRequest(deleteObjectRequest)
                         .signatureDuration(Duration.ofMinutes(5))
-                        .build()
-        );
+                        .build());
 
         healthRepository.delete(deletedHealth);
 

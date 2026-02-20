@@ -15,45 +15,39 @@ import java.util.Optional;
 
 @Repository
 public interface HealthRepository extends JpaRepository<Health, Long> {
-    List<Health> findByMember_MemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
+        List<Health> findByMember_MemberIdAndCheckupDateBetween(Long memberId, LocalDate startDate, LocalDate endDate);
 
-    List<Health> findByMember_MemberId(Long memberId);
+        List<Health> findByMember_MemberId(Long memberId);
 
-    @Query("SELECT new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, COUNT(h)) " +
-            "FROM Health h " +
-            "WHERE h.member.memberId IN :memberIds " +
-            "AND h.checkupDate = (" +
-            "    SELECT MAX(h2.checkupDate) " +
-            "    FROM Health h2 " +
-            "    WHERE h2.member.memberId = h.member.memberId" +
-            "   AND h2.member.memberId IN :memberIds" +
-            ") " +
-            "GROUP BY h.checkupSummanary")
-    List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers(@Param("memberIds") List<Long> memberIds);
+        @Query("SELECT new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, COUNT(h)) " +
+                        "FROM Health h " +
+                        "WHERE h.member.memberId IN :memberIds " +
+                        "AND h.checkupDate = (" +
+                        "    SELECT MAX(h2.checkupDate) " +
+                        "    FROM Health h2 " +
+                        "    WHERE h2.member.memberId = h.member.memberId" +
+                        "   AND h2.member.memberId IN :memberIds" +
+                        ") " +
+                        "GROUP BY h.checkupSummanary")
+        List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers(
+                        @Param("memberIds") List<Long> memberIds);
 
-    @Query("select new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, count(h)) " +
-            "from Health h " +
-            "where h.checkupDate = (" +
-            "select MAX(h2.checkupDate) " +
-            "from Health h2 " +
-            "where h2.member.memberId = h.member.memberId" +
-            ") " +
-            "group by h.checkupSummanary")
-    List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers();
+        @Query("select new com.mcn.in4.domain.health.dto.HealthSummanaryCountDto(h.checkupSummanary, count(h)) " +
+                        "from Health h " +
+                        "where h.checkupDate = (" +
+                        "select MAX(h2.checkupDate) " +
+                        "from Health h2 " +
+                        "where h2.member.memberId = h.member.memberId" +
+                        ") " +
+                        "group by h.checkupSummanary")
+        List<HealthSummanaryCountDto> countGroupedByCheckupSummanaryForMembers();
 
-    @Query("""
-        SELECT h
-        FROM Health h
-        WHERE h.member.memberId = :memberId
-        ORDER BY h.checkupDate DESC
-    """)
-    Optional<Health> findTopByMember_MemberIdOrderByCheckupDateDesc(Long memberId);
+        Optional<Health> findTopByMember_MemberIdOrderByCheckupDateDesc(Long memberId);
 
-    boolean existsByMember_MemberIdAndCheckupDateBetween(
-            Long memberId,
-            LocalDate start,
-            LocalDate end
-    );
+        boolean existsByMember_MemberIdAndCheckupDateBetween(
+                        Long memberId,
+                        LocalDate start,
+                        LocalDate end);
 
-    Optional<Health> findTopByHealthId(Long healthID);
+        Optional<Health> findTopByHealthId(Long healthID);
 }
