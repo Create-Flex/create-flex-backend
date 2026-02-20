@@ -13,6 +13,7 @@ import com.mcn.in4.domain.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.user.SimpSession;
 import org.springframework.messaging.simp.user.SimpSubscription;
 import org.springframework.messaging.simp.user.SimpUser;
@@ -33,6 +34,7 @@ public class ChatServiceImpl implements ChatService {
     private final MemberRepository memberRepository;
     private final SimpUserRegistry simpUserRegistry; // 채팅방을 구독하는 사람들의 id를 가져오기 위함
     private final ChatRoomMemberRepository chatRoomMemberRepository;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @PostConstruct
     private void init() {
@@ -142,27 +144,27 @@ public class ChatServiceImpl implements ChatService {
     private List<Long> findConnectedUsers(String roomId) {
         String destination = "/sub/chat/room/" + roomId;
 
-        // [디버깅 로그 Start]
-        log.info("🔍 findConnectedUsers 호출: roomId={}", roomId);
-        log.info("🔍 찾는구독경로(Server): {}", destination);
+        // 디버깅 로그
+        log.info(" findConnectedUsers 호출: roomId={}", roomId);
+        log.info(" 찾는구독경로(Server): {}", destination);
 
         // SimpUserRegistry 전체 조회
         Set<SimpUser> users = simpUserRegistry.getUsers();
-        log.info("🔍 현재 레지스트리에 등록된 총 유저 수: {}", users.size());
+        log.info(" 현재 레지스트리에 등록된 총 유저 수: {}", users.size());
         for (SimpUser user : users) {
-            log.info("  👤 유저명(Principal.name): {}", user.getName());
+            log.info("   유저명(Principal.name): {}", user.getName());
             if (user.getSessions() != null) {
                 for (SimpSession session : user.getSessions()) {
                     log.info("    SessionID: {}", session.getId());
                     if (session.getSubscriptions() != null) {
                         for (SimpSubscription sub : session.getSubscriptions()) {
-                            log.info("      구독중인 경로(Client): {}", sub.getDestination());
+                            log.info("   구독중인 경로(Client): {}", sub.getDestination());
                         }
                     }
                 }
             }
         }
-        // [디버깅 로그 End]
+
         return simpUserRegistry.getUsers().stream()
                 .filter(user -> user.getSessions().stream()
                         .flatMap(session -> session.getSubscriptions().stream())
@@ -185,30 +187,48 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public List<ChatMessageDto> findMessages(String roomId, Long memberId) {
-        // 메시지 내역 조회
-        List<ChatMessage> messages = chatMessageRepository.findByChatRoom_RoomIdOrderBySendDateAsc(roomId);
-
-        // 메시지가 없으면 빈 리스트 반환
+        //  메시지 & 채팅방 한 번에 조회 (JOIN FETCH)
+        List<ChatMessage> messages = chatMessageRepository.findAllByRoomIdWithRoom(roomId);
         if (messages.isEmpty()) {
             return new ArrayList<>();
         }
-        // 읽음 처리 현재 접속한 멤버의 lastReadMessageId를 가장 마지막 메시지 ID로 업데이트
-        ChatMessage lastMessage = messages.get(messages.size() - 1);
-        chatRoomMemberRepository.updateMemberLastReadMessage(roomId, memberId, lastMessage.getId());
-        // 안 읽은 수 계산
 
-        long totalMembers = chatRoomMemberRepository.countByRoomId(roomId);
-        // 각 메시지별로 unreadCount 계산하여 DTO 변환
+        //  채팅방 모든 멤버 & 상세정보 한 번에 조회 (JOIN FETCH)
+        List<ChatRoomMember> allMembers = chatRoomMemberRepository.findAllByRoomIdWithMemberAndRoom(roomId);
+        long totalMembers = allMembers.size();
+
+        //  내 읽음 상태 업데이트 및 이벤트 발행 (조건부)
+        ChatMessage lastMessage = messages.get(messages.size() - 1);
+        allMembers.stream()
+                .filter(m -> m.getMember().getMemberId().equals(memberId))
+                .findFirst()
+                .ifPresent(m -> {
+                    Long lastReadId = m.getLastReadMessageId();
+                    Long currentLastId = lastMessage.getId();
+
+                    if (lastReadId == null || lastReadId < currentLastId) {
+                        chatRoomMemberRepository.updateMemberLastReadMessage(roomId, memberId, currentLastId);
+
+                        // READ 이벤트 발행
+                        ChatMessageDto readEvent = ChatMessageDto.builder()
+                                .type(ChatMessageDto.MessageType.READ)
+                                .roomId(roomId)
+                                .senderId(memberId)
+                                .message("READ_UPDATE")
+                                .build();
+                        messagingTemplate.convertAndSend("/sub/chat/room/" + roomId, readEvent);
+                    }
+                });
+
+        // 메모리 연산으로 DTO 변환 (N+1 없음)
         return messages.stream()
                 .map(msg -> {
                     ChatMessageDto dto = ChatMessageDto.from(msg);
-                    // 이 메시지를 읽은 사람 수 (lastReadMessageId >= msg.id)
-                    long readCount = chatRoomMemberRepository.countReadMembers(roomId, msg.getId());
-
+                    long readCount = allMembers.stream()
+                            .filter(m -> m.getLastReadMessageId() != null && m.getLastReadMessageId() >= msg.getId())
+                            .count();
                     long unreadCount = totalMembers - readCount;
-                    if (unreadCount < 0) unreadCount = 0;
-
-                    dto.setUnreadCount(unreadCount);
+                    dto.setUnreadCount(Math.max(0, unreadCount));
                     return dto;
                 })
                 .collect(Collectors.toList());

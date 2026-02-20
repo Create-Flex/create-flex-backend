@@ -1,6 +1,7 @@
 package com.mcn.in4.domain.chat.dto;
 
 import com.mcn.in4.domain.chat.entity.ChatRoom;
+import com.mcn.in4.domain.member.entity.Member;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -32,8 +33,8 @@ public class ChatRoomResponseDto {
         private Long memberId;
         private String memberName;
 
-        // 프로필 이미지 등이 있다면 추가
-        public static MemberSimpleDto from(com.mcn.in4.domain.member.entity.Member member) {
+
+        public static MemberSimpleDto from(Member member) {
             return MemberSimpleDto.builder()
                     .memberId(member.getMemberId())
                     .memberName(member.getMemberName())
