@@ -166,10 +166,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional(readOnly = true)
     public List<NotificationDto> getNotifications(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-
-        return notificationRepository.findAllByMemberOrderByCreatedAtDesc(member).stream()
+        // memberId로 직접 조회 (불필요한 member 조회 쿼리 제거)
+        return notificationRepository.findAllByMemberMemberIdOrderByCreatedAtDesc(memberId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -184,9 +182,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void markAllAsRead(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
-        List<Notification> notifications = notificationRepository.findAllByMemberOrderByCreatedAtDesc(member);
+        // memberId로 직접 조회 (불필요한 member 조회 쿼리 제거)
+        List<Notification> notifications = notificationRepository.findAllByMemberMemberIdOrderByCreatedAtDesc(memberId);
         notifications.forEach(n -> n.setRead(true));
         notificationRepository.saveAll(notifications);
     }

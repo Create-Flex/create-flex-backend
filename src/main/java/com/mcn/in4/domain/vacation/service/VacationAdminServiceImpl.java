@@ -30,6 +30,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 휴가 관리 서비스 구현체 (관리자용)
@@ -67,12 +71,22 @@ public class VacationAdminServiceImpl implements VacationAdminService {
                                 type);
                 Page<Vacation> vacationPage = vacationRepository.findAll(spec, sortedPageable);
 
+                // N+1 해결: memberIds 수집 후 한 번에 조회
+                List<Long> memberIds = vacationPage.getContent().stream()
+                                .map(v -> v.getMember().getMemberId())
+                                .distinct()
+                                .toList();
+
+                Map<Long, Double> remainderMap = memberEmployeeDetailRepository
+                                .findByMemberMemberIdIn(memberIds)
+                                .stream()
+                                .collect(Collectors.toMap(
+                                        d -> d.getMember().getMemberId(),
+                                        MemberEmployeeDetail::getVacationRemainder
+                                ));
+
                 return vacationPage.map(vacation -> {
-                        // 잔여 연차 조회
-                        Double remainder = memberEmployeeDetailRepository
-                                        .findByMemberMemberId(vacation.getMember().getMemberId())
-                                        .map(MemberEmployeeDetail::getVacationRemainder)
-                                        .orElse(0.0);
+                        Double remainder = remainderMap.getOrDefault(vacation.getMember().getMemberId(), 0.0);
                         return AdminVacationListResponseDTO.from(vacation, remainder);
                 });
         }

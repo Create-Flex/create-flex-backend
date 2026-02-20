@@ -48,29 +48,34 @@ public class MemberServiceImpl implements MemberService {
 
         @Override
         public MemberProfileResponseDto getMemberProfile(Long memberId) {
-                // 1. 회원 조회
-                Member member = memberRepository.findById(memberId)
+                // 1. 회원 + 부서 한 번에 조회 (FETCH JOIN으로 department lazy loading 방지)
+                Member member = memberRepository.findByIdWithDepartment(memberId)
                                 .orElseThrow(() -> new IllegalArgumentException("해당 회원을 찾을 수 없습니다. id=" + memberId));
 
-                // 2. 프로필 조회
-                MemberProfile profile = memberProfileRepository.findByMember(member)
+                // 2. 프로필 조회 (memberId로 직접 조회 - 불필요한 member 재조회 방지)
+                MemberProfile profile = memberProfileRepository.findByMember_MemberId(memberId)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "프로필 정보를 찾을 수 없습니다. memberId=" + memberId));
 
                 // 3. 빌더 초기화 (공통 정보)
+                // 프로필 이미지: 이미 전체 URL이면 그대로 사용, S3 키면 S3 URL 생성
+                String profileImageUrl = profile.getProfileImage();
+                if (profileImageUrl != null && !profileImageUrl.startsWith("http")) {
+                        profileImageUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + profileImageUrl;
+                }
+
                 MemberProfileResponseDto.MemberProfileResponseDtoBuilder builder = MemberProfileResponseDto.builder()
                                 .memberId(member.getMemberId())
                                 .memberName(member.getMemberName())
                                 .memberAccount(member.getMemberAccount())
                                 .memberRole(member.getMemberRole())
-                                .profileImage("https://" + bucket + ".s3." + region + ".amazonaws.com/"
-                                                + profile.getProfileImage())
+                                .profileImage(profileImageUrl)
                                 .profileBanner(profile.getProfileBanner());
 
-                // 4. 직원인 경우 상세 정보 조회 및 추가
+                // 4. 직원인 경우 상세 정보 조회 및 추가 (memberId로 직접 조회)
                 if (member.getMemberRole() == MemberRole.EMPLOYEE || member.getMemberRole() == MemberRole.MANAGER
                                 || member.getMemberRole() == MemberRole.ADMINISTRATOR) {
-                        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMember(member)
+                        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)
                                         .orElse(null);
 
                         if (employeeDetail != null) {

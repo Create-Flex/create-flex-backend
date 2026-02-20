@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findAllByMemberOrderByCreatedAtDesc(Member member);
+
+    // memberId로 직접 조회 (불필요한 member 조회 쿼리 제거)
+    List<Notification> findAllByMemberMemberIdOrderByCreatedAtDesc(Long memberId);
 }
