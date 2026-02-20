@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,25 +88,47 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDetailResponse findDepartmentDetail(Long id) {
-        // 1. 부서 정보는 기본 findById 사용
+        // 1. 부서 정보 조회
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("부서 없음"));
 
-        // 2. 해당 부서의 멤버들은 MemberRepository에서 조회
+        // 2. 해당 부서의 멤버들 조회
         List<Member> members = memberRepository.findByDepartment_DepartmentId(id);
-        // 여기서 Member와 Detail을 합쳐서 DTO 리스트를 미리 만듭니다.
+
+        if (members.isEmpty()) {
+            return new DepartmentDetailResponse(department, List.of());
+        }
+
+        // 3. memberIds 수집
+        List<Long> memberIds = members.stream()
+                .map(Member::getMemberId)
+                .toList();
 
         LocalDate today = LocalDate.now();
 
+        // 4. EmployeeDetail 한 번에 조회 → Map 변환 (N+1 해결)
+        Map<Long, MemberEmployeeDetail> detailMap = memberEmployeeDetailRepository
+                .findByMemberMemberIdIn(memberIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        d -> d.getMember().getMemberId(),
+                        Function.identity()
+                ));
+
+        // 5. Attendance 한 번에 조회 → Map 변환 (N+1 해결)
+        Map<Long, Attendance> attendanceMap = attendanceRepository
+                .findByAttendanceDateAndMemberMemberIdIn(today, memberIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        a -> a.getMember().getMemberId(),
+                        Function.identity()
+                ));
+
+        // 6. Map에서 조회하여 DTO 생성
         List<MemberSummaryResponse> memberSummaryList = members.stream()
                 .map(member -> {
-                    MemberEmployeeDetail detail = memberEmployeeDetailRepository
-                            .findByMemberMemberId(member.getMemberId())
-                            .orElse(null);
-                    Attendance attendance = attendanceRepository
-                            .findByMemberAndAttendanceDate(member, today)
-                            .orElse(null);
-
+                    MemberEmployeeDetail detail = detailMap.get(member.getMemberId());
+                    Attendance attendance = attendanceMap.get(member.getMemberId());
                     return new MemberSummaryResponse(member, detail, attendance);
                 })
                 .toList();

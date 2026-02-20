@@ -17,6 +17,10 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
         Optional<Member> findByMemberAccount(String memberAccount);
 
+        // 단일 회원 조회 시 department FETCH JOIN (lazy loading 방지)
+        @Query("SELECT m FROM Member m LEFT JOIN FETCH m.department WHERE m.memberId = :memberId")
+        Optional<Member> findByIdWithDepartment(@Param("memberId") Long memberId);
+
         @Query("SELECT m FROM Member m LEFT JOIN FETCH m.department")
         List<Member> findAllWithDepartment();
 
