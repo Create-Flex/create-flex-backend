@@ -62,8 +62,11 @@ public enum ErrorCode {
 
     // 10. AI 챗봇 (AI)
     AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 생성 중 오류가 발생했습니다."),
-    AI_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI 서버에 연결할 수 없습니다.");
+    AI_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI 서버에 연결할 수 없습니다."),
 
+
+    // 11. 채팅방
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
     private final HttpStatus status;
     private final String message;
 }
