@@ -48,6 +48,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         @Query("SELECT m.memberRole FROM Member m WHERE m.memberId = :memberId")
         MemberRole findMemberRoleByMemberId(@Param("memberId") Long memberId);
 
+        @Query("SELECT m.memberName FROM Member m WHERE m.memberId = :memberId")
+        String findMemberNameById(@Param("memberId") Long memberId);
+
         List<Member> findAllByMemberRole(MemberRole memberRole);
 
         // 페이징 시 멤버 전체 조회
