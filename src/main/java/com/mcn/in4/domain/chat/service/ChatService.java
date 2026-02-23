@@ -25,4 +25,6 @@ public interface ChatService {
 
     // 특정 방의 이전 대화 내역 조회
     List<ChatMessageDto> findMessages(String roomId, Long memberId);
+
+    void updateRoomName(String roomId, String name);
 }

@@ -38,4 +38,8 @@ public class ChatRoom {
     public void addMember(ChatRoomMember chatRoomMember) {
         this.members.add(chatRoomMember);
     }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
 }
