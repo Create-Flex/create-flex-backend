@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.mcn.in4.domain.QnA.service.QAService;
 import com.mcn.in4.domain.QnA.dto.QAResponseDto.*;
 import com.mcn.in4.domain.QnA.dto.QARequestDto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,9 +21,10 @@ public class QAController {
 
     @GetMapping("/")
     public List<QATitle> generateQATitleList(
-            @AuthenticationPrincipal String userId){
+            @AuthenticationPrincipal String userId,
+            @RequestParam Long listPage){
         Long memberId = Long.parseLong(userId);
-        return qaService.generateQATitleList(memberId);
+        return qaService.generateQATitleList(memberId, listPage);
     }
 
     @GetMapping("/detail")
@@ -35,14 +36,14 @@ public class QAController {
 
     @PostMapping("/question")
     @ResponseBody
-    public ResponseEntity<Void> uploadQuestion(
+    public QAFileUpload uploadQuestion(
             @AuthenticationPrincipal String userId,
-            @RequestBody QuestionDto request){
+            @ModelAttribute QuestionDto request){
         Long memberId = Long.parseLong(userId);
         String questionTitle = request.getQuestionTitle();
         String questionDetail = request.getQuestionDetail();
-        qaService.uploadQuestion(memberId, questionTitle, questionDetail);
-        return  ResponseEntity.ok().build();
+        List<MultipartFile> files = request.getFiles();
+        return qaService.uploadQuestion(memberId, questionTitle, questionDetail, files);
     }
 
     @PostMapping("/answer")

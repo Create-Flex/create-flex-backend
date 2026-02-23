@@ -79,10 +79,10 @@ INSERT INTO members (member_id, department_id, member_account, member_password, 
 -- ==========================================
 INSERT INTO employee_detail (employee_detail_id, employee_id, nickname, eng_name, personal_email, corpor_email, personal_call, hire_date, emp_date, address, employment_type, leaving_reason, vacation_remainder) VALUES
 (1001, 1001, '인사왕', 'Kim Insa', 'rockhavesoul@gmail.com', 'kim.insa@mcn.com', '010-1111-1111', '2020-03-02', NULL, '서울시 강남구 테헤란로 123', 'EXPERIENCED', NULL, 15.0),
-(1002, 1002, '채용마스터', 'Lee Chaeyong', 'lee.chaeyong@naver.com', 'lee.chaeyong@mcn.com', '010-2222-2222', '2021-06-15', NULL, '서울시 서초구 서초대로 456', 'NEWBIE', NULL, 14.5),
+(1002, 1002, '채용마스터', 'Lee Chaeyong', 'lee.chaeyong@naver.com', 'lee.chaeyong@mcn.com', '010-2222-2222', '2021-06-15', NULL, '서울시 서초구 서초대로 456', 'NEWBIE', NULL, 15.0),
 (1003, 1003, '매니저박', 'Park Manager', 'kuroiwadeath@gmail.com', 'park.manager@mcn.com', '010-3333-3333', '2019-01-10', NULL, '서울시 마포구 월드컵로 789', 'EXPERIENCED', NULL, 15.0),
-(1004, 1004, '최담당님', 'Choi Damdang', 'choi.dd@kakao.com', 'choi.damdang@mcn.com', '010-4444-4444', '2022-09-01', NULL, '경기도 성남시 분당구 판교역로 111', 'NEWBIE', NULL, 9.0),
-(1005, 1005, '정매니저', 'Jung Gwanli', 'jung.gl@gmail.com', 'jung.gwanli@mcn.com', '010-5555-5555', '2020-11-20', NULL, '인천시 연수구 송도과학로 222', 'EXPERIENCED', NULL, 12.0),
+(1004, 1004, '최담당님', 'Choi Damdang', 'choi.dd@kakao.com', 'choi.damdang@mcn.com', '010-4444-4444', '2022-09-01', NULL, '경기도 성남시 분당구 판교역로 111', 'NEWBIE', NULL, 15.0),
+(1005, 1005, '정매니저', 'Jung Gwanli', 'jung.gl@gmail.com', 'jung.gwanli@mcn.com', '010-5555-5555', '2020-11-20', NULL, '인천시 연수구 송도과학로 222', 'EXPERIENCED', NULL, 15.0),
 (1006, 1006, '강마케터', 'Kang Marketing', 'kang.mk@naver.com', 'kang.marketing@mcn.com', '010-6666-6666', '2021-03-15', NULL, '서울시 영등포구 여의대로 333', 'NEWBIE', NULL, 15.0),
 (1007, 1007, '윤개발자', 'Yoon Dev', 'yoon.dev@gmail.com', 'yoon.dev@mcn.com', '010-7777-7777', '2022-01-03', NULL, '서울시 강남구 역삼로 444', 'NEWBIE', NULL, 10.0),
 (1008, 1008, '한코더', 'Han Coding', 'han.code@naver.com', 'han.coding@mcn.com', '010-8888-8888', '2020-07-15', NULL, '경기도 고양시 일산동구 중앙로 555', 'EXPERIENCED', NULL, 15.0),
@@ -719,7 +719,7 @@ INSERT INTO vacation (vacation_id, member_id, vacation_type, vacation_start, vac
 (1010, 1004, 'ANNUAL', '2026-03-10', '2026-03-12', '2026-02-01', '개인 사정으로 인한 연차', 'APPROVED', NULL, 3.0),
 (1011, 1006, 'SICK', '2026-02-06', '2026-02-06', '2026-02-06', '급성 장염', 'APPROVED', NULL, 1.0),
 (1012, 1002, 'HALF', '2026-02-14', '2026-02-14', '2026-02-05', '은행 업무', 'APPROVE_NEED', NULL, 0.5),
-(1013, 1005, 'ANNUAL', '2026-04-01', '2026-04-05', '2026-02-06', '벚꽃 여행', 'REJECTED', '회사일정상 불가', 3.0),
+(1013, 1005, 'ANNUAL', '2026-04-01', '2026-04-05', '2026-02-06', '벚꽃 여행', 'APPROVE_NEED', NULL, 3.0),
 (1014, 1001, 'FAMILY', '2026-03-20', '2026-03-20', '2026-02-04', '가족 결혼식', 'APPROVED', NULL, 1.0);
 
 -- 추가 휴가 상세 데이터 (경조사/병가)

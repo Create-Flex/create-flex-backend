@@ -1,21 +1,34 @@
 package com.mcn.in4.domain.QnA.service;
 
+import com.mcn.in4.domain.QnA.entity.File;
 import com.mcn.in4.domain.QnA.entity.QABoard;
+import com.mcn.in4.domain.QnA.repository.FileRepository;
 import com.mcn.in4.domain.QnA.repository.QARepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.entity.MemberEmployeeDetail;
 import com.mcn.in4.domain.member.repository.MemberEmployeeDetailRepository;
 import com.mcn.in4.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.mcn.in4.domain.QnA.dto.QAResponseDto.*;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,15 +36,26 @@ import java.util.Optional;
 public class QAServiceImpl implements QAService{
     private final QARepository qaRepository;
     private final MemberRepository memberRepository;
+    private final FileRepository fileRepository;
     private final MemberEmployeeDetailRepository memberEmployeeDetailRepository;
+    private final S3Presigner s3Presigner;
     private final MailService mailService;
 
+    @Value("${aws.s3.bucket}")
+    private String bucket;
+
     @Override
-    public List<QATitle> generateQATitleList(Long memberId){
+    public List<QATitle> generateQATitleList(Long memberId, Long listPage){
+        PageRequest pageRequest = PageRequest.of((listPage.intValue()-1), 10);
+
         Member member = memberRepository.findById(memberId).orElseThrow();
-        List<QABoard> qaBoards = (member.getMemberRole() == MemberRole.ADMINISTRATOR)
-            ? qaRepository.findAllByOrderByQuestionTimeDesc()
-                : qaRepository.findByQuestionMember_MemberIdOrderByQuestionTimeDesc(memberId);
+        Page<QABoard> qaPages = (member.getMemberRole() == MemberRole.ADMINISTRATOR)
+            ? qaRepository.findAllByOrderByQuestionTimeDesc(pageRequest)
+                : qaRepository.findByQuestionMember_MemberIdOrderByQuestionTimeDesc(memberId, pageRequest);
+
+        List<QABoard> qaBoards = qaPages.getContent();
+
+        System.out.println("페이지 출력 \n" + qaBoards);
 
         return qaBoards.stream().map(qaBoard -> QATitle.builder()
                         .qaId(qaBoard.getQAId())
@@ -73,8 +97,10 @@ public class QAServiceImpl implements QAService{
     }
 
     @Override
-    public void uploadQuestion(Long memberId, String questionTitle, String questionDetail){
+    public QAFileUpload uploadQuestion(Long memberId, String questionTitle, String questionDetail, List<MultipartFile> files){
         Member questionMember = memberRepository.findById(memberId).orElseThrow();
+
+        List<String> list = new ArrayList<>();
 
         QABoard qaBoard = QABoard.builder()
                 .questionMember(questionMember)
@@ -83,8 +109,46 @@ public class QAServiceImpl implements QAService{
                 .questionTime(LocalDateTime.now())
                 .build();
 
+        QABoard board = qaRepository.save(qaBoard);
+
         mailService.sendUpQuest(questionTitle, questionMember.getMemberName(), questionMember.getDepartment().getDepartmentName(), questionDetail);
-        qaRepository.save(qaBoard);
+
+        if(files != null && !files.isEmpty()) {
+            files.stream()
+                    .filter(file -> file != null && !file.isEmpty())
+                    .forEach(file -> {
+                        String fileName = file.getOriginalFilename();
+                        String s3key = "public/file/" + UUID.randomUUID().toString() + "/" + fileName;
+                        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                                .bucket(bucket)
+                                .key(s3key)
+                                .contentType(file.getContentType())
+                                .build();
+
+                        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(
+                                PutObjectPresignRequest.builder()
+                                        .putObjectRequest(putObjectRequest)
+                                        .signatureDuration(Duration.ofHours(1))
+                                        .build());
+
+                        File newFile = File.builder()
+                                .qaBoard(board)
+                                .fileName(fileName)
+                                .s3Key(s3key)
+                                .build();
+                        fileRepository.save(newFile);
+                        list.add(presignedRequest.url().toString());
+                    });
+        }
+
+
+
+
+
+
+        return QAFileUpload.builder()
+                .uploadURL(list)
+                .build();
     }
 
     @Override
@@ -95,7 +159,7 @@ public class QAServiceImpl implements QAService{
 
         mailService.sendUpAnswer(questionMemberDetail.getPersonalEmail(), qaBoard.getQuestionTitle(),
                                 answerMember.getMemberName(), answerMember.getDepartment().getDepartmentName(),
-                                qaBoard.getQuestionTitle(), answerDetail);
+                                qaBoard.getQuestionDetail(), answerDetail);
 
         qaBoard.setAnswerMember(answerMember);
         qaBoard.setAnswerDetail(answerDetail);

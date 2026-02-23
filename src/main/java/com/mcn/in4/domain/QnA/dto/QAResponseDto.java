@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class QAResponseDto {
 
@@ -39,5 +40,13 @@ public class QAResponseDto {
         private String answerMemberName;
         private String answerDepartmentName;
         private String answerDetail;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class QAFileUpload{
+        private List<String> uploadURL;
     }
 }
