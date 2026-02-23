@@ -276,7 +276,7 @@ public class VacationServiceImpl implements VacationService {
         // 총 연차 15일 (기본값)
         double totalVacation = 15.0;
 
-        return VacationRemainderResponseDTO.from(employeeDetail, totalVacation);
+        return VacationRemainderResponseDTO.from(employeeDetail, totalVacation, memberId);
     }
 
     /** 내 휴가 통계 조회 (승인된 휴가 수, 미승인 휴가 수) */
