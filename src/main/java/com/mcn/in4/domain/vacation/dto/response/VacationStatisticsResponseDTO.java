@@ -28,8 +28,7 @@ public class VacationStatisticsResponseDTO {
             long monthlyVacationCount,
             long pendingApprovalCount,
             long monthlySickLeaveCount,
-            String targetMonth
-    ) {
+            String targetMonth) {
         return VacationStatisticsResponseDTO.builder()
                 .monthlyVacationCount(monthlyVacationCount)
                 .pendingApprovalCount(pendingApprovalCount)

@@ -57,8 +57,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AsyncRequestTimeoutException.class)
     protected ResponseEntity<String> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException e) {
-        // 타임아웃은 에러가 아니므로 로그 레벨을 낮추거나 무시
-        log.warn("SSE Timeout occurred", e);
+        // 타임아웃은 SSE의 정상적인 연결 종료 과정이므로 INFO 레벨로 간결하게 기록
+        log.info("SSE Connection timeout occurred (Expected behavior)");
         return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     }
 
