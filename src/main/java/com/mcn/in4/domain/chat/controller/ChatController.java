@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -29,20 +30,20 @@ public class ChatController {
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, Principal principal) {
 
-         if (principal != null) {
+        if (principal != null) {
 
-             try{
-                 message.setSenderId(Long.parseLong(principal.getName()));
-             }catch (NumberFormatException e) {
-                 log.error("principal 에서 이름을 찾지못함", e);
-             }
-         }
+            try {
+                message.setSenderId(Long.parseLong(principal.getName()));
+            } catch (NumberFormatException e) {
+                log.error("principal 에서 이름을 찾지못함", e);
+            }
+        }
 
         // 입장 메시지 처리
         if (ChatMessageDto.MessageType.ENTER.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         }
-        //퇴장 메세지
+        // 퇴장 메세지
         if (ChatMessageDto.MessageType.EXIT.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 퇴장하셨습니다.");
         }
@@ -79,34 +80,44 @@ public class ChatController {
         return chatService.findMyRooms(memberId);
     }
 
-    /// 특정 채팅방의 지난 대화 내용 조회
+    // 처음 들어갔을때 20개 조회
     @GetMapping("/chat/room/{roomId}/messages")
     @ResponseBody
-    public List<ChatMessageDto> getMessages(@PathVariable String roomId, @AuthenticationPrincipal String memberIdStr) {
-
-        Long memberId = Long.parseLong(memberIdStr);
-
-
-        return chatService.findMessages(roomId, memberId);
-
+    public List<ChatMessageDto> getMessages(@PathVariable String roomId, @AuthenticationPrincipal String userId) {
+        Long memberId = Long.parseLong(userId);
+        return chatService.findMessages(roomId, memberId, 20);
     }
 
-    //채팅방 이름 수정
+    // 이전 메세지 조회
+    @GetMapping("/chat/room/{roomId}/messages/older")
+    @ResponseBody
+    public List<ChatMessageDto> getOlderMessages(
+            @PathVariable String roomId,
+            @RequestParam(required = false) Long lastId,
+            @RequestParam(defaultValue = "20") int size) {
+
+        // 데이터가 없을 경우 에러 방지 처리
+        if (lastId == null) {
+            return new java.util.ArrayList<>();
+        }
+
+        return chatService.findOlderMessages(roomId, lastId, size);
+    }
+
+    // 채팅방 이름 수정
     @PatchMapping("/chat/room/{roomId}/name")
     @ResponseBody
     public void updateRoomName(@PathVariable String roomId, @RequestBody ChatRoomCreateRequest request) {
         chatService.updateRoomName(roomId, request.getName());
     }
 
-    //채팅방 나가기
+    // 채팅방 나가기
     @DeleteMapping("/chat/room/{roomId}/leave")
     @ResponseBody
-    public void leaveRoom(@PathVariable String roomId, @AuthenticationPrincipal String userId){
+    public void leaveRoom(@PathVariable String roomId, @AuthenticationPrincipal String userId) {
         Long memberId = Long.parseLong(userId);
         chatService.leaveRoom(roomId, memberId);
-        
+
     }
-
-
 
 }

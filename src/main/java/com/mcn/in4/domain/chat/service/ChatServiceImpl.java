@@ -15,6 +15,8 @@ import com.mcn.in4.global.error.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.user.SimpSession;
 import org.springframework.messaging.simp.user.SimpSubscription;
@@ -70,7 +72,6 @@ public class ChatServiceImpl implements ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
     }
 
-    @Override
     @Transactional
     public ChatRoomResponseDto createRoom(String name, List<Long> memberIds) {
         // 채팅방 생성
@@ -188,30 +189,53 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public List<ChatMessageDto> findMessages(String roomId, Long memberId) {
-        //  메시지 & 채팅방 한 번에 조회 (JOIN FETCH)
-        List<ChatMessage> messages = chatMessageRepository.findAllByRoomIdWithRoom(roomId);
+    public List<ChatMessageDto> findMessages(String roomId, Long memberId, int size) {
+        // 처음 들어갔을때 20개 조회
+        Pageable pageable = PageRequest.of(0, size);
+        List<ChatMessage> messages = chatMessageRepository.findLatestMessages(roomId, pageable);
+
         if (messages.isEmpty()) {
             return new ArrayList<>();
         }
 
-        //  채팅방 모든 멤버 & 상세정보 한 번에 조회 (JOIN FETCH)
-        List<ChatRoomMember> allMembers = chatRoomMemberRepository.findAllByRoomIdWithMemberAndRoom(roomId);
-        long totalMembers = allMembers.size();
+        // 시간순 정렬
+        Collections.reverse(messages);
 
-        //  내 읽음 상태 업데이트 및 이벤트 발행 (조건부)
+        // 페이지읽음 처리
         ChatMessage lastMessage = messages.get(messages.size() - 1);
-        allMembers.stream()
-                .filter(m -> m.getMember().getMemberId().equals(memberId))
-                .findFirst()
+        updateMyReadStatus(roomId, memberId, lastMessage.getId());
+
+        // 메시지 DTO 변환 및 안읽은 인원 수 계산
+        return convertToDtoWithUnreadCount(roomId, messages);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatMessageDto> findOlderMessages(String roomId, Long lastId, int size) {
+        // 이전 메세지 조회
+        Pageable pageable = PageRequest.of(0, size);
+        List<ChatMessage> messages = chatMessageRepository.findOlderMessages(roomId, lastId, pageable);
+
+        if (messages.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 시간순 정렬
+        Collections.reverse(messages);
+
+        // 메시지 DTO 변환 및 안읽은 인원 수 계산
+        return convertToDtoWithUnreadCount(roomId, messages);
+    }
+
+    // 페이지읽음 처리
+    private void updateMyReadStatus(String roomId, Long memberId, Long lastMessageId) {
+        chatRoomMemberRepository.findByChatRoom_RoomIdAndMember_MemberId(roomId, memberId)
                 .ifPresent(m -> {
                     Long lastReadId = m.getLastReadMessageId();
-                    Long currentLastId = lastMessage.getId();
+                    if (lastReadId == null || lastReadId < lastMessageId) {
+                        chatRoomMemberRepository.updateMemberLastReadMessage(roomId, memberId, lastMessageId);
 
-                    if (lastReadId == null || lastReadId < currentLastId) {
-                        chatRoomMemberRepository.updateMemberLastReadMessage(roomId, memberId, currentLastId);
-
-                        // READ 이벤트 발행
+                        // 읽음 알림 이벤트 발행
                         ChatMessageDto readEvent = ChatMessageDto.builder()
                                 .type(ChatMessageDto.MessageType.READ)
                                 .roomId(roomId)
@@ -221,8 +245,13 @@ public class ChatServiceImpl implements ChatService {
                         messagingTemplate.convertAndSend("/sub/chat/room/" + roomId, readEvent);
                     }
                 });
+    }
 
-        // 메모리 연산으로 DTO 변환 (N+1 없음)
+    // 메시지 DTO 변환 및 안읽은 인원 수 계산
+    private List<ChatMessageDto> convertToDtoWithUnreadCount(String roomId, List<ChatMessage> messages) {
+        List<ChatRoomMember> allMembers = chatRoomMemberRepository.findAllByRoomIdWithMemberAndRoom(roomId);
+        long totalMembers = allMembers.size();
+
         return messages.stream()
                 .map(msg -> {
                     ChatMessageDto dto = ChatMessageDto.from(msg);
@@ -239,7 +268,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void updateRoomName(String roomId, String name) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         chatRoom.updateName(name);
         chatRoomRepository.save(chatRoom);
     }
@@ -248,9 +277,8 @@ public class ChatServiceImpl implements ChatService {
     @Transactional
     public void leaveRoom(String roomId, Long memberId) {
         ChatRoomMember roomMember = chatRoomMemberRepository.findByChatRoom_RoomIdAndMember_MemberId(roomId, memberId)
-                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
         chatRoomMemberRepository.delete(roomMember);
     }
-
 
 }
