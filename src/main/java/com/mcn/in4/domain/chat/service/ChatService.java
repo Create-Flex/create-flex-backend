@@ -27,4 +27,6 @@ public interface ChatService {
     List<ChatMessageDto> findMessages(String roomId, Long memberId);
 
     void updateRoomName(String roomId, String name);
+
+    void leaveRoom(String roomId, Long memberId);
 }

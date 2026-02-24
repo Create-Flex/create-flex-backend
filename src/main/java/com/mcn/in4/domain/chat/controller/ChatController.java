@@ -42,6 +42,10 @@ public class ChatController {
         if (ChatMessageDto.MessageType.ENTER.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
         }
+        //퇴장 메세지
+        if (ChatMessageDto.MessageType.EXIT.equals(message.getType())) {
+            message.setMessage(message.getSender() + "님이 퇴장하셨습니다.");
+        }
         chatService.saveMessage(message);
 
         // 구독자들에게 전송 (/sub/chat/room/{roomId})
@@ -93,5 +97,16 @@ public class ChatController {
     public void updateRoomName(@PathVariable String roomId, @RequestBody ChatRoomCreateRequest request) {
         chatService.updateRoomName(roomId, request.getName());
     }
+
+    //채팅방 나가기
+    @DeleteMapping("/chat/room/{roomId}/leave")
+    @ResponseBody
+    public void leaveRoom(@PathVariable String roomId, @AuthenticationPrincipal String userId){
+        Long memberId = Long.parseLong(userId);
+        chatService.leaveRoom(roomId, memberId);
+        
+    }
+
+
 
 }
