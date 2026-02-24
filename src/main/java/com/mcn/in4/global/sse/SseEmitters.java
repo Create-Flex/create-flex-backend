@@ -45,7 +45,11 @@ public class SseEmitters {
                     emitter.send(SseEmitter.event()
                             .name(eventName)
                             .data(data));
+                } catch (IOException e) {
+                    // 클라이언트 연결 끊김 등 예상된 오류
+                    deadEmitters.add(emitter);
                 } catch (Exception e) {
+                    // 기타 예외도 deadEmitters로 처리하여 상위 로직에 영향을 주지 않음
                     deadEmitters.add(emitter);
                 }
             });

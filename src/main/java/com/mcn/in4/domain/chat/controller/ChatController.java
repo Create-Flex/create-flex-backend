@@ -86,4 +86,12 @@ public class ChatController {
         return chatService.findMessages(roomId, memberId);
 
     }
+
+    //채팅방 이름 수정
+    @PatchMapping("/chat/room/{roomId}/name")
+    @ResponseBody
+    public void updateRoomName(@PathVariable String roomId, @RequestBody ChatRoomCreateRequest request) {
+        chatService.updateRoomName(roomId, request.getName());
+    }
+
 }

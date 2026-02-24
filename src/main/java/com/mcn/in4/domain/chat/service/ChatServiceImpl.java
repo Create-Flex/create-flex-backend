@@ -10,6 +10,8 @@ import com.mcn.in4.domain.chat.repository.ChatRoomMemberRepository;
 import com.mcn.in4.domain.chat.repository.ChatRoomRepository;
 import com.mcn.in4.domain.member.entity.Member;
 import com.mcn.in4.domain.member.repository.MemberRepository;
+import com.mcn.in4.global.error.exception.CustomException;
+import com.mcn.in4.global.error.exception.ErrorCode;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -232,6 +234,14 @@ public class ChatServiceImpl implements ChatService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateRoomName(String roomId, String name) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+        chatRoom.updateName(name);
+        chatRoomRepository.save(chatRoom);
     }
 
 }

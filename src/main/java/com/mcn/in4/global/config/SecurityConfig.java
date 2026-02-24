@@ -88,6 +88,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/employees/password")
                         .hasAnyRole("EMPLOYEE", "MANAGER", "ADMINISTRATOR")
 
+                        // 크리에이터 Todo (매니저, 크리에이터 공유)
+                        .requestMatchers("/api/creator-todo/**")
+                        .hasAnyRole("MANAGER", "CREATOR", "ADMINISTRATOR")
+
                         // 나머지경로
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

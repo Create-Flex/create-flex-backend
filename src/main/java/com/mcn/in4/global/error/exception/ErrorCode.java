@@ -57,13 +57,16 @@ public enum ErrorCode {
     CONTRACT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "계약서 파일이 존재하지 않습니다."),
     LEGALTAX_NOT_FOUND(HttpStatus.NOT_FOUND, "법률/세무 정보를 찾을 수 없습니다."),
 
-    // 9. 업무현황 (CreatorWork)
-    WORK_NOT_FOUND(HttpStatus.NOT_FOUND, "업무를 찾을 수 없습니다."),
+    // 10. 크리에이터 Todo (CreatorTodo)
+    TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "할 일을 찾을 수 없습니다."),
 
-    // 10. AI 챗봇 (AI)
+    // 11. AI 챗봇 (AI)
     AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 응답 생성 중 오류가 발생했습니다."),
-    AI_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI 서버에 연결할 수 없습니다.");
+    AI_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "AI 서버에 연결할 수 없습니다."),
 
+
+    // 11. 채팅방
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
     private final HttpStatus status;
     private final String message;
 }
