@@ -1,6 +1,9 @@
 package com.mcn.in4.domain.QnA.dto;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public class QARequestDto {
 
@@ -11,6 +14,7 @@ public class QARequestDto {
     public static class QuestionDto {
         private String questionTitle;
         private String questionDetail;
+        private List<MultipartFile> files;
     }
 
     @Getter
