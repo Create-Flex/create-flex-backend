@@ -244,4 +244,13 @@ public class ChatServiceImpl implements ChatService {
         chatRoomRepository.save(chatRoom);
     }
 
+    @Override
+    @Transactional
+    public void leaveRoom(String roomId, Long memberId) {
+        ChatRoomMember roomMember = chatRoomMemberRepository.findByChatRoom_RoomIdAndMember_MemberId(roomId, memberId)
+                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_ROOM_NOT_FOUND));
+        chatRoomMemberRepository.delete(roomMember);
+    }
+
+
 }
