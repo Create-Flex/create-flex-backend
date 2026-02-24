@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Slf4j
 @ControllerAdvice
@@ -66,7 +68,24 @@ public class GlobalExceptionHandler {
      * 그 외 모든 예외 처리
      */
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+    protected ResponseEntity<?> handleException(Exception e, HttpServletRequest request) {
+        // SSE 요청인지 확인 (Accept 헤더 또는 subscribe 경로)
+        String acceptHeader = request.getHeader("Accept");
+        boolean isSseRequest = (acceptHeader != null && acceptHeader.contains("text/event-stream")) ||
+                request.getRequestURI().contains("/subscribe");
+
+        if (isSseRequest) {
+            if (e instanceof IOException && (e.getMessage() != null &&
+                    (e.getMessage().contains("Broken pipe") || e.getMessage().contains("connection response")
+                            || e.getMessage().contains("software caused connection abort")))) {
+                log.info("SSE client disconnected: {}", e.getMessage());
+            } else {
+                log.warn("SSE exception occurred: {}", e.getMessage());
+            }
+            // SSE는 JSON 에러 응답을 보낼 수 없으므로 상태 코드만 반환
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+
         log.error("handleException", e);
         final ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
         return new ResponseEntity<>(response, ErrorCode.INTERNAL_SERVER_ERROR.getStatus());
