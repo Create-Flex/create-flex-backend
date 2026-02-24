@@ -1,12 +1,13 @@
 package com.mcn.in4.domain.QnA.service;
 
 import com.mcn.in4.domain.QnA.dto.QAResponseDto.*;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface QAService {
-    List<QATitle> generateQATitleList(Long memberId, Long listPage);
+    Page<QATitle> generateQATitleList(Long memberId, Long listPage);
 
     QADetail generateQADetail(Long qaId);
 

@@ -3,6 +3,7 @@ package com.mcn.in4.domain.QnA.controller;
 import com.mcn.in4.domain.QnA.service.QAService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +21,7 @@ public class QAController {
     private final QAService qaService;
 
     @GetMapping("/")
-    public List<QATitle> generateQATitleList(
+    public Page<QATitle> generateQATitleList(
             @AuthenticationPrincipal String userId,
             @RequestParam Long listPage){
         Long memberId = Long.parseLong(userId);

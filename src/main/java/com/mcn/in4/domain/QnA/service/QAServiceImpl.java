@@ -1,5 +1,6 @@
 package com.mcn.in4.domain.QnA.service;
 
+import com.mcn.in4.domain.QnA.dto.FileResponseDto;
 import com.mcn.in4.domain.QnA.entity.File;
 import com.mcn.in4.domain.QnA.entity.QABoard;
 import com.mcn.in4.domain.QnA.repository.FileRepository;
@@ -18,11 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mcn.in4.domain.QnA.dto.QAResponseDto.*;
 import com.mcn.in4.domain.member.entity.memberEnum.MemberRole;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -45,19 +50,15 @@ public class QAServiceImpl implements QAService{
     private String bucket;
 
     @Override
-    public List<QATitle> generateQATitleList(Long memberId, Long listPage){
+    public Page<QATitle> generateQATitleList(Long memberId, Long listPage){
         PageRequest pageRequest = PageRequest.of((listPage.intValue()-1), 10);
 
         Member member = memberRepository.findById(memberId).orElseThrow();
-        Page<QABoard> qaPages = (member.getMemberRole() == MemberRole.ADMINISTRATOR)
+        Page<QABoard> qaBoards = (member.getMemberRole() == MemberRole.ADMINISTRATOR)
             ? qaRepository.findAllByOrderByQuestionTimeDesc(pageRequest)
                 : qaRepository.findByQuestionMember_MemberIdOrderByQuestionTimeDesc(memberId, pageRequest);
 
-        List<QABoard> qaBoards = qaPages.getContent();
-
-        System.out.println("페이지 출력 \n" + qaBoards);
-
-        return qaBoards.stream().map(qaBoard -> QATitle.builder()
+        return qaBoards.map(qaBoard -> QATitle.builder()
                         .qaId(qaBoard.getQAId())
                         .questionTitle(qaBoard.getQuestionTitle())
                         .questionTime(qaBoard.getQuestionTime())
@@ -67,13 +68,37 @@ public class QAServiceImpl implements QAService{
                                 : "부서없음")
                         .answered(qaBoard.getAnswerTime() != null)
                         .build()
-                ).toList();
+                );
     }
 
     @Override
     public QADetail generateQADetail(Long qaId){
         QABoard qaBoard = qaRepository.findByQAId(qaId)
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 문의입니다."));
+
+        List<File> files = fileRepository.findByQaBoard_QAId(qaId);
+
+        List<FileResponseDto> fileResponse =  new ArrayList<>();
+
+        for(File file : files){
+
+            String fileEncoded = URLEncoder.encode(file.getFileName(), StandardCharsets.UTF_8);
+
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(file.getS3Key())
+                    .responseContentDisposition("attachment; filename=\"" + fileEncoded + "\"")
+                    .build();
+
+            PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner
+                    .presignGetObject(presignedRequest -> presignedRequest
+                            .signatureDuration(Duration.ofMinutes(10))
+                            .getObjectRequest(getObjectRequest));
+
+            String downloadUrl = presignedGetObjectRequest.url().toString();
+
+            fileResponse.add(new FileResponseDto(file.getFileName(), downloadUrl, file.getFileSize()));
+        }
 
         return QADetail.builder()
                 .qaId(qaBoard.getQAId())
@@ -84,6 +109,7 @@ public class QAServiceImpl implements QAService{
                         ? qaBoard.getQuestionMember().getDepartment().getDepartmentName()
                         : "부서없음")
                 .questionDetail(qaBoard.getQuestionDetail())
+                .files(fileResponse)
                 .answered(qaBoard.getAnswerTime() != null)
                 .answerTime(qaBoard.getAnswerTime())
                 .answerMemberName(qaBoard.getAnswerMember() != null
@@ -119,6 +145,7 @@ public class QAServiceImpl implements QAService{
                     .forEach(file -> {
                         String fileName = file.getOriginalFilename();
                         String s3key = "public/file/" + UUID.randomUUID().toString() + "/" + fileName;
+                        Long fileSize = file.getSize();
                         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                                 .bucket(bucket)
                                 .key(s3key)
@@ -135,16 +162,12 @@ public class QAServiceImpl implements QAService{
                                 .qaBoard(board)
                                 .fileName(fileName)
                                 .s3Key(s3key)
+                                .fileSize(fileSize)
                                 .build();
                         fileRepository.save(newFile);
                         list.add(presignedRequest.url().toString());
                     });
         }
-
-
-
-
-
 
         return QAFileUpload.builder()
                 .uploadURL(list)

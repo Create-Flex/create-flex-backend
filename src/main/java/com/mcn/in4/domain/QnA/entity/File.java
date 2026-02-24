@@ -22,6 +22,9 @@ public class File {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
+    @Column(name = "file_size", nullable = false)
+    private Long fileSize;
+
     @Column(name = "s3key", nullable = false)
     private String s3Key;
 }

@@ -34,6 +34,7 @@ public class QAResponseDto {
         private String questionMemberName;
         private String questionDepartmentName;
         private String questionDetail;
+        private List<FileResponseDto> files;
         private boolean answered;
 
         private LocalDateTime answerTime;
