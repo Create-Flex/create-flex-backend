@@ -6,7 +6,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 import com.mcn.in4.domain.member.entity.Member;
 
-
 @Entity
 @Table(name = "chat_room_member")
 @Getter

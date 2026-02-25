@@ -33,7 +33,6 @@ public class ChatRoomResponseDto {
         private Long memberId;
         private String memberName;
 
-
         public static MemberSimpleDto from(Member member) {
             return MemberSimpleDto.builder()
                     .memberId(member.getMemberId())
