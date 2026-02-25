@@ -10,31 +10,32 @@ import java.util.Optional;
 
 public interface CreatorDetailRepository extends JpaRepository<MemberCreatorDetail, Long> {
 
-    // 크리에이터 상세 정보 조회
-    @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
-            "JOIN FETCH mcd.memberCreator " +
-            "LEFT JOIN FETCH mcd.memberManager " +
-            "WHERE mcd.memberCreator.memberId = :creatorId")
-    Optional<MemberCreatorDetail> findByCreatorIdWithManager(@Param("creatorId") Long creatorId);
+        // 크리에이터 상세 정보 조회
+        @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
+                        "JOIN FETCH mcd.memberCreator " +
+                        "LEFT JOIN FETCH mcd.memberManager " +
+                        "WHERE mcd.memberCreator.memberId = :creatorId")
+        Optional<MemberCreatorDetail> findByCreatorIdWithManager(@Param("creatorId") Long creatorId);
 
-    // 사용한 여러 크리에이터 상세 정보 조회
-    @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
-            "JOIN FETCH mcd.memberCreator " +
-            "LEFT JOIN FETCH mcd.memberManager " +
-            "WHERE mcd.memberCreator.memberId IN :creatorIds")
-    List<MemberCreatorDetail> findByCreatorIdsWithManager(@Param("creatorIds") List<Long> creatorIds);
+        // 사용한 여러 크리에이터 상세 정보 조회
+        @Query("SELECT mcd FROM MemberCreatorDetail mcd " +
+                        "JOIN FETCH mcd.memberCreator " +
+                        "LEFT JOIN FETCH mcd.memberManager " +
+                        "WHERE mcd.memberCreator.memberId IN :creatorIds")
+        List<MemberCreatorDetail> findByCreatorIdsWithManager(@Param("creatorIds") List<Long> creatorIds);
 
-    // 크리에이터 ID로 크리에이터 상세 정보 삭제
-    void deleteByMemberCreator_MemberId(Long creatorId);
+        // 크리에이터 ID로 크리에이터 상세 정보 삭제
+        void deleteByMemberCreator_MemberId(Long creatorId);
 
-    // 매니저 ID로 크리에이터 상세 정보 조회
-    @Query("""
-                select mcd.memberCreator.memberId
-                from MemberCreatorDetail mcd
-                where mcd.memberManager.memberId = :managerMemberId
-            """)
-    List<Long> findCreatorIdsByManagerId(Long managerMemberId);
+        // 매니저 ID로 크리에이터 상세 정보 조회
+        @Query("""
+                            select mcd.memberCreator.memberId
+                            from MemberCreatorDetail mcd
+                            where mcd.memberManager.memberId = :managerMemberId
+                            and mcd.memberCreator.memberStatus = com.mcn.in4.domain.member.entity.memberEnum.MemberStatus.WORKING
+                        """)
+        List<Long> findCreatorIdsByManagerId(Long managerMemberId);
 
-    @Query("SELECT c.memberCreator.memberId FROM MemberCreatorDetail c")
-    List<Long> findCreatorIds();
+        @Query("SELECT c.memberCreator.memberId FROM MemberCreatorDetail c WHERE c.memberCreator.memberStatus = com.mcn.in4.domain.member.entity.memberEnum.MemberStatus.WORKING")
+        List<Long> findCreatorIds();
 }
