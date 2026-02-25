@@ -75,7 +75,8 @@ public class MemberServiceImpl implements MemberService {
                 // 4. 직원인 경우 상세 정보 조회 및 추가 (memberId로 직접 조회)
                 if (member.getMemberRole() == MemberRole.EMPLOYEE || member.getMemberRole() == MemberRole.MANAGER
                                 || member.getMemberRole() == MemberRole.ADMINISTRATOR) {
-                        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository.findByMemberMemberId(memberId)
+                        MemberEmployeeDetail employeeDetail = memberEmployeeDetailRepository
+                                        .findByMemberMemberId(memberId)
                                         .orElse(null);
 
                         if (employeeDetail != null) {
@@ -108,10 +109,14 @@ public class MemberServiceImpl implements MemberService {
                 Map<Long, String> profileMap = profiles.stream()
                                 .collect(Collectors.toMap(
                                                 p -> p.getMember().getMemberId(),
-                                                // p-> "https://" + bucket + ".s3." + region
-                                                // + ".amazonaws.com/" + p.getProfileImage() //S3에 이미지 파일이 올라갔을때 사용하는게
-                                                // 좋을것같음. 지금은 호스팅 된 웹 링크로 대체
-                                                p -> p.getProfileImage()));
+                                                p -> {
+                                                        String img = p.getProfileImage();
+                                                        if (img != null && !img.startsWith("http")) {
+                                                                return "https://" + bucket + ".s3." + region
+                                                                                + ".amazonaws.com/" + img;
+                                                        }
+                                                        return img;
+                                                }));
 
                 return members.stream()
                                 .map(member -> MemberSummaryDto

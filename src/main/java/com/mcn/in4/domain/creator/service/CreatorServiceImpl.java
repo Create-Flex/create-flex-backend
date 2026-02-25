@@ -36,6 +36,12 @@ public class CreatorServiceImpl implements CreatorService {
     private final MemberProfileRepository memberProfileRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @org.springframework.beans.factory.annotation.Value("${aws.region}")
+    private String region;
+
+    @org.springframework.beans.factory.annotation.Value("${aws.s3.bucket}")
+    private String bucket;
+
     // 크리에이터 생성
     @Override
     @Transactional
@@ -270,8 +276,17 @@ public class CreatorServiceImpl implements CreatorService {
     // 단일 크리에이터를 응답 DTO로 변환
     private CreatorResponseDTO.Info buildResponse(Member creator, MemberCreatorDetail detail,
             MemberProfile profile) {
-        return profile != null ? CreatorResponseDTO.Info.fromWithProfile(creator, detail,
-                profile.getProfileImage(), profile.getProfileBanner()) : CreatorResponseDTO.Info.from(creator, detail);
+        if (profile == null) {
+            return CreatorResponseDTO.Info.from(creator, detail);
+        }
+
+        String img = profile.getProfileImage();
+        if (img != null && !img.startsWith("http")) {
+            img = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + img;
+        }
+
+        return CreatorResponseDTO.Info.fromWithProfile(creator, detail,
+                img, profile.getProfileBanner());
     }
 
     // 크리에이터 기본 프로필 저장

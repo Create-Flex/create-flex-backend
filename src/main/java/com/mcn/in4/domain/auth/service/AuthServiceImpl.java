@@ -29,6 +29,11 @@ public class AuthServiceImpl implements AuthService {
         Member member = memberRepository.findByMemberAccount(request.getMemberAccount())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
+        // 계정 정지 여부 확인
+        if (member.getMemberStatus() == com.mcn.in4.domain.member.entity.memberEnum.MemberStatus.SUSPENDED) {
+            throw new IllegalArgumentException("정지된 계정입니다. 관리자에게 문의하세요.");
+        }
+
         // 해시 비밀번호 확인
         if (!passwordEncoder.matches(request.getPassword(), member.getMemberPassword())) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
@@ -39,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
         String Name = member.getMemberName();
 
         // Access Token 생성
-        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role,Name);
+        String accessToken = jwtTokenProvider.generateAccessToken(memberId, role, Name);
 
         // Refresh Token 생성 및 Redis 저장
         String refreshToken = jwtTokenProvider.generateRefreshToken(memberId);
