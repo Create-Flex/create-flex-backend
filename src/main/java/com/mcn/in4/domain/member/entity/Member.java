@@ -64,6 +64,10 @@ public class Member {
         this.department = department;
     }
 
+    public void updateMemberName(String memberName) {
+        this.memberName = memberName;
+    }
+
     // 비밀번호 변경 메서드
     public void updatePassword(String password) {
         this.memberPassword = password;

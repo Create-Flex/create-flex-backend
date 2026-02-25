@@ -67,6 +67,7 @@ public class EmployeeRequestDTO {
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class MyProfileUpdateDto {
+        private String memberName; // 이름
         private String nickname; // 닉네임
         private String personalEmail; // 개인 이메일
         private String personalCall; // 휴대전화
