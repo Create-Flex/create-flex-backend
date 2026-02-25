@@ -103,28 +103,25 @@ public class ChatServiceImpl implements ChatService {
                 // DTO의 Enum을 Entity의 Enum으로 변환
                 .type(ChatMessage.MessageType.valueOf(messageDto.getType().name()))
                 .build();
-        // 저장
+        // 메세지 저장 및 발신자 읽음 처리
         ChatMessage savedMessage = chatMessageRepository.save(chatMessage);
 
         String roomId = messageDto.getRoomId();
-        log.info("roomId={}", roomId);
         Long newMessageId = savedMessage.getId();
-        log.info("newMessageId={}", newMessageId);
-        List<Long> connectedMemberIds = findConnectedUsers(roomId);
-        log.info("connectedMemberIds={}", connectedMemberIds);
-        // 접속 멤버들 lastRead 업데이트
-        if (!connectedMemberIds.isEmpty()) {
-            chatRoomMemberRepository.updateLastReadMessageId(roomId, connectedMemberIds, newMessageId);
-        }
+        Long senderId = messageDto.getSenderId();
 
-        // unreadCount 계산
+        // 발신자 및 접속자 읽음 상태 업데이트
+        List<Long> membersToUpdate = new ArrayList<>(findConnectedUsers(roomId));
+        if (!membersToUpdate.contains(senderId)) {
+            membersToUpdate.add(senderId);
+        }
+        chatRoomMemberRepository.updateLastReadMessageId(roomId, membersToUpdate, newMessageId);
+
+        // 안읽은 인원수 계산
         long totalMembers = chatRoomMemberRepository.countByRoomId(roomId);
         long readMembers = chatRoomMemberRepository.countReadMembers(roomId, newMessageId);
 
-        long unreadCount = totalMembers - readMembers;
-        if (unreadCount < 0)
-            unreadCount = 0;
-
+        long unreadCount = Math.max(0, totalMembers - readMembers);
         messageDto.setUnreadCount(unreadCount);
 
         return savedMessage;
@@ -190,7 +187,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public List<ChatMessageDto> findMessages(String roomId, Long memberId, int size) {
-        // 처음 들어갔을때 20개 조회
+        // 채팅방 진입 시 메시지 조회
         Pageable pageable = PageRequest.of(0, size);
         List<ChatMessage> messages = chatMessageRepository.findLatestMessages(roomId, pageable);
 
@@ -247,7 +244,7 @@ public class ChatServiceImpl implements ChatService {
                 });
     }
 
-    // 메시지 DTO 변환 및 안읽은 인원 수 계산
+    // 메시지 목록 변환 및 각 메시지별 안읽은 인원수 합산
     private List<ChatMessageDto> convertToDtoWithUnreadCount(String roomId, List<ChatMessage> messages) {
         List<ChatRoomMember> allMembers = chatRoomMemberRepository.findAllByRoomIdWithMemberAndRoom(roomId);
         long totalMembers = allMembers.size();
@@ -256,7 +253,13 @@ public class ChatServiceImpl implements ChatService {
                 .map(msg -> {
                     ChatMessageDto dto = ChatMessageDto.from(msg);
                     long readCount = allMembers.stream()
-                            .filter(m -> m.getLastReadMessageId() != null && m.getLastReadMessageId() >= msg.getId())
+                            .filter(m -> {
+                                // 발신자 본인은 항상 읽음 처리하거나 마지막 읽은 메시지 확인
+                                boolean isSender = m.getMember().getMemberId().equals(msg.getSenderId());
+                                boolean hasRead = m.getLastReadMessageId() != null
+                                        && m.getLastReadMessageId() >= msg.getId();
+                                return isSender || hasRead;
+                            })
                             .count();
                     long unreadCount = totalMembers - readCount;
                     dto.setUnreadCount(Math.max(0, unreadCount));
