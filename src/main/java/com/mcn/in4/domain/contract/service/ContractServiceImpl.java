@@ -49,7 +49,7 @@ public class ContractServiceImpl implements ContractService {
 
                 if (file != null && !file.isEmpty()) {
                         String fileName = file.getOriginalFilename();
-                        String s3key = "public/" + UUID.randomUUID().toString() + "/" + fileName;
+                        String s3key = "public/contract/" + UUID.randomUUID().toString() + "/" + fileName;
 
                         // S3 업로드를 위한 Presigned URL 생성
                         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
