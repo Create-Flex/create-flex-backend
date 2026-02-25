@@ -23,8 +23,11 @@ public interface ChatService {
     // 메시지 저장
     ChatMessage saveMessage(ChatMessageDto messageDto);
 
-    // 특정 방의 이전 대화 내역 조회
-    List<ChatMessageDto> findMessages(String roomId, Long memberId);
+    // 처음 들어갔을때 조회
+    List<ChatMessageDto> findMessages(String roomId, Long memberId, int size);
+
+    // 이전 메세지 조회
+    List<ChatMessageDto> findOlderMessages(String roomId, Long lastId, int size);
 
     void updateRoomName(String roomId, String name);
 
