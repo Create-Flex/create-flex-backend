@@ -324,6 +324,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 detail.getEmploymentType() // 기존 값 유지
                 );
 
+                if (request.getMemberName() != null && !request.getMemberName().trim().isEmpty()) {
+                        member.updateMemberName(request.getMemberName().trim());
+                }
+
                 // 업데이트된 정보 반환
                 return getEmployeeDetail(memberId);
         }
