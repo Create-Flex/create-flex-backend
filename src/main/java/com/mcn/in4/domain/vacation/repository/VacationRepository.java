@@ -26,7 +26,7 @@ public interface VacationRepository extends JpaRepository<Vacation, Long>, JpaSp
         /** 내 휴가 목록 조회 (기간, 유형 필터 적용) */
         @Query("SELECT v FROM Vacation v " +
                         "WHERE v.member.memberId = :memberId " +
-                        "AND v.vacationRequest BETWEEN :startDate AND :endDate " +
+                        "AND v.vacationStart BETWEEN :startDate AND :endDate " +
                         "AND (:type IS NULL OR v.vacationType = :type) " +
                         "ORDER BY v.vacationRequest DESC")
         List<Vacation> findMyVacationsWithFilters(
@@ -38,7 +38,7 @@ public interface VacationRepository extends JpaRepository<Vacation, Long>, JpaSp
         /** 내 휴가 목록 조회 - 페이징 적용 (기간, 유형 필터 적용) */
         @Query("SELECT v FROM Vacation v " +
                         "WHERE v.member.memberId = :memberId " +
-                        "AND v.vacationRequest BETWEEN :startDate AND :endDate " +
+                        "AND v.vacationStart BETWEEN :startDate AND :endDate " +
                         "AND (:type IS NULL OR v.vacationType = :type)")
         Page<Vacation> findMyVacationsWithFiltersPaged(
                         @Param("memberId") Long memberId,
