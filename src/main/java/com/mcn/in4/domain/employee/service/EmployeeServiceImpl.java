@@ -81,107 +81,114 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 직원 리스트
         @Override
         @Transactional(readOnly = true)
-        public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList(String name, Pageable pageable) {
+        public EmployeeResponseDTO.EmployeeManagementResponseDto getEmployeeManagementList(String name,
+                        Pageable pageable) {
                 LocalDate today = LocalDate.now();
 
-            //  멤버 페이징 조회 (CREATOR 제외 로직 적용)
-            Page<Member> memberPage;
-            if (name != null && !name.trim().isEmpty()) {
-                // 이름 검색 시 CREATOR 제외
-                memberPage = memberRepository.searchByNameAndRoleNot(name.trim(), MemberRole.CREATOR, pageable);
-            } else {
-                // 전체 조회 시 CREATOR 제외
-                memberPage = memberRepository.findByMemberRoleNot(MemberRole.CREATOR, pageable);
-            }
-
-            List<Member> members = memberPage.getContent();
-
-            // 조회된 회원들의 ID 리스트 추출
-            List<Long> memberIds = members.stream()
-                    .map(Member::getMemberId)
-                    .collect(Collectors.toList());
-
-            // 연관 데이터 일괄 조회 (Batch Fetching)
-            Map<Long, MemberEmployeeDetail> detailMap = new HashMap<>();
-            Map<Long, Attendance> attendanceMap = new HashMap<>();
-
-            if (!memberIds.isEmpty()) {
-                // ID 리스트로 한 번에 조회 후 Map 변환
-                List<MemberEmployeeDetail> details = detailRepository.findByMemberMemberIdIn(memberIds);
-                detailMap = details.stream()
-                        .collect(Collectors.toMap(d -> d.getMember().getMemberId(), d -> d));
-
-                // ID 리스트로 한 번에 조회 후 Map 변환
-                List<Attendance> attendances = attendanceRepository.findByAttendanceDateAndMemberMemberIdIn(today, memberIds);
-                attendanceMap = attendances.stream()
-                        .collect(Collectors.toMap(a -> a.getMember().getMemberId(), a -> a));
-            }
-
-            Map<Long, MemberEmployeeDetail> finalDetailMap = detailMap;
-            Map<Long, Attendance> finalAttendanceMap = attendanceMap;
-
-            List<EmployeeResponseDTO.EmployeeListDto> list = members.stream().map(member -> {
-                Long memberId = member.getMemberId();
-
-                MemberEmployeeDetail detail = finalDetailMap.get(memberId);
-                Attendance attendance = finalAttendanceMap.get(memberId);
-
-                // 상태 텍스트 계산
-                String statusText;
-                if (attendance == null) {
-                    statusText = "미출근";
-                } else if (attendance.getCheckOutStatus() == null) {
-                    statusText = "근무중";
+                // 특정 권한(CREATOR) 및 퇴사 상태(SUSPENDED)를 제외한 멤버 페이징 조회
+                Page<Member> memberPage;
+                if (name != null && !name.trim().isEmpty()) {
+                        // 이름 검색 시 특정 권한 및 퇴사 상태 제외
+                        memberPage = memberRepository.searchByNameAndRoleNotAndStatusNot(name.trim(),
+                                        MemberRole.CREATOR, MemberStatus.SUSPENDED, pageable);
                 } else {
-                    statusText = attendance.getCheckOutStatus() == CheckOutStatus.NORMAL ? "정상" : attendance.getCheckOutStatus().getDescription();
+                        // 전체 조회 시 특정 권한 및 퇴사 상태 제외
+                        memberPage = memberRepository.findByMemberRoleNotAndMemberStatusNot(MemberRole.CREATOR,
+                                        MemberStatus.SUSPENDED, pageable);
                 }
 
-                return EmployeeResponseDTO.EmployeeListDto.builder()
-                        .memberid(memberId)
-                        .memberName(member.getMemberName())
-                        .departmentName(member.getDepartment() != null ? member.getDepartment().getDepartmentName() : "소속 없음")
-                        .task(member.getTask())
-                        .memberAccount(member.getMemberAccount())
-                        .corporEmail(detail != null ? detail.getCorporEmail() : null)
-                        .personalCall(detail != null ? detail.getPersonalCall() : null)
-                        .hireDate(detail != null ? detail.getHireDate() : null)
-                        .attendanceStatus(statusText)
-                        .build();
-            }).collect(Collectors.toList());
+                List<Member> members = memberPage.getContent();
 
-            // 전체 사원 수 (CREATOR 제외)
-            long totalCount = memberRepository.countByMemberRoleNot(MemberRole.CREATOR);
+                // 조회된 회원들의 ID 리스트 추출
+                List<Long> memberIds = members.stream()
+                                .map(Member::getMemberId)
+                                .collect(Collectors.toList());
 
-            // 오늘 출근한 전체 인원 계산 (근무중 + 퇴근자 포함)
-            List<Attendance> allTodayAttendances = attendanceRepository.findAllByAttendanceDate(today);
-            long workingCount = allTodayAttendances.size(); // 오늘 출근 기록이 있으면 일단 '근무 가능 인원'으로 간주
+                // 연관 데이터 일괄 조회 (Batch Fetching)
+                Map<Long, MemberEmployeeDetail> detailMap = new HashMap<>();
+                Map<Long, Attendance> attendanceMap = new HashMap<>();
 
-            // 휴가 중인 인원 (기존 방식 유지)
-            long vacationCount = vacationRepository.countActiveVacations(today, VacationApprove.APPROVED);
+                if (!memberIds.isEmpty()) {
+                        // ID 리스트로 한 번에 조회 후 Map 변환
+                        List<MemberEmployeeDetail> details = detailRepository.findByMemberMemberIdIn(memberIds);
+                        detailMap = details.stream()
+                                        .collect(Collectors.toMap(d -> d.getMember().getMemberId(), d -> d));
 
-            // 신규 입사자 (1년 이내 입사자 전체 카운트)
-            List<MemberEmployeeDetail> allDetails = detailRepository.findAll();
-            long newHireCount = allDetails.stream()
-                    .filter(d -> d.getHireDate() != null)
-                    .filter(d -> !LocalDate.parse(d.getHireDate()).isBefore(today.minusYears(1)))
-                    .count();
+                        // ID 리스트로 한 번에 조회 후 Map 변환
+                        List<Attendance> attendances = attendanceRepository
+                                        .findByAttendanceDateAndMemberMemberIdIn(today, memberIds);
+                        attendanceMap = attendances.stream()
+                                        .collect(Collectors.toMap(a -> a.getMember().getMemberId(), a -> a));
+                }
 
+                Map<Long, MemberEmployeeDetail> finalDetailMap = detailMap;
+                Map<Long, Attendance> finalAttendanceMap = attendanceMap;
 
-            return EmployeeResponseDTO.EmployeeManagementResponseDto.builder()
-                    .summary(EmployeeResponseDTO.EmployeeSummaryDto.builder()
-                            .totalCount(totalCount)
-                            .workingCount(workingCount)
-                            .vacationCount(vacationCount)
-                            .newHireCount(newHireCount)
-                            .build())
-                    .list(list)
-                    .pageInfo(EmployeeResponseDTO.PageInfo.builder() // 프론트엔드용 페이징 정보
-                            .currentPage(memberPage.getNumber() + 1) // 1페이지부터 시작
-                            .totalPages(memberPage.getTotalPages())
-                            .totalElements(memberPage.getTotalElements())
-                            .size(memberPage.getSize())
-                            .build())
-                    .build();
+                List<EmployeeResponseDTO.EmployeeListDto> list = members.stream().map(member -> {
+                        Long memberId = member.getMemberId();
+
+                        MemberEmployeeDetail detail = finalDetailMap.get(memberId);
+                        Attendance attendance = finalAttendanceMap.get(memberId);
+
+                        // 상태 텍스트 계산
+                        String statusText;
+                        if (attendance == null) {
+                                statusText = "미출근";
+                        } else if (attendance.getCheckOutStatus() == null) {
+                                statusText = "근무중";
+                        } else {
+                                statusText = attendance.getCheckOutStatus() == CheckOutStatus.NORMAL ? "정상"
+                                                : attendance.getCheckOutStatus().getDescription();
+                        }
+
+                        return EmployeeResponseDTO.EmployeeListDto.builder()
+                                        .memberid(memberId)
+                                        .memberName(member.getMemberName())
+                                        .departmentName(member.getDepartment() != null
+                                                        ? member.getDepartment().getDepartmentName()
+                                                        : "소속 없음")
+                                        .task(member.getTask())
+                                        .memberAccount(member.getMemberAccount())
+                                        .corporEmail(detail != null ? detail.getCorporEmail() : null)
+                                        .personalCall(detail != null ? detail.getPersonalCall() : null)
+                                        .hireDate(detail != null ? detail.getHireDate() : null)
+                                        .attendanceStatus(statusText)
+                                        .build();
+                }).collect(Collectors.toList());
+
+                // 특정 권한 및 퇴사 상태를 제외한 전체 활성 사원 수 조회
+                long totalCount = memberRepository.countByMemberRoleNotAndMemberStatusNot(MemberRole.CREATOR,
+                                MemberStatus.SUSPENDED);
+
+                // 오늘 출근한 전체 인원 계산 (근무중 + 퇴근자 포함)
+                List<Attendance> allTodayAttendances = attendanceRepository.findAllByAttendanceDate(today);
+                long workingCount = allTodayAttendances.size(); // 오늘 출근 기록이 있으면 일단 '근무 가능 인원'으로 간주
+
+                // 휴가 중인 인원 (기존 방식 유지)
+                long vacationCount = vacationRepository.countActiveVacations(today, VacationApprove.APPROVED);
+
+                // 신규 입사자 (1년 이내 입사자 전체 카운트)
+                List<MemberEmployeeDetail> allDetails = detailRepository.findAll();
+                long newHireCount = allDetails.stream()
+                                .filter(d -> d.getHireDate() != null)
+                                .filter(d -> !LocalDate.parse(d.getHireDate()).isBefore(today.minusYears(1)))
+                                .count();
+
+                return EmployeeResponseDTO.EmployeeManagementResponseDto.builder()
+                                .summary(EmployeeResponseDTO.EmployeeSummaryDto.builder()
+                                                .totalCount(totalCount)
+                                                .workingCount(workingCount)
+                                                .vacationCount(vacationCount)
+                                                .newHireCount(newHireCount)
+                                                .build())
+                                .list(list)
+                                .pageInfo(EmployeeResponseDTO.PageInfo.builder() // 프론트엔드용 페이징 정보
+                                                .currentPage(memberPage.getNumber() + 1) // 1페이지부터 시작
+                                                .totalPages(memberPage.getTotalPages())
+                                                .totalElements(memberPage.getTotalElements())
+                                                .size(memberPage.getSize())
+                                                .build())
+                                .build();
         }
 
         // 직원 등록 기능
@@ -317,7 +324,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                                 detail.getEmploymentType() // 기존 값 유지
                 );
 
-                //업데이트된 정보 반환
+                // 업데이트된 정보 반환
                 return getEmployeeDetail(memberId);
         }
 

@@ -30,7 +30,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
         List<Member> findAllById(Iterable<Long> ids);
 
+        // 특정 역할을 제외한 전체 멤버 수 조회
         long countByMemberRoleNot(MemberRole memberRole);
+
+        // 특정 역할 및 정지 상태를 제외한 활성 멤버 수 조회
+        long countByMemberRoleNotAndMemberStatusNot(MemberRole role, MemberStatus status);
 
         List<Member> findByMemberNameContainingAndMemberIdIn(String memberName, List<Long> memberIds);
 
@@ -63,13 +67,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         Page<Member> findByMemberNameContainingIgnoreCaseAndMemberRoleNot(String name, MemberRole role,
                         Pageable pageable);
 
-        // 전체 조회, 권한(CREATOR)은 제외
-        Page<Member> findByMemberRoleNot(MemberRole role, Pageable pageable);
-
-        @Query("SELECT m FROM Member m WHERE m.memberName LIKE %:keyword% AND m.memberRole <> :excludeRole")
-        Page<Member> searchByNameAndRoleNot(
+        // 이름으로 검색하되 특정 역할 및 정지 상태는 제외
+        @Query("SELECT m FROM Member m WHERE m.memberName LIKE %:keyword% AND m.memberRole <> :excludeRole AND m.memberStatus <> :status")
+        Page<Member> searchByNameAndRoleNotAndStatusNot(
                         @Param("keyword") String keyword,
                         @Param("excludeRole") MemberRole excludeRole,
+                        @Param("status") MemberStatus status,
                         Pageable pageable);
+
+        // 특정 역할 및 정지 상태를 제외한 전체 목록 조회
+        Page<Member> findByMemberRoleNotAndMemberStatusNot(MemberRole role, MemberStatus status, Pageable pageable);
 
 }
