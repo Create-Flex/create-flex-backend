@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers("/ws-stomp/**").permitAll()
+                        .requestMatchers("/ws-stomp/**", "/api/ws-stomp/**").permitAll()
                         // 인증없이 가능한 경우
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/reissue").permitAll()
@@ -109,7 +109,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        corsConfiguration.setAllowedOriginPatterns(Arrays.asList("*")); // S3 등 모든 출처 허용
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true); // 인증정보를 포함한 cors요청 허용
