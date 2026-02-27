@@ -54,10 +54,10 @@ public interface AttendanceApi {
                         @Parameter(hidden = true) Pageable pageable);
 
         @Operation(summary = "출근 처리", description = "현재 시간으로 출근을 기록합니다. 크리에이터는 출근 처리를 할 수 없습니다.")
-        @ApiResponse(responseCode = "200", description = "출근 처리 성공")
+        @ApiResponse(responseCode = "200", description = "출근 처리 성공 - { attendanceStart: 'yyyy-MM-ddTHH:mm:ss' }")
         @ApiResponse(responseCode = "400", description = "이미 출근 처리됨")
         @ApiResponse(responseCode = "403", description = "권한 없음 (크리에이터)")
-        ResponseEntity<String> checkIn(
+        ResponseEntity<?> checkIn(
                         @Parameter(hidden = true) @AuthenticationPrincipal String userId,
                         @Parameter(hidden = true) Authentication authentication);
 

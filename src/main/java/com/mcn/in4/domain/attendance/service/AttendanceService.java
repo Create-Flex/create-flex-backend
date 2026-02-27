@@ -7,6 +7,7 @@ import com.mcn.in4.domain.attendance.dto.CompanyAttendanceDashboardDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public interface AttendanceService {
         /**
@@ -37,10 +38,11 @@ public interface AttendanceService {
 
         /**
          * 출근 처리
-         * 
+         *
          * @param memberId 직원 ID
+         * @return 서버에 저장된 attendanceStart (프론트 타이머 기준값으로 사용)
          */
-        void checkIn(Long memberId);
+        LocalDateTime checkIn(Long memberId);
 
         /**
          * 퇴근 처리
