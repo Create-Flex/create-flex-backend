@@ -9,6 +9,7 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.model.Media;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
@@ -60,7 +61,13 @@ public class ImageServiceImpl implements ImageService {
             );
 
             // AI 호출 및 결과 파싱
-            ChatResponse response = openAiChatModel.call(new Prompt(userMessage));
+            ChatResponse response = openAiChatModel.call(new Prompt(
+                    userMessage,
+                    OpenAiChatOptions.builder()
+                            .model("gpt-4o-mini")
+                            .temperature(0.1)
+                            .build()
+            ));
             String content = response.getResult().getOutput().getText();
 
             // JSON 문자열을 DTO로 변환하여 반환
