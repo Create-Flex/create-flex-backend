@@ -16,6 +16,8 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
@@ -67,7 +69,7 @@ public class ContractServiceImpl implements ContractService {
                         presignedUrl = presignedRequest.url().toString();
 
                         // S3에서 파일을 조회할 수 있는 URL
-                        contractFileUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + s3key;
+                        contractFileUrl = "https://" + bucket + ".s3." + region + ".amazonaws.com/" + URLEncoder.encode(s3key, StandardCharsets.UTF_8);
                 }
 
                 // 계약 엔티티 생성 및 저장
