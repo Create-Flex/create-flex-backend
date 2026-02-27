@@ -137,6 +137,15 @@ public class CreatorTodoService {
     }
 
     /**
+     * Todo 단건 조회
+     */
+    public CreatorTodoDto getTodoById(Long todoId) {
+        CreatorTodo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TODO_NOT_FOUND));
+        return CreatorTodoDto.from(todo);
+    }
+
+    /**
      * Todo 삭제
      */
     @Transactional

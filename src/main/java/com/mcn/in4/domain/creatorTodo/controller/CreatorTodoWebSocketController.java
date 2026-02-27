@@ -62,18 +62,30 @@ public class CreatorTodoWebSocketController {
     /**
      * Todo 생성 알림 (다른 사용자에게 실시간 반영)
      * 클라이언트: /pub/todo/create
+     * todoId를 받아 DB에서 직접 조회 후 브로드캐스트 → createdByName 누락 방지
      */
     @MessageMapping("/todo/create")
     public void notifyTodoCreated(@Payload Map<String, Object> payload) {
         Long creatorId = Long.valueOf(payload.get("creatorId").toString());
+        Long todoId = Long.valueOf(payload.get("todoId").toString());
+
+        // DB에서 저장된 Todo 전체 데이터 조회 (createdByName 포함)
+        var todo = todoService.getTodoById(todoId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("type", "TODO_CREATED");
-        response.putAll(payload);
+        response.put("todoId", todo.getId());
+        response.put("columnId", todo.getColumnId());
+        response.put("content", todo.getContent());
+        response.put("position", todo.getPosition());
+        response.put("createdBy", todo.getCreatedBy());
+        response.put("createdByName", todo.getCreatedByName());
+        response.put("createdAt", todo.getCreatedAt() != null ? todo.getCreatedAt().toString() : null);
+        response.put("clientUuid", payload.get("clientUuid"));
 
         String destination = "/sub/creator-todo/" + creatorId;
         messagingTemplate.convertAndSend(destination, response);
-        log.info(">>> Todo 생성 알림: creatorId={}", creatorId);
+        log.info(">>> Todo 생성 알림: creatorId={}, todoId={}, createdByName={}", creatorId, todoId, todo.getCreatedByName());
     }
 
     /**

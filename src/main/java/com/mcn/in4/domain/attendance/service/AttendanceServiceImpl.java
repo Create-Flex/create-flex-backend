@@ -67,7 +67,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     @Transactional
-    public void checkIn(Long memberId) {
+    public LocalDateTime checkIn(Long memberId) {
         // 이미 오늘 출근 기록이 있는지 확인 (중복 출근 방지)
         if (attendanceRepository.findByMemberIdAndAttendanceDate(memberId, LocalDate.now()).isPresent()) {
             throw new CustomException(ErrorCode.ATTENDANCE_ALREADY_MARKED);
@@ -122,6 +122,7 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .build();
 
         attendanceRepository.save(attendance);
+        return now;
     }
 
     @Override

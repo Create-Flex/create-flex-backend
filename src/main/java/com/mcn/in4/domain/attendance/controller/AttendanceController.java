@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -159,7 +161,7 @@ public class AttendanceController implements AttendanceApi {
      * @return 처리 결과 메시지
      */
     @PostMapping("/check-in")
-    public ResponseEntity<String> checkIn(@AuthenticationPrincipal String userId,
+    public ResponseEntity<?> checkIn(@AuthenticationPrincipal String userId,
             Authentication authentication) {
         boolean isCreator = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_CREATOR"));
@@ -168,8 +170,8 @@ public class AttendanceController implements AttendanceApi {
             return ResponseEntity.status(403).body("크리에이터는 출근 처리를 할 수 없습니다.");
         }
 
-        attendanceService.checkIn(Long.parseLong(userId));
-        return ResponseEntity.ok("출근 처리되었습니다.");
+        LocalDateTime attendanceStart = attendanceService.checkIn(Long.parseLong(userId));
+        return ResponseEntity.ok(Map.of("attendanceStart", attendanceStart.toString()));
     }
 
     /**
